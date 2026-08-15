@@ -1,6 +1,6 @@
 # Project Status
 
-Current Phase: Phase 1 implementation attempt 1 awaiting independent validation
+Current Phase: Phase 2 implementation attempt 1 awaiting independent validation
 
 ## Completed
 - Repository cloned
@@ -89,17 +89,23 @@ Current Phase: Phase 1 implementation attempt 1 awaiting independent validation
   the plot and artifacts, reran the full suite (124 passing), and returned exact
   PASS. The validation report is preserved at
   `orchestration/state/phase_0_attempt_2_validator_pass_20260815.txt`.
+- Independent Phase 1 validation returned exact PASS. The strict schema-version-2
+  checkpoint is preserved at `orchestration/state/checkpoints/phase_1_passed.json`.
+- Phase 2 Feature Agent attempt 1 implemented 40 deterministic past-only candidate
+  features, including shifted lag/rolling/EMA/change features, known-date calendar,
+  cyclical, Fourier, Ontario holiday features, and exact-calendar previous-week/year
+  values. Feature selection was explicitly deferred to Phase 3 and no validation or
+  test partition was accessed. Focused tests pass (3), full discovery passes (129),
+  and evidence is preserved under `artifacts/phase2/phase2_attempt_1_20260815T204500Z/`
+  and `orchestration/state/phase_2_attempt_1_20260815T203808Z.txt`.
 
 ## Current
-Phase 0 attempt 2 is approved after exact independent validator PASS. Phase 1
-Data Agent attempt 1 implemented non-mutating validation and EDA for the supplied
-London dataset. Focused tests and full discovery pass (126 tests), and the
-authoritative attempt artifacts are preserved under
-`artifacts/phase1/phase1_attempt_1_final_20260815T203000Z/`. Two source-data
-calendar gaps totaling 282 missing dates are reported; source order and bytes
-remain unchanged. Independent Phase 1 validation has not been invoked.
+Phase 0 attempt 2 and Phase 1 attempt 1 are approved after exact independent
+validator PASS. Phase 2 Feature Agent attempt 1 is implemented and awaiting
+independent validation. Source order, row count, and bytes remain unchanged;
+warm-up and source-gap feature values remain missing rather than being imputed.
 
 ## Next
-The supervisor may invoke independent read-only Phase 1 validation. Do not
-advance to Phase 2 unless the validator returns exact PASS. Preserve the locked
-Phase 0 evidence, all Phase 1 outputs, and the source dataset.
+The supervisor may invoke independent read-only Phase 2 validation. Do not
+advance to Phase 3 unless the validator returns exact PASS. Preserve all approved
+Phase 0/1 evidence, Phase 2 attempt outputs, and the source dataset.
