@@ -1,6 +1,6 @@
 # Project Status
 
-Current Phase: Auto-checkpoint recovery repair implemented; Phase 5 remains independently validated
+Current Phase: Phase 6 implemented and tested; awaiting independent validation
 
 ## Completed
 - Repository cloned
@@ -144,13 +144,20 @@ Current Phase: Auto-checkpoint recovery repair implemented; Phase 5 remains inde
   current phase, and restart recovery detects a structurally valid latest PASS
   checkpoint missing its Git commit, safety-reviews and commits that phase delta,
   then continues without rerunning the validated phase.
+- Phase 6 ML Agent attempt 1 implemented five-fold expanding-window cross-validation
+  with `TimeSeriesSplit`. The naive lag-1 baseline and all ten approved traditional
+  models are evaluated independently in every fold; preprocessing is fitted only on
+  each fold's training prefix. Fold metrics/predictions/models, aggregate mean and
+  sample-standard-deviation metrics, split evidence, diagnostics, configuration,
+  hashes, seeds, and logs are preserved under
+  `artifacts/phase6/phase6_attempt_1_20260815T233000Z/`. Focused tests pass (3),
+  full discovery passes (184), and no tuning or improvement claim was made.
 
 ## Current
-Phases 0 through 5 are approved after exact independent validator PASS. Phase 5
-attempt 1 and repaired attempt 2 artifacts are preserved; its local checkpoint
-commit awaits safe recovery after this orchestration repair is reviewed.
+Phases 0 through 5 are approved after exact independent validator PASS. Phase 6
+attempt 1 is implemented and tested but is not complete until independent validator
+PASS. Phase 5 attempt 1 and repaired attempt 2 artifacts remain preserved.
 
 ## Next
-Validate this orchestration repair without running Phase 5, Phase 6, or any ML
-experiment. A later `--auto` invocation may recover the missing Phase 5 local
-commit and continue at Phase 6.
+Independently validate Phase 6. Do not advance to Phase 7 unless the validator
+returns exact PASS.

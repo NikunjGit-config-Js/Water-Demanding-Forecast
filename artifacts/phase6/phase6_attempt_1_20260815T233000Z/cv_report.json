@@ -1,0 +1,110 @@
+{
+  "chronological_order_preserved": true,
+  "expanding_window": true,
+  "experiment": "Test 2 five-fold expanding-window cross-validation",
+  "folds": [
+    {
+      "fold": 1,
+      "training_end_date_inclusive": "2011-03-27",
+      "training_rows": 635,
+      "training_start_date": "2009-07-01",
+      "validation_end_date_inclusive": "2012-12-19",
+      "validation_rows": 633,
+      "validation_start_date": "2011-03-28"
+    },
+    {
+      "fold": 2,
+      "training_end_date_inclusive": "2012-12-19",
+      "training_rows": 1268,
+      "training_start_date": "2009-07-01",
+      "validation_end_date_inclusive": "2015-04-15",
+      "validation_rows": 633,
+      "validation_start_date": "2012-12-20"
+    },
+    {
+      "fold": 3,
+      "training_end_date_inclusive": "2015-04-15",
+      "training_rows": 1901,
+      "training_start_date": "2009-07-01",
+      "validation_end_date_inclusive": "2017-01-07",
+      "validation_rows": 633,
+      "validation_start_date": "2015-04-16"
+    },
+    {
+      "fold": 4,
+      "training_end_date_inclusive": "2017-01-07",
+      "training_rows": 2534,
+      "training_start_date": "2009-07-01",
+      "validation_end_date_inclusive": "2018-12-09",
+      "validation_rows": 633,
+      "validation_start_date": "2017-01-08"
+    },
+    {
+      "fold": 5,
+      "training_end_date_inclusive": "2018-12-09",
+      "training_rows": 3167,
+      "training_start_date": "2009-07-01",
+      "validation_end_date_inclusive": "2020-09-02",
+      "validation_rows": 633,
+      "validation_start_date": "2018-12-10"
+    }
+  ],
+  "hyperparameter_optimization_performed": false,
+  "improvement_claimed": false,
+  "lowest_mean_cv_mae_model_descriptive_only": "naive_lag_1",
+  "metric_aggregation": "unweighted mean and sample standard deviation across five folds",
+  "model_names": [
+    "linear_regression",
+    "ridge",
+    "lasso",
+    "decision_tree",
+    "knn",
+    "svr",
+    "random_forest",
+    "bagging",
+    "gradient_boosting",
+    "voting"
+  ],
+  "n_splits": 5,
+  "phase": "Phase 6",
+  "phase2_features_sha256": "a01313f30cd58cebc14b9a2d16bd1098bc63f2e62facbd6ed3c137de0ab6ab37",
+  "phase3_selection_report_sha256": "81e780b220f64bb37451a5c3ea1d8da4de0ebac25d9eb7f386e58f42daad3eed",
+  "preprocessing_fit_scope": "each model Pipeline fitted independently on each fold's training rows only",
+  "row_count": 3800,
+  "scaled_models": [
+    "knn",
+    "lasso",
+    "linear_regression",
+    "ridge",
+    "svr"
+  ],
+  "selected_features": [
+    "consumption_lag_1",
+    "same_period_previous_year",
+    "fourier_yearly_cos_1",
+    "fourier_yearly_cos_2",
+    "rolling_std_30",
+    "consumption_lag_14",
+    "rolling_slope_30",
+    "fourier_yearly_sin_2",
+    "day_over_day_change",
+    "day_of_year_sin",
+    "consumption_lag_365",
+    "rolling_max_30",
+    "growth_7d",
+    "rolling_min_30",
+    "rolling_std_7",
+    "is_canada_ontario_holiday",
+    "consumption_lag_30",
+    "rolling_slope_7",
+    "fourier_weekly_cos_2",
+    "day_of_week_sin"
+  ],
+  "shuffle_used": false,
+  "simple_baselines": [
+    "naive_lag_1",
+    "linear_regression"
+  ],
+  "splitter": "sklearn.model_selection.TimeSeriesSplit",
+  "validation_folds_used_for_fitting_or_tuning": false
+}
