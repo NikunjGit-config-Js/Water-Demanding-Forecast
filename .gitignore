@@ -215,3 +215,9 @@ com_crashlytics_export_strings.xml
 crashlytics.properties
 crashlytics-build.properties
 fabric.properties
+# Agent orchestration runtime
+orchestration/logs/
+orchestration/state/*
+!orchestration/state/post_correction_read_only_smoke.txt
+__pycache__/
+.pytest_cache/
