@@ -1,0 +1,4 @@
+model,cv_mean_mae
+ridge,422.41359582698885
+random_forest,513.6803113742895
+gradient_boosting,540.3192673595436

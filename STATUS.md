@@ -1,6 +1,6 @@
 # Project Status
 
-Current Phase: Phase 6 implemented and tested; awaiting independent validation
+Current Phase: Phase 8 implemented and tested; awaiting independent validation
 
 ## Completed
 - Repository cloned
@@ -160,12 +160,50 @@ Current Phase: Phase 6 implemented and tested; awaiting independent validation
   dates, and row-level diagnostics. The prediction and model hashes are unchanged.
   Focused tests pass (3), full discovery passes (187), and repair evidence is
   preserved in the Phase 7 artifact directory.
+- Independent Phase 7 validation returned exact PASS and its validated local
+  checkpoint commit is `1fbfa90`.
+- Phase 8 ML Agent attempt 1 implemented validation-only Optuna optimization over
+  five expanding `TimeSeriesSplit` folds. Ridge, random forest, and gradient
+  boosting trials minimize mean fold MAE; every trial and final comparison fits
+  preprocessing independently on the corresponding training prefix. Naive lag-1
+  and linear-regression baselines are preserved alongside fold metrics,
+  predictions, fitted fold models, diagnostics, configuration, hashes, seeds, and
+  logs under `artifacts/phase8/phase8_attempt_1_20260815T230000Z/`. The naive
+  baseline outperformed all tuned candidates, so no improvement claim was made.
+  Focused tests pass (3), full discovery passes (190), and implementation evidence
+  is preserved at
+  `orchestration/state/phase_8_attempt_1_ml_agent_evidence_20260815.txt`.
+- Independent validation rejected Phase 8 attempt 1 because its fixed Phase 3
+  feature set had seen observations after folds 1--4 training boundaries. Those
+  attempt-1 metrics are preserved for audit history but are invalid and must not
+  be used as Phase 8 results.
+- Phase 8 ML Agent repair attempt 2 initially refit feature selection per outer
+  fold, but independent review rejected its globally selected hyperparameters.
+  The interim `phase8_attempt_2_20260815T235500Z` outputs remain preserved but
+  invalid. The final repair uses fully nested chronology: each outer fold has
+  five inner folds, selection is fitted on every inner training prefix, and each
+  model family's parameters and winning candidate are selected without outer
+  validation access. The matching outer-training-only selection and parameters
+  drive each final candidate evaluation. The strengthened two-trial regression
+  test proves arbitrary post-boundary changes cannot alter fold-1 selected
+  features, complete trial records/objectives, selected parameters/trial,
+  preprocessing state, fitted winner, or fixed-input predictions. All 300 trials
+  and every metric, prediction, model, report, plot, hash, and log were regenerated
+  under `artifacts/phase8/phase8_attempt_2_final_20260816T003000Z/`. Full discovery
+  passes (190 tests); 40 artifact hashes and saved prediction metrics were
+  independently recomputed. Evidence is preserved at
+  `orchestration/state/phase_8_attempt_2_ml_agent_evidence_20260815.txt`.
+- Independent final revalidation returned exact PASS. The Validator confirmed
+  nested chronology, training-only selection/tuning, fold-local parameters and
+  winners, 40/40 hashes, independently recomputed saved-model metrics, consistent
+  artifact counts, 190 passing tests, and a clean `git diff --check`. The report
+  is preserved at
+  `orchestration/state/phase_8_attempt_2_validator_pass_20260816.txt`.
 
 ## Current
-Phases 0 through 6 are approved after exact independent validator PASS. Phase 7
-repair attempt 2 is implemented and tested but is not complete until independent
-validator PASS. Earlier Phase 5 and Phase 7 artifacts remain preserved.
+Phases 0 through 8 are approved after exact independent validator PASS. Phase 8
+attempt 1 and the non-nested attempt-2 interim run remain preserved but invalid.
+Earlier Phase 5 and Phase 7 artifacts remain preserved.
 
 ## Next
-Independently revalidate repaired Phase 7. Do not advance to Phase 8 unless the
-validator returns exact PASS.
+Phase 9 may begin under the mandatory understand-plan-implement-test-review gate.

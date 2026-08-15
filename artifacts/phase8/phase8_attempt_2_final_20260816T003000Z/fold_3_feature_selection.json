@@ -1,0 +1,305 @@
+{
+  "candidate_feature_count": 40,
+  "domain_sanity": {
+    "constant_features_excluded": [],
+    "finite_values_required_after_training-fitted_imputation": true,
+    "known_season_encoding": {
+      "autumn": 3.0,
+      "spring": 1.0,
+      "summer": 2.0,
+      "winter": 0.0
+    }
+  },
+  "importance": {
+    "combined_score": "equal-weight mean of normalized model importance, non-negative normalized permutation importance, and stability",
+    "model": "RandomForestRegressor",
+    "model_importance": "mean impurity importance across expanding-window folds",
+    "permutation_importance": "mean increase in MAE on each later in-training assessment fold",
+    "stability": "fraction of folds ranked in the top 15"
+  },
+  "leakage_screening": {
+    "exact_target_matches": [],
+    "forbidden_candidate_names": [],
+    "phase2_causality_manifest_required": true,
+    "rows_screened": 1901,
+    "status": "passed"
+  },
+  "redundancy": {
+    "dropped_feature_to_retained_feature": {
+      "consumption_lag_7": "consumption_lag_1",
+      "day_of_year_sin": "fourier_yearly_sin_1",
+      "ema_30": "consumption_lag_14",
+      "ema_7": "consumption_lag_1",
+      "fourier_yearly_cos_1": "day_of_year_cos",
+      "rolling_max_7": "consumption_lag_1",
+      "rolling_mean_30": "consumption_lag_14",
+      "rolling_mean_7": "consumption_lag_1",
+      "rolling_median_30": "consumption_lag_14",
+      "rolling_median_7": "consumption_lag_1",
+      "rolling_min_7": "consumption_lag_1",
+      "same_weekday_previous_week": "consumption_lag_1"
+    },
+    "pairs_at_or_above_threshold": [
+      {
+        "absolute_correlation": 0.9847559286746086,
+        "feature_a": "consumption_lag_1",
+        "feature_b": "consumption_lag_7"
+      },
+      {
+        "absolute_correlation": 0.9806337332300812,
+        "feature_a": "consumption_lag_7",
+        "feature_b": "consumption_lag_14"
+      },
+      {
+        "absolute_correlation": 0.9955864057802779,
+        "feature_a": "consumption_lag_1",
+        "feature_b": "rolling_mean_7"
+      },
+      {
+        "absolute_correlation": 0.9955883757374365,
+        "feature_a": "consumption_lag_7",
+        "feature_b": "rolling_mean_7"
+      },
+      {
+        "absolute_correlation": 0.9943466631715694,
+        "feature_a": "consumption_lag_1",
+        "feature_b": "rolling_median_7"
+      },
+      {
+        "absolute_correlation": 0.9942428501221301,
+        "feature_a": "consumption_lag_7",
+        "feature_b": "rolling_median_7"
+      },
+      {
+        "absolute_correlation": 0.9994370086396359,
+        "feature_a": "rolling_mean_7",
+        "feature_b": "rolling_median_7"
+      },
+      {
+        "absolute_correlation": 0.991640725136435,
+        "feature_a": "consumption_lag_1",
+        "feature_b": "rolling_min_7"
+      },
+      {
+        "absolute_correlation": 0.9950988731756012,
+        "feature_a": "consumption_lag_7",
+        "feature_b": "rolling_min_7"
+      },
+      {
+        "absolute_correlation": 0.9969111983374045,
+        "feature_a": "rolling_mean_7",
+        "feature_b": "rolling_min_7"
+      },
+      {
+        "absolute_correlation": 0.9955566568794116,
+        "feature_a": "rolling_median_7",
+        "feature_b": "rolling_min_7"
+      },
+      {
+        "absolute_correlation": 0.9953610576148205,
+        "feature_a": "consumption_lag_1",
+        "feature_b": "rolling_max_7"
+      },
+      {
+        "absolute_correlation": 0.9919682787344076,
+        "feature_a": "consumption_lag_7",
+        "feature_b": "rolling_max_7"
+      },
+      {
+        "absolute_correlation": 0.9971434181787855,
+        "feature_a": "rolling_mean_7",
+        "feature_b": "rolling_max_7"
+      },
+      {
+        "absolute_correlation": 0.9960524405119322,
+        "feature_a": "rolling_median_7",
+        "feature_b": "rolling_max_7"
+      },
+      {
+        "absolute_correlation": 0.9896780938167684,
+        "feature_a": "rolling_min_7",
+        "feature_b": "rolling_max_7"
+      },
+      {
+        "absolute_correlation": 0.9959815921478867,
+        "feature_a": "consumption_lag_14",
+        "feature_b": "rolling_mean_30"
+      },
+      {
+        "absolute_correlation": 0.9974782296628144,
+        "feature_a": "consumption_lag_14",
+        "feature_b": "rolling_median_30"
+      },
+      {
+        "absolute_correlation": 0.9981102904502133,
+        "feature_a": "rolling_mean_30",
+        "feature_b": "rolling_median_30"
+      },
+      {
+        "absolute_correlation": 0.9819807232074209,
+        "feature_a": "rolling_mean_30",
+        "feature_b": "rolling_max_30"
+      },
+      {
+        "absolute_correlation": 0.9962969386877146,
+        "feature_a": "consumption_lag_1",
+        "feature_b": "ema_7"
+      },
+      {
+        "absolute_correlation": 0.9949756271824362,
+        "feature_a": "consumption_lag_7",
+        "feature_b": "ema_7"
+      },
+      {
+        "absolute_correlation": 0.9998575544771902,
+        "feature_a": "rolling_mean_7",
+        "feature_b": "ema_7"
+      },
+      {
+        "absolute_correlation": 0.9991830343486988,
+        "feature_a": "rolling_median_7",
+        "feature_b": "ema_7"
+      },
+      {
+        "absolute_correlation": 0.9965319511617651,
+        "feature_a": "rolling_min_7",
+        "feature_b": "ema_7"
+      },
+      {
+        "absolute_correlation": 0.997519294792859,
+        "feature_a": "rolling_max_7",
+        "feature_b": "ema_7"
+      },
+      {
+        "absolute_correlation": 0.9828988472533406,
+        "feature_a": "consumption_lag_7",
+        "feature_b": "ema_30"
+      },
+      {
+        "absolute_correlation": 0.9946072726983234,
+        "feature_a": "consumption_lag_14",
+        "feature_b": "ema_30"
+      },
+      {
+        "absolute_correlation": 0.9986491210397361,
+        "feature_a": "rolling_mean_30",
+        "feature_b": "ema_30"
+      },
+      {
+        "absolute_correlation": 0.9957983749904284,
+        "feature_a": "rolling_median_30",
+        "feature_b": "ema_30"
+      },
+      {
+        "absolute_correlation": 0.983665266780944,
+        "feature_a": "rolling_max_30",
+        "feature_b": "ema_30"
+      },
+      {
+        "absolute_correlation": 0.9999812020927917,
+        "feature_a": "day_of_year_sin",
+        "feature_b": "fourier_yearly_sin_1"
+      },
+      {
+        "absolute_correlation": 0.9999819792787523,
+        "feature_a": "day_of_year_cos",
+        "feature_b": "fourier_yearly_cos_1"
+      },
+      {
+        "absolute_correlation": 0.9863481587015444,
+        "feature_a": "consumption_lag_1",
+        "feature_b": "same_weekday_previous_week"
+      },
+      {
+        "absolute_correlation": 1.0,
+        "feature_a": "consumption_lag_7",
+        "feature_b": "same_weekday_previous_week"
+      },
+      {
+        "absolute_correlation": 0.9805977419909221,
+        "feature_a": "consumption_lag_14",
+        "feature_b": "same_weekday_previous_week"
+      },
+      {
+        "absolute_correlation": 0.9960992395874713,
+        "feature_a": "rolling_mean_7",
+        "feature_b": "same_weekday_previous_week"
+      },
+      {
+        "absolute_correlation": 0.9949708538044407,
+        "feature_a": "rolling_median_7",
+        "feature_b": "same_weekday_previous_week"
+      },
+      {
+        "absolute_correlation": 0.9950911312006386,
+        "feature_a": "rolling_min_7",
+        "feature_b": "same_weekday_previous_week"
+      },
+      {
+        "absolute_correlation": 0.9937118559021606,
+        "feature_a": "rolling_max_7",
+        "feature_b": "same_weekday_previous_week"
+      },
+      {
+        "absolute_correlation": 0.9955969990695848,
+        "feature_a": "ema_7",
+        "feature_b": "same_weekday_previous_week"
+      },
+      {
+        "absolute_correlation": 0.9829462658484642,
+        "feature_a": "ema_30",
+        "feature_b": "same_weekday_previous_week"
+      }
+    ],
+    "threshold": 0.98
+  },
+  "selected_feature_count": 20,
+  "selected_features": [
+    "consumption_lag_1",
+    "day_of_year_cos",
+    "consumption_lag_365",
+    "day_over_day_change",
+    "rolling_slope_30",
+    "fourier_yearly_cos_2",
+    "rolling_slope_7",
+    "rolling_min_30",
+    "same_period_previous_year",
+    "growth_7d",
+    "fourier_yearly_sin_2",
+    "consumption_lag_30",
+    "consumption_lag_14",
+    "fourier_weekly_sin_2",
+    "season",
+    "rolling_std_30",
+    "rolling_std_7",
+    "fourier_yearly_sin_1",
+    "is_canada_ontario_holiday",
+    "day_of_week_sin"
+  ],
+  "time_splits": [
+    {
+      "assessment_end_row_inclusive": 950,
+      "assessment_start_row": 476,
+      "fit_end_row_inclusive": 475,
+      "fit_start_row": 0,
+      "fold": 1,
+      "imputation_fitted_on_fit_rows_only": true
+    },
+    {
+      "assessment_end_row_inclusive": 1425,
+      "assessment_start_row": 951,
+      "fit_end_row_inclusive": 950,
+      "fit_start_row": 0,
+      "fold": 2,
+      "imputation_fitted_on_fit_rows_only": true
+    },
+    {
+      "assessment_end_row_inclusive": 1900,
+      "assessment_start_row": 1426,
+      "fit_end_row_inclusive": 1425,
+      "fit_start_row": 0,
+      "fold": 3,
+      "imputation_fitted_on_fit_rows_only": true
+    }
+  ]
+}

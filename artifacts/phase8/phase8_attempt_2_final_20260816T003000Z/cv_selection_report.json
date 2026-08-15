@@ -1,0 +1,544 @@
+{
+  "best_parameters_by_outer_fold": {
+    "1": {
+      "gradient_boosting": {
+        "learning_rate": 0.14425922174859396,
+        "max_depth": 3,
+        "min_samples_leaf": 2,
+        "n_estimators": 50
+      },
+      "random_forest": {
+        "max_depth": 16,
+        "max_features": 0.5731558856483381,
+        "min_samples_leaf": 1,
+        "n_estimators": 125
+      },
+      "ridge": {
+        "alpha": 16.026123308127143
+      }
+    },
+    "2": {
+      "gradient_boosting": {
+        "learning_rate": 0.05571824761731639,
+        "max_depth": 4,
+        "min_samples_leaf": 1,
+        "n_estimators": 150
+      },
+      "random_forest": {
+        "max_depth": 15,
+        "max_features": 0.9832612572806506,
+        "min_samples_leaf": 3,
+        "n_estimators": 250
+      },
+      "ridge": {
+        "alpha": 0.0010815210560658852
+      }
+    },
+    "3": {
+      "gradient_boosting": {
+        "learning_rate": 0.06438366076293937,
+        "max_depth": 2,
+        "min_samples_leaf": 1,
+        "n_estimators": 150
+      },
+      "random_forest": {
+        "max_depth": 10,
+        "max_features": 0.9984299925006488,
+        "min_samples_leaf": 7,
+        "n_estimators": 200
+      },
+      "ridge": {
+        "alpha": 0.08435944526931878
+      }
+    },
+    "4": {
+      "gradient_boosting": {
+        "learning_rate": 0.09171216010133489,
+        "max_depth": 3,
+        "min_samples_leaf": 4,
+        "n_estimators": 125
+      },
+      "random_forest": {
+        "max_depth": 16,
+        "max_features": 0.9667994945881786,
+        "min_samples_leaf": 3,
+        "n_estimators": 125
+      },
+      "ridge": {
+        "alpha": 0.001024815169427098
+      }
+    },
+    "5": {
+      "gradient_boosting": {
+        "learning_rate": 0.10258325747715343,
+        "max_depth": 3,
+        "min_samples_leaf": 5,
+        "n_estimators": 75
+      },
+      "random_forest": {
+        "max_depth": 14,
+        "max_features": 0.999394424664779,
+        "min_samples_leaf": 3,
+        "n_estimators": 200
+      },
+      "ridge": {
+        "alpha": 0.0010171612723510874
+      }
+    }
+  },
+  "candidate_features": [
+    "consumption_lag_1",
+    "consumption_lag_7",
+    "consumption_lag_14",
+    "consumption_lag_30",
+    "consumption_lag_365",
+    "rolling_mean_7",
+    "rolling_median_7",
+    "rolling_std_7",
+    "rolling_min_7",
+    "rolling_max_7",
+    "rolling_slope_7",
+    "rolling_mean_30",
+    "rolling_median_30",
+    "rolling_std_30",
+    "rolling_min_30",
+    "rolling_max_30",
+    "rolling_slope_30",
+    "ema_7",
+    "ema_30",
+    "day_over_day_change",
+    "growth_7d",
+    "day_of_week",
+    "month",
+    "is_weekend",
+    "season",
+    "day_of_year_sin",
+    "day_of_year_cos",
+    "day_of_week_sin",
+    "day_of_week_cos",
+    "fourier_weekly_sin_1",
+    "fourier_weekly_cos_1",
+    "fourier_weekly_sin_2",
+    "fourier_weekly_cos_2",
+    "fourier_yearly_sin_1",
+    "fourier_yearly_cos_1",
+    "fourier_yearly_sin_2",
+    "fourier_yearly_cos_2",
+    "is_canada_ontario_holiday",
+    "same_weekday_previous_week",
+    "same_period_previous_year"
+  ],
+  "experiment": "Test 4 TimeSeriesSplit plus Optuna",
+  "external_holdout_or_locked_test_used": false,
+  "feature_selection_fit_scope": "each outer-fold training prefix only; deterministic fold result reused across trials because it is hyperparameter-independent",
+  "feature_selection_source": "Phase 3 methodology refitted independently on each outer-fold training prefix",
+  "fold_selected_features": {
+    "1": [
+      "consumption_lag_1",
+      "day_of_year_cos",
+      "fourier_yearly_sin_2",
+      "fourier_yearly_cos_2",
+      "consumption_lag_14",
+      "month",
+      "rolling_slope_30",
+      "rolling_std_30",
+      "day_of_year_sin",
+      "rolling_max_30",
+      "rolling_slope_7",
+      "rolling_std_7",
+      "day_over_day_change",
+      "day_of_week_cos",
+      "consumption_lag_30",
+      "is_canada_ontario_holiday",
+      "growth_7d",
+      "fourier_weekly_sin_1",
+      "day_of_week_sin",
+      "fourier_weekly_cos_1"
+    ],
+    "2": [
+      "consumption_lag_1",
+      "day_of_year_cos",
+      "fourier_yearly_cos_2",
+      "rolling_slope_30",
+      "fourier_yearly_sin_2",
+      "rolling_min_30",
+      "rolling_std_30",
+      "consumption_lag_365",
+      "day_over_day_change",
+      "consumption_lag_14",
+      "is_canada_ontario_holiday",
+      "consumption_lag_30",
+      "fourier_yearly_sin_1",
+      "growth_7d",
+      "rolling_slope_7",
+      "month",
+      "rolling_std_7",
+      "rolling_max_30",
+      "day_of_week_sin",
+      "fourier_weekly_sin_2"
+    ],
+    "3": [
+      "consumption_lag_1",
+      "day_of_year_cos",
+      "consumption_lag_365",
+      "day_over_day_change",
+      "rolling_slope_30",
+      "fourier_yearly_cos_2",
+      "rolling_slope_7",
+      "rolling_min_30",
+      "same_period_previous_year",
+      "growth_7d",
+      "fourier_yearly_sin_2",
+      "consumption_lag_30",
+      "consumption_lag_14",
+      "fourier_weekly_sin_2",
+      "season",
+      "rolling_std_30",
+      "rolling_std_7",
+      "fourier_yearly_sin_1",
+      "is_canada_ontario_holiday",
+      "day_of_week_sin"
+    ],
+    "4": [
+      "consumption_lag_1",
+      "day_of_year_cos",
+      "fourier_yearly_cos_2",
+      "same_period_previous_year",
+      "rolling_std_30",
+      "fourier_yearly_sin_2",
+      "rolling_slope_30",
+      "day_over_day_change",
+      "rolling_min_30",
+      "consumption_lag_14",
+      "day_of_year_sin",
+      "rolling_slope_7",
+      "consumption_lag_365",
+      "rolling_max_30",
+      "growth_7d",
+      "consumption_lag_30",
+      "rolling_std_7",
+      "is_canada_ontario_holiday",
+      "fourier_weekly_cos_1",
+      "fourier_weekly_cos_2"
+    ],
+    "5": [
+      "consumption_lag_1",
+      "fourier_yearly_cos_2",
+      "fourier_yearly_cos_1",
+      "same_period_previous_year",
+      "consumption_lag_365",
+      "rolling_max_30",
+      "growth_7d",
+      "rolling_slope_7",
+      "rolling_std_30",
+      "consumption_lag_14",
+      "fourier_yearly_sin_2",
+      "rolling_slope_30",
+      "day_over_day_change",
+      "is_canada_ontario_holiday",
+      "day_of_week_cos",
+      "rolling_std_7",
+      "day_of_year_sin",
+      "consumption_lag_30",
+      "rolling_min_30",
+      "day_of_week_sin"
+    ]
+  },
+  "fold_selected_models": {
+    "1": "ridge",
+    "2": "ridge",
+    "3": "ridge",
+    "4": "ridge",
+    "5": "ridge"
+  },
+  "folds": [
+    {
+      "feature_selection_end_row_inclusive": 634,
+      "feature_selection_rows": 635,
+      "feature_selection_used_validation_rows": false,
+      "fold": 1,
+      "selected_feature_count": 20,
+      "selected_features": [
+        "consumption_lag_1",
+        "day_of_year_cos",
+        "fourier_yearly_sin_2",
+        "fourier_yearly_cos_2",
+        "consumption_lag_14",
+        "month",
+        "rolling_slope_30",
+        "rolling_std_30",
+        "day_of_year_sin",
+        "rolling_max_30",
+        "rolling_slope_7",
+        "rolling_std_7",
+        "day_over_day_change",
+        "day_of_week_cos",
+        "consumption_lag_30",
+        "is_canada_ontario_holiday",
+        "growth_7d",
+        "fourier_weekly_sin_1",
+        "day_of_week_sin",
+        "fourier_weekly_cos_1"
+      ],
+      "selected_hyperparameters": {
+        "gradient_boosting": {
+          "learning_rate": 0.14425922174859396,
+          "max_depth": 3,
+          "min_samples_leaf": 2,
+          "n_estimators": 50
+        },
+        "random_forest": {
+          "max_depth": 16,
+          "max_features": 0.5731558856483381,
+          "min_samples_leaf": 1,
+          "n_estimators": 125
+        },
+        "ridge": {
+          "alpha": 16.026123308127143
+        }
+      },
+      "selected_tuned_model": "ridge",
+      "training_end_date_inclusive": "2011-03-27",
+      "training_rows": 635,
+      "training_start_date": "2009-07-01",
+      "validation_end_date_inclusive": "2012-12-19",
+      "validation_rows": 633,
+      "validation_start_date": "2011-03-28"
+    },
+    {
+      "feature_selection_end_row_inclusive": 1267,
+      "feature_selection_rows": 1268,
+      "feature_selection_used_validation_rows": false,
+      "fold": 2,
+      "selected_feature_count": 20,
+      "selected_features": [
+        "consumption_lag_1",
+        "day_of_year_cos",
+        "fourier_yearly_cos_2",
+        "rolling_slope_30",
+        "fourier_yearly_sin_2",
+        "rolling_min_30",
+        "rolling_std_30",
+        "consumption_lag_365",
+        "day_over_day_change",
+        "consumption_lag_14",
+        "is_canada_ontario_holiday",
+        "consumption_lag_30",
+        "fourier_yearly_sin_1",
+        "growth_7d",
+        "rolling_slope_7",
+        "month",
+        "rolling_std_7",
+        "rolling_max_30",
+        "day_of_week_sin",
+        "fourier_weekly_sin_2"
+      ],
+      "selected_hyperparameters": {
+        "gradient_boosting": {
+          "learning_rate": 0.05571824761731639,
+          "max_depth": 4,
+          "min_samples_leaf": 1,
+          "n_estimators": 150
+        },
+        "random_forest": {
+          "max_depth": 15,
+          "max_features": 0.9832612572806506,
+          "min_samples_leaf": 3,
+          "n_estimators": 250
+        },
+        "ridge": {
+          "alpha": 0.0010815210560658852
+        }
+      },
+      "selected_tuned_model": "ridge",
+      "training_end_date_inclusive": "2012-12-19",
+      "training_rows": 1268,
+      "training_start_date": "2009-07-01",
+      "validation_end_date_inclusive": "2015-04-15",
+      "validation_rows": 633,
+      "validation_start_date": "2012-12-20"
+    },
+    {
+      "feature_selection_end_row_inclusive": 1900,
+      "feature_selection_rows": 1901,
+      "feature_selection_used_validation_rows": false,
+      "fold": 3,
+      "selected_feature_count": 20,
+      "selected_features": [
+        "consumption_lag_1",
+        "day_of_year_cos",
+        "consumption_lag_365",
+        "day_over_day_change",
+        "rolling_slope_30",
+        "fourier_yearly_cos_2",
+        "rolling_slope_7",
+        "rolling_min_30",
+        "same_period_previous_year",
+        "growth_7d",
+        "fourier_yearly_sin_2",
+        "consumption_lag_30",
+        "consumption_lag_14",
+        "fourier_weekly_sin_2",
+        "season",
+        "rolling_std_30",
+        "rolling_std_7",
+        "fourier_yearly_sin_1",
+        "is_canada_ontario_holiday",
+        "day_of_week_sin"
+      ],
+      "selected_hyperparameters": {
+        "gradient_boosting": {
+          "learning_rate": 0.06438366076293937,
+          "max_depth": 2,
+          "min_samples_leaf": 1,
+          "n_estimators": 150
+        },
+        "random_forest": {
+          "max_depth": 10,
+          "max_features": 0.9984299925006488,
+          "min_samples_leaf": 7,
+          "n_estimators": 200
+        },
+        "ridge": {
+          "alpha": 0.08435944526931878
+        }
+      },
+      "selected_tuned_model": "ridge",
+      "training_end_date_inclusive": "2015-04-15",
+      "training_rows": 1901,
+      "training_start_date": "2009-07-01",
+      "validation_end_date_inclusive": "2017-01-07",
+      "validation_rows": 633,
+      "validation_start_date": "2015-04-16"
+    },
+    {
+      "feature_selection_end_row_inclusive": 2533,
+      "feature_selection_rows": 2534,
+      "feature_selection_used_validation_rows": false,
+      "fold": 4,
+      "selected_feature_count": 20,
+      "selected_features": [
+        "consumption_lag_1",
+        "day_of_year_cos",
+        "fourier_yearly_cos_2",
+        "same_period_previous_year",
+        "rolling_std_30",
+        "fourier_yearly_sin_2",
+        "rolling_slope_30",
+        "day_over_day_change",
+        "rolling_min_30",
+        "consumption_lag_14",
+        "day_of_year_sin",
+        "rolling_slope_7",
+        "consumption_lag_365",
+        "rolling_max_30",
+        "growth_7d",
+        "consumption_lag_30",
+        "rolling_std_7",
+        "is_canada_ontario_holiday",
+        "fourier_weekly_cos_1",
+        "fourier_weekly_cos_2"
+      ],
+      "selected_hyperparameters": {
+        "gradient_boosting": {
+          "learning_rate": 0.09171216010133489,
+          "max_depth": 3,
+          "min_samples_leaf": 4,
+          "n_estimators": 125
+        },
+        "random_forest": {
+          "max_depth": 16,
+          "max_features": 0.9667994945881786,
+          "min_samples_leaf": 3,
+          "n_estimators": 125
+        },
+        "ridge": {
+          "alpha": 0.001024815169427098
+        }
+      },
+      "selected_tuned_model": "ridge",
+      "training_end_date_inclusive": "2017-01-07",
+      "training_rows": 2534,
+      "training_start_date": "2009-07-01",
+      "validation_end_date_inclusive": "2018-12-09",
+      "validation_rows": 633,
+      "validation_start_date": "2017-01-08"
+    },
+    {
+      "feature_selection_end_row_inclusive": 3166,
+      "feature_selection_rows": 3167,
+      "feature_selection_used_validation_rows": false,
+      "fold": 5,
+      "selected_feature_count": 20,
+      "selected_features": [
+        "consumption_lag_1",
+        "fourier_yearly_cos_2",
+        "fourier_yearly_cos_1",
+        "same_period_previous_year",
+        "consumption_lag_365",
+        "rolling_max_30",
+        "growth_7d",
+        "rolling_slope_7",
+        "rolling_std_30",
+        "consumption_lag_14",
+        "fourier_yearly_sin_2",
+        "rolling_slope_30",
+        "day_over_day_change",
+        "is_canada_ontario_holiday",
+        "day_of_week_cos",
+        "rolling_std_7",
+        "day_of_year_sin",
+        "consumption_lag_30",
+        "rolling_min_30",
+        "day_of_week_sin"
+      ],
+      "selected_hyperparameters": {
+        "gradient_boosting": {
+          "learning_rate": 0.10258325747715343,
+          "max_depth": 3,
+          "min_samples_leaf": 5,
+          "n_estimators": 75
+        },
+        "random_forest": {
+          "max_depth": 14,
+          "max_features": 0.999394424664779,
+          "min_samples_leaf": 3,
+          "n_estimators": 200
+        },
+        "ridge": {
+          "alpha": 0.0010171612723510874
+        }
+      },
+      "selected_tuned_model": "ridge",
+      "training_end_date_inclusive": "2018-12-09",
+      "training_rows": 3167,
+      "training_start_date": "2009-07-01",
+      "validation_end_date_inclusive": "2020-09-02",
+      "validation_rows": 633,
+      "validation_start_date": "2018-12-10"
+    }
+  ],
+  "full_data_refit_performed": false,
+  "improvement_claimed": false,
+  "n_splits": 5,
+  "nested_tuning": true,
+  "outer_validation_used_for_hyperparameter_selection": false,
+  "phase": "Phase 8",
+  "phase2_features_sha256": "a01313f30cd58cebc14b9a2d16bd1098bc63f2e62facbd6ed3c137de0ab6ab37",
+  "phase3_fixed_feature_set_used_for_modeling": false,
+  "phase3_selection_report_sha256": "81e780b220f64bb37451a5c3ea1d8da4de0ebac25d9eb7f386e58f42daad3eed",
+  "preprocessing_fit_scope": "each trial/final fold training prefix only; fold validation rows are transform/predict only",
+  "row_count": 3800,
+  "selection_metric": "mean inner-validation MAE within each outer-fold training prefix",
+  "shuffle_used": false,
+  "simple_baselines": [
+    "naive_lag_1",
+    "linear_regression"
+  ],
+  "tuned_models": [
+    "ridge",
+    "random_forest",
+    "gradient_boosting"
+  ],
+  "validation_folds_used_for_preprocessing_fit": false
+}

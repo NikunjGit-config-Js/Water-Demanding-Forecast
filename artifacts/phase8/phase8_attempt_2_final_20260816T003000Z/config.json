@@ -1,0 +1,23 @@
+{
+  "completed_at_utc": "2026-08-15T22:56:19.294320+00:00",
+  "configuration": {
+    "n_splits": 5,
+    "random_seed": 42,
+    "trials_per_model": 20
+  },
+  "environment": {
+    "joblib": "1.5.3",
+    "numpy": "2.5.2",
+    "optuna": "4.9.0",
+    "pandas": "3.0.5",
+    "python": "3.12.14",
+    "scikit_learn": "1.9.0"
+  },
+  "experiment_id": "phase8_attempt_2_final_20260816T003000Z",
+  "optuna_sampler": "TPESampler",
+  "phase": "Phase 8",
+  "phase2_directory": "/home/asus/projects/water-forecast/artifacts/phase2/phase2_attempt_1_20260815T204500Z",
+  "phase3_directory": "/home/asus/projects/water-forecast/artifacts/phase3/phase3_attempt_1_final_20260815T210000Z",
+  "random_seed": 42,
+  "started_at_utc": "2026-08-15T22:46:14.099387+00:00"
+}
