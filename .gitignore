@@ -219,5 +219,6 @@ fabric.properties
 orchestration/logs/
 orchestration/state/*
 !orchestration/state/post_correction_read_only_smoke.txt
+!orchestration/state/orchestration_fail_corrections_test_evidence.txt
 __pycache__/
 .pytest_cache/

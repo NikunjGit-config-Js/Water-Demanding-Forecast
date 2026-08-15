@@ -1,0 +1,5 @@
+# Reproducible dependencies for the CrewAI control layer only.
+crewai==1.15.16
+PyYAML==6.0.3
+pydantic==2.12.5
+pytest==9.1.1

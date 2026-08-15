@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import argparse
 from dataclasses import dataclass
 
 from orchestration.tools.codex_tool import run_codex
@@ -17,6 +18,31 @@ class ValidationResult:
 
 class ValidatorError(RuntimeError):
     pass
+
+
+def validate_report(verdict: str, report: str) -> ValidationResult:
+    """Validate that a verdict and its report agree and use the strict format."""
+    if not report:
+        raise ValidatorError("Validator produced an empty report.")
+    first_line = report.splitlines()[0]
+    if first_line not in {"PASS", "FAIL"}:
+        raise ValidatorError("Validator report first line must be exactly PASS or FAIL.")
+    if verdict != first_line:
+        raise ValidatorError("Validator verdict contradicts the report first line.")
+    if first_line == "FAIL":
+        marker = "REQUIRED_CORRECTIONS:"
+        lines = report.splitlines()
+        try:
+            marker_index = lines.index(marker, 1)
+        except ValueError as exc:
+            raise ValidatorError(
+                "Validator FAIL response did not include non-empty REQUIRED_CORRECTIONS."
+            ) from exc
+        if not "\n".join(lines[marker_index + 1 :]).strip():
+            raise ValidatorError(
+                "Validator FAIL response did not include non-empty REQUIRED_CORRECTIONS."
+            )
+    return ValidationResult(verdict=verdict, report=report)
 
 
 def validate_phase(
@@ -110,35 +136,22 @@ with exact corrections needed before revalidation.
         prompt,
         sandbox="read-only",
         timeout=3600,
-    ).strip()
-
-    if not report:
-        raise ValidatorError("Validator produced an empty report.")
-
-    first_line = report.splitlines()[0].strip().upper()
-
-    if first_line not in {"PASS", "FAIL"}:
-        raise ValidatorError(
-            "Validator response did not begin with PASS or FAIL.\n\n"
-            f"Response:\n{report}"
-        )
-
-    return ValidationResult(
-        verdict=first_line,
-        report=report,
+        preserve_output=True,
     )
+
+    first_line = report.splitlines()[0] if report else ""
+    return validate_report(first_line, report)
+
+
+def main() -> int:
+    parser = argparse.ArgumentParser(description="Run an independent read-only gate.")
+    parser.add_argument("--phase", required=True)
+    parser.add_argument("--implementation-summary", default="")
+    args = parser.parse_args()
+    result = validate_phase(args.phase, args.implementation_summary)
+    print(result.report)
+    return 0 if result.passed else 1
 
 
 if __name__ == "__main__":
-    result = validate_phase(
-        "Automation infrastructure smoke test",
-        """
-Environment setup is complete.
-Codex CLI authentication works.
-The Codex Python wrapper has been created.
-The wrapper successfully completed a read-only smoke test.
-No ML implementation is being validated yet.
-""".strip(),
-    )
-
-    print(result.report)
+    raise SystemExit(main())

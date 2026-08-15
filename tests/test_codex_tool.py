@@ -49,6 +49,35 @@ def test_read_only_creates_no_repository_output_or_log_files(
     assert not output_path.is_relative_to(isolated_paths)
 
 
+def test_default_output_behavior_remains_stripped(
+    monkeypatch: pytest.MonkeyPatch,
+    isolated_paths: Path,
+) -> None:
+    commands: list[list[str]] = []
+    monkeypatch.setattr(codex_tool.subprocess, "run", _successful_run(commands))
+
+    assert codex_tool.run_codex("prompt") == "EXPECTED RESPONSE"
+
+
+@pytest.mark.parametrize("sandbox", ["read-only", "workspace-write"])
+def test_preserve_output_returns_exact_file_content(
+    monkeypatch: pytest.MonkeyPatch,
+    isolated_paths: Path,
+    sandbox: str,
+) -> None:
+    commands: list[list[str]] = []
+    monkeypatch.setattr(codex_tool.subprocess, "run", _successful_run(commands))
+
+    response = codex_tool.run_codex(
+        "prompt",
+        sandbox=sandbox,
+        output_name="raw.txt",
+        preserve_output=True,
+    )
+
+    assert response == "EXPECTED RESPONSE\n"
+
+
 @pytest.mark.parametrize(
     "output_name",
     [

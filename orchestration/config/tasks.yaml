@@ -1,0 +1,32 @@
+implementation:
+  description: |
+    Implement phase "{phase_name}" as the {specialist_role}.
+    Attempt {attempt} of {max_attempts}.
+    Read all repository governance documents and the {specialist_role} profile.
+    Run relevant tests and checks. Preserve useful evidence.
+    Do not advance phases, invoke the validator, push, scrape, acquire Indian-city
+    data, alter approved ML methodology, or use danger-full-access.
+  expected_output: A concise implementation summary with changed files and checks run.
+
+repair:
+  description: |
+    Repair phase "{phase_name}" as the {specialist_role}.
+    Attempt {attempt} of {max_attempts}.
+    The independent validator returned this exact report:
+
+    {validation_report}
+
+    Apply every REQUIRED_CORRECTION without changing unrelated code or approved
+    methodology. Re-run relevant tests and report the changes and evidence.
+  expected_output: A concise repair summary mapping changes to every required correction.
+
+validation:
+  description: |
+    Independently validate phase "{phase_name}" using read-only access.
+    Treat the implementation summary only as a claim to verify:
+
+    {implementation_summary}
+
+    Return PASS or FAIL on the first line. If FAIL, include REQUIRED_CORRECTIONS
+    with exact corrections. Do not modify any repository file.
+  expected_output: A strict PASS/FAIL validation report with evidence.

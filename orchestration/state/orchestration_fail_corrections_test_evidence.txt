@@ -1,0 +1,34 @@
+SUPERVISOR-AUTHORIZED ORCHESTRATION REMEDIATION TEST EVIDENCE
+timestamp_utc: 2026-08-15T19:44:43Z
+branch: agentic-water-forecast
+base_commit: 67be49b28f6708e60af379ed7290c97e785891d4
+phase_0_executed: no
+independent_validator_pass_claimed: no
+
+orchestration_package_versions:
+- Python 3.12.14
+- uv 0.12.5
+- crewai 1.15.16
+- PyYAML 6.0.3
+- pydantic 2.12.5
+- pytest 9.1.1
+
+commands_and_results:
+- python -m pytest -q
+  result: PASS; 67 passed in 1.34s
+- Python AST parse of every orchestration/**/*.py and tests/**/*.py
+  result: PASS; AST_OK 14 files
+- Import orchestration.flow, orchestration.main, validator, and all orchestration tools
+  result: PASS; IMPORT_OK
+- UV_CACHE_DIR=/tmp/water-forecast-uv-cache uv pip check --python .venv/bin/python
+  result: PASS; checked 195 packages; all compatible
+- git diff --check
+  result: PASS; no output
+- git status --short, git diff --stat, git diff --name-only
+  result: inspected; only the existing orchestration worktree plus this remediation is present
+
+scope_notes:
+- Historical root requirements.txt was not modified.
+- No dataset or ML methodology file was modified.
+- No Phase 0 execution, external scraping, Indian-city acquisition, push, or destructive operation occurred.
+- Independent read-only revalidation is still required.

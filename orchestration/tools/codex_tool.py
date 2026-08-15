@@ -95,6 +95,7 @@ def run_codex(
     sandbox: str = "read-only",
     output_name: str = "codex_last_message.txt",
     timeout: int = 3600,
+    preserve_output: bool = False,
 ) -> str:
     """Run Codex non-interactively and return its final response.
 
@@ -136,7 +137,8 @@ def run_codex(
                 raise CodexExecutionError(
                     "Codex completed but did not create the expected output file."
                 )
-            return output_file.read_text(encoding="utf-8").strip()
+            response = output_file.read_text(encoding="utf-8")
+            return response if preserve_output else response.strip()
 
     STATE_DIR.mkdir(parents=True, exist_ok=True)
     output_file = STATE_DIR / safe_output_name
@@ -163,7 +165,8 @@ def run_codex(
         raise CodexExecutionError(
             f"Codex completed but did not create {output_file}. See log: {log_file}"
         )
-    return output_file.read_text(encoding="utf-8").strip()
+    response = output_file.read_text(encoding="utf-8")
+    return response if preserve_output else response.strip()
 
 
 if __name__ == "__main__":
