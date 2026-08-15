@@ -82,3 +82,33 @@ Preserve the raw Codex response for live independent validation and apply the
 shared strict report parser before any stripping or normalization. Keep stripped
 Codex responses as the wrapper default for backward-compatible implementation
 execution.
+
+## D022
+Add `--auto` as a deterministic supervisor over the existing single/multi-phase
+Flow. It discovers the consecutive schema-v2 PASS checkpoint prefix, starts at
+the first incomplete phase, and invokes one phase at a time so no later phase can
+start before the preceding independent PASS and local checkpoint commit.
+
+## D023
+Keep auto runtime/failure state in ignored `orchestration/state/auto_run.json`.
+Record the active phase before writable execution so an interruption can resume
+that phase, and so a PASS checkpoint created just before interruption can be
+committed safely without rerunning the validated implementation. Persist the
+exact validator/test correction report and consumed attempt count; restart enters
+the repair path with only the original remaining bounded attempts.
+
+## D024
+Automatic Git checkpoints require a clean starting worktree, reject deletions,
+symlinks, protected methodology/data/repository-control paths, and paths outside
+the current phase's narrow filename/directory scope. Stream-scan every candidate
+and the force-added PASS checkpoint, including large and binary files, for private
+keys, common provider tokens, JWT/bearer credentials, and credential assignments;
+stage only the reviewed phase delta, run Git whitespace checks, and create a
+normal local commit. Auto mode never pushes, force-pushes, deploys, or rewrites
+history.
+
+## D025
+Permission-required specialist output begins with exact `PERMISSION_REQUIRED`.
+Auto mode latches this state, preserves evidence, and stops until the user takes
+an explicit approved recovery action. Infrastructure errors and malformed
+validator output remain failures and can never create PASS checkpoints.

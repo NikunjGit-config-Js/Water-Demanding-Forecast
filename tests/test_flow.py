@@ -84,6 +84,27 @@ def test_fail_repair_pass_includes_exact_validator_report() -> None:
     assert failure in prompts[1]
 
 
+def test_resumed_flow_uses_exact_repair_report_and_remaining_budget() -> None:
+    prompts: list[str] = []
+    exact = "FAIL\nREQUIRED_CORRECTIONS:\nPreserve this exact correction."
+    flow = WaterForecastFlow(
+        phases=["Phase 0"],
+        max_attempts=3,
+        starting_attempt=1,
+        repair_report=exact,
+        implementation_executor=lambda prompt, name: prompts.append(prompt) or "fixed",
+        test_executor=passing_tests,
+        validation_executor=lambda phase, summary: ValidationResult("PASS", "PASS\nFixed"),
+        checkpoint_writer=lambda state: None,
+        snapshot_reader=lambda: UNCHANGED,
+    )
+    flow.orchestrate()
+    assert flow.state.status == "completed"
+    assert flow.state.attempt == 2
+    assert len(prompts) == 1
+    assert exact in prompts[0]
+
+
 def test_retry_limit_fails_without_checkpoint() -> None:
     checkpoints: list[object] = []
     calls = 0
@@ -168,6 +189,34 @@ def test_test_failure_repairs_without_calling_validator() -> None:
     assert flow.state.status == "completed"
     assert flow.state.attempt == 2
     assert validation_calls == 1
+
+
+def test_permission_required_stops_before_tests_and_validation() -> None:
+    test_calls = 0
+    validation_calls = 0
+
+    def tests() -> OrchestrationTestReport:
+        nonlocal test_calls
+        test_calls += 1
+        return passing_tests()
+
+    def validate(phase: str, summary: str) -> ValidationResult:
+        nonlocal validation_calls
+        validation_calls += 1
+        return ValidationResult("PASS", "PASS")
+
+    flow = build_flow(
+        implementation=lambda prompt, name: (
+            "PERMISSION_REQUIRED\nApproval needed for external data scraping."
+        ),
+        test_executor=tests,
+        validator=validate,
+    )
+    flow.orchestrate()
+    assert flow.state.status == "failed"
+    assert test_calls == 0
+    assert validation_calls == 0
+    assert flow.state.completed_phases == []
 
 
 def test_no_implicit_phase_zero() -> None:

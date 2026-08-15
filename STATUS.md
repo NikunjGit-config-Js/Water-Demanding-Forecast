@@ -1,6 +1,6 @@
 # Project Status
 
-Current Phase: Phase 4 implementation attempt 1 awaiting independent validation
+Current Phase: Phase 5 ready; automatic execution mode awaiting independent validation
 
 ## Completed
 - Repository cloned
@@ -122,14 +122,28 @@ Current Phase: Phase 4 implementation attempt 1 awaiting independent validation
   evidence is preserved under
   `artifacts/phase4/phase4_attempt_1_final_20260815T213000Z/` and
   `orchestration/state/phase_4_attempt_1_20260815T213000Z.txt`.
+- Independent Phase 4 validation returned exact PASS and its local checkpoint
+  commit is `ac75111`. Phases 0 through 4 now form a clean validated commit chain.
+- Production-safe `--auto` orchestration is implemented without starting Phase 5.
+  It validates the consecutive checkpoint prefix, resumes at the first incomplete
+  phase, retains the existing exact pytest/validator/repair gates, reports live
+  progress, stops on permissions and unsafe Git changes, creates local PASS-only
+  phase commits, and performs final Phase 13 verification and JSON reporting.
+- The first independent auto-mode review returned FAIL. Its exact corrections
+  were applied: validator/test repair reports and remaining retry budgets now
+  survive restart, interrupted dirty state is phase-scope checked, Git paths use
+  narrow phase-specific scopes, and all candidate content is stream-scanned for
+  secrets including large/binary files. A second review identified missing common
+  credential formats and checkpoint scanning; both were added with regression
+  coverage. Independent read-only revalidation returned exact PASS with 175 tests
+  passing and `git diff --check` clean.
 
 ## Current
-Phases 0 through 3 are approved after exact independent validator PASS. Phase 4
-ML Agent attempt 1 is implemented and awaiting independent validation. Phase 4
-loads only the approved chronological training prefix and fits preprocessing only
-on its earlier development-fit rows.
+Phases 0 through 4 are approved after exact independent validator PASS. The
+worktree was clean before the orchestration auto-mode implementation. Phase 5 has
+not been started.
 
 ## Next
-The supervisor may invoke independent read-only Phase 4 validation. Do not advance
-to Phase 5 unless the validator returns exact PASS. Preserve all approved Phase
-0/1/2/3 evidence, both Phase 4 attempt outputs, and the source dataset.
+The orchestration auto-mode change is independently approved. After committing
+this implementation change so the worktree is clean, `--auto` may resume at
+Phase 5. Preserve all approved Phase 0 through 4 evidence and the source dataset.

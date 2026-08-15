@@ -1,11 +1,13 @@
 from __future__ import annotations
 
 from pathlib import Path
+import subprocess
 
 import pytest
 
 from orchestration.flow import load_orchestration_config
 from orchestration.tools import experiment_reader
+from orchestration.tools import git_tool
 from orchestration.tools import test_tool
 
 
@@ -81,3 +83,49 @@ def test_test_tool_runs_only_exact_repository_pytest_command(
     report = test_tool.run_test_commands()
     assert report.passed
     assert captured == [("python", "-m", "pytest", "-q")]
+
+
+def test_safe_local_git_checkpoint_stages_exact_paths_and_commits(
+    monkeypatch: pytest.MonkeyPatch, tmp_path: Path
+) -> None:
+    subprocess.run(("git", "init"), cwd=tmp_path, check=True, capture_output=True)
+    subprocess.run(
+        ("git", "config", "user.email", "test@example.invalid"),
+        cwd=tmp_path,
+        check=True,
+    )
+    subprocess.run(
+        ("git", "config", "user.name", "Test User"), cwd=tmp_path, check=True
+    )
+    tracked = tmp_path / "tracked.txt"
+    tracked.write_text("before\n", encoding="utf-8")
+    subprocess.run(("git", "add", "tracked.txt"), cwd=tmp_path, check=True)
+    subprocess.run(("git", "commit", "-m", "initial"), cwd=tmp_path, check=True)
+    (tmp_path / ".gitignore").write_text("checkpoint.json\n", encoding="utf-8")
+    subprocess.run(("git", "add", ".gitignore"), cwd=tmp_path, check=True)
+    subprocess.run(("git", "commit", "-m", "ignore"), cwd=tmp_path, check=True)
+    tracked.write_text("after\n", encoding="utf-8")
+    checkpoint = tmp_path / "checkpoint.json"
+    checkpoint.write_text("{}\n", encoding="utf-8")
+    monkeypatch.setattr(git_tool, "PROJECT_ROOT", tmp_path)
+
+    result = git_tool.create_local_checkpoint(
+        message="feat: safe checkpoint",
+        expected_paths=("tracked.txt",),
+        force_add_paths=("checkpoint.json",),
+    )
+
+    assert set(result.paths) == {"tracked.txt", "checkpoint.json"}
+    assert git_tool.changed_paths() == ()
+
+
+def test_local_git_checkpoint_refuses_unexpected_delta(
+    monkeypatch: pytest.MonkeyPatch, tmp_path: Path
+) -> None:
+    subprocess.run(("git", "init"), cwd=tmp_path, check=True, capture_output=True)
+    (tmp_path / "unexpected.txt").write_text("change\n", encoding="utf-8")
+    monkeypatch.setattr(git_tool, "PROJECT_ROOT", tmp_path)
+    with pytest.raises(git_tool.GitSafetyError, match="delta changed"):
+        git_tool.create_local_checkpoint(
+            message="should not commit", expected_paths=("expected.txt",)
+        )

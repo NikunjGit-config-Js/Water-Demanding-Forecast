@@ -6,6 +6,9 @@ implementation:
     Run relevant tests and checks. Preserve useful evidence.
     Do not advance phases, invoke the validator, push, scrape, acquire Indian-city
     data, alter approved ML methodology, or use danger-full-access.
+    If completion requires an action listed under PERMISSIONS.md "Must Ask User
+    First", make no such change and return PERMISSION_REQUIRED on the first line,
+    followed by the exact approval needed.
   expected_output: A concise implementation summary with changed files and checks run.
 
 repair:
@@ -18,6 +21,8 @@ repair:
 
     Apply every REQUIRED_CORRECTION without changing unrelated code or approved
     methodology. Re-run relevant tests and report the changes and evidence.
+    If a correction requires user approval under PERMISSIONS.md, make no such
+    change and return PERMISSION_REQUIRED followed by the exact approval needed.
   expected_output: A concise repair summary mapping changes to every required correction.
 
 validation:

@@ -108,6 +108,8 @@ TestExecutor = Callable[[], TestReport]
 ValidationExecutor = Callable[[str, str], ValidationResult]
 CheckpointWriter = Callable[[OrchestrationState], None]
 SnapshotReader = Callable[[], GitSnapshot]
+ProgressReporter = Callable[[str], None]
+StateReporter = Callable[[OrchestrationState], None]
 
 
 def phase_number(phase: str) -> int:
@@ -220,9 +222,15 @@ class WaterForecastFlow(Flow[OrchestrationState]):
         validation_executor: ValidationExecutor = validate_phase,
         checkpoint_writer: CheckpointWriter = _default_checkpoint_writer,
         snapshot_reader: SnapshotReader = capture_git_snapshot,
+        progress_reporter: ProgressReporter | None = None,
+        state_reporter: StateReporter | None = None,
+        starting_attempt: int = 0,
+        repair_report: str = "",
     ) -> None:
         if max_attempts < 1:
             raise ValueError("max_attempts must be at least 1")
+        if starting_attempt < 0 or starting_attempt > max_attempts:
+            raise ValueError("starting_attempt must be between 0 and max_attempts")
         super().__init__(
             initial_state=OrchestrationState(
                 phases=list(phases or []), max_attempts=max_attempts
@@ -236,6 +244,10 @@ class WaterForecastFlow(Flow[OrchestrationState]):
         self._validation_executor = validation_executor
         self._checkpoint_writer = checkpoint_writer
         self._snapshot_reader = snapshot_reader
+        self._progress_reporter = progress_reporter or (lambda message: None)
+        self._state_reporter = state_reporter or (lambda state: None)
+        self._starting_attempt = starting_attempt
+        self._repair_report = repair_report
         self._agents, self._tasks = load_orchestration_config()
 
     def _format_task(self, task_name: str) -> str:
@@ -272,12 +284,16 @@ class WaterForecastFlow(Flow[OrchestrationState]):
         except ValueError as exc:
             self._fail(str(exc))
             return False
-        self.state.attempt = 0
+        self.state.attempt = self._starting_attempt
         self.state.validation_verdict = ""
-        self.state.validation_report = ""
+        self.state.validation_report = self._repair_report
         self.state.test_evidence = None
-        for attempt in range(1, self.state.max_attempts + 1):
+        for attempt in range(self._starting_attempt + 1, self.state.max_attempts + 1):
             self.state.attempt = attempt
+            self._state_reporter(self.state.model_copy(deep=True))
+            self._progress_reporter(
+                f"implementation attempt {attempt}/{self.state.max_attempts}"
+            )
             task_name = "implementation" if attempt == 1 else "repair"
             prompt = self._format_task(task_name)
             output_name = f"{re.sub(r'[^a-zA-Z0-9_.-]+', '_', self.state.current_phase)}_attempt_{attempt}.txt"
@@ -285,33 +301,54 @@ class WaterForecastFlow(Flow[OrchestrationState]):
                 self.state.implementation_summary = self._implementation_executor(
                     prompt, output_name
                 ).strip()
+                if (
+                    self.state.implementation_summary.splitlines()
+                    and self.state.implementation_summary.splitlines()[0].strip()
+                    == "PERMISSION_REQUIRED"
+                ):
+                    self._fail(self.state.implementation_summary)
+                    self._state_reporter(self.state.model_copy(deep=True))
+                    return False
                 tests = self._test_executor()
                 self.state.test_report = tests.summary()
                 if not tests.passed:
+                    self._progress_reporter("tests FAIL; scheduling repair")
                     self.state.validation_verdict = "FAIL"
                     self.state.validation_report = (
                         "FAIL\n\nREQUIRED_CORRECTIONS:\n"
                         "Fix the failing test/check output below before validation.\n\n"
                         + self.state.test_report
                     )
+                    self._state_reporter(self.state.model_copy(deep=True))
                     continue
+                self._progress_reporter("tests PASS")
                 self.state.test_evidence = tests.checkpoint_evidence()
                 validation = self._run_validation()
             except Exception as exc:
                 self._fail(f"{type(exc).__name__}: {exc}")
+                if not self.state.validation_report:
+                    self.state.validation_report = (
+                        "FAIL\n\nREQUIRED_CORRECTIONS:\n"
+                        f"Resolve infrastructure failure: {self.state.failure_reason}"
+                    )
+                self._state_reporter(self.state.model_copy(deep=True))
                 return False
 
             self.state.validation_verdict = validation.verdict
             self.state.validation_report = validation.report
+            self._state_reporter(self.state.model_copy(deep=True))
+            self._progress_reporter(f"validator {validation.verdict}")
             if validation.passed:
                 self.state.completed_phases.append(self.state.current_phase)
                 self._checkpoint_writer(self.state.model_copy(deep=True))
                 return True
+            self._progress_reporter("validator FAIL; scheduling repair")
 
         self._fail(
             f"Retry limit exhausted for {self.state.current_phase} "
             f"after {self.state.max_attempts} attempts."
         )
+        self._state_reporter(self.state.model_copy(deep=True))
         return False
 
     @start()
