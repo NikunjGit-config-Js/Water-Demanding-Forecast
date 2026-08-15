@@ -1,0 +1,17 @@
+{
+  "phase_name": "Phase 3",
+  "phase_number": 3,
+  "schema_version": 2,
+  "test_evidence": {
+    "command": [
+      "python",
+      "-m",
+      "pytest",
+      "-q"
+    ],
+    "returncode": 0
+  },
+  "validated_at_utc": "2026-08-15T20:49:55.259893+00:00",
+  "validation_report": "PASS\n\nPhase 3 satisfies the project specification and validation rules.\n\n- Inspected all mandatory documents, Git status/diff, Phase 2/3 source, tests, artifacts, and execution evidence.\n- Confirmed selection reads only the first 2,660 chronological rows: 2009-07-01 through 2017-07-20. No validation or locked-test rows are loaded.\n- Verified three expanding-window folds with strictly earlier fitting rows and later assessment rows; no shuffled CV is used.\n- Imputation medians are fitted separately on each fold\u2019s training rows. No scaler or other preprocessing is fitted globally.\n- Leakage screening, redundancy analysis, random-forest importance, permutation importance, temporal stability, and domain checks are implemented.\n- Phase 2 lag/rolling feature causality was previously independently approved and remains unchanged.\n- Independently reproduced the saved feature ranking, selected 20-feature set, redundancy decisions, reports, split boundaries, and SHA-256.\n- Random seed `42`, environment versions, configuration, selection results, and source hash are preserved.\n- Git changes are appropriately limited to Phase 3 implementation, tests, artifacts, and status; `git diff --check` passed.\n- Preserved evidence records 4 focused and 133 full-suite tests passing. Independent pytest execution could not start because the read-only validator environment provides no writable temporary directory; failure occurred before collection and is not attributable to the repository.\n- No Phase 4 implementation or destructive/unexpected modification was found.",
+  "validation_verdict": "PASS"
+}

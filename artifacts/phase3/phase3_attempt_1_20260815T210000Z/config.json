@@ -1,0 +1,29 @@
+{
+  "artifacts": [
+    "config.json",
+    "feature_ranking.csv",
+    "selection_report.json"
+  ],
+  "completed_at_utc": "2026-08-15T20:45:42.445492+00:00",
+  "environment": {
+    "numpy": "2.5.2",
+    "pandas": "3.0.5",
+    "python": "3.12.14",
+    "scikit_learn": "1.9.0"
+  },
+  "experiment_id": "phase3_attempt_1_20260815T210000Z",
+  "phase": "Phase 3",
+  "phase2_directory": "/home/asus/projects/water-forecast/artifacts/phase2/phase2_attempt_1_20260815T204500Z",
+  "random_seed": 42,
+  "selection_config": {
+    "max_features": 20,
+    "n_estimators": 200,
+    "n_splits": 3,
+    "permutation_repeats": 5,
+    "random_seed": 42,
+    "redundancy_threshold": 0.98,
+    "stability_top_k": 15,
+    "training_fraction": 0.7
+  },
+  "started_at_utc": "2026-08-15T20:45:28.581552+00:00"
+}
