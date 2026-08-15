@@ -1,6 +1,6 @@
 # Project Status
 
-Current Phase: Phase 0 complete and independently validated
+Current Phase: Phase 1 implementation attempt 1 awaiting independent validation
 
 ## Completed
 - Repository cloned
@@ -91,9 +91,15 @@ Current Phase: Phase 0 complete and independently validated
   `orchestration/state/phase_0_attempt_2_validator_pass_20260815.txt`.
 
 ## Current
-Phase 0 attempt 2 is approved after exact independent validator PASS. The
-complete baseline experiment artifact set is preserved. Phase 1 has not started.
+Phase 0 attempt 2 is approved after exact independent validator PASS. Phase 1
+Data Agent attempt 1 implemented non-mutating validation and EDA for the supplied
+London dataset. Focused tests and full discovery pass (126 tests), and the
+authoritative attempt artifacts are preserved under
+`artifacts/phase1/phase1_attempt_1_final_20260815T203000Z/`. Two source-data
+calendar gaps totaling 282 missing dates are reported; source order and bytes
+remain unchanged. Independent Phase 1 validation has not been invoked.
 
 ## Next
-Phase 1 may begin through the required specialist and validation workflow when
-explicitly requested. Preserve the locked Phase 0 evidence and artifacts.
+The supervisor may invoke independent read-only Phase 1 validation. Do not
+advance to Phase 2 unless the validator returns exact PASS. Preserve the locked
+Phase 0 evidence, all Phase 1 outputs, and the source dataset.

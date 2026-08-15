@@ -1,0 +1,30 @@
+{
+  "analysis_scope": "non-mutating validation and univariate exploratory data analysis",
+  "artifacts": [
+    "calendar_seasonality.png",
+    "calendar_summary.csv",
+    "data_quality_report.json",
+    "descriptive_statistics.csv",
+    "suspicious_observations.csv",
+    "target_distribution_boxplot.png",
+    "time_series_trend.png",
+    "config.json"
+  ],
+  "chronology_policy": "preserve input row order; do not sort or impute",
+  "completed_at_utc": "2026-08-15T20:27:13.015877+00:00",
+  "dataset": {
+    "path": "/home/asus/projects/water-forecast/data/preprocessed/all/preprocessed_data.csv",
+    "sha256": "2d95a510176c4dad93eae25958c714ab713790512193f55cf5747b44153da6c9"
+  },
+  "environment": {
+    "numpy": "2.5.2",
+    "pandas": "3.0.5",
+    "python": "3.12.14"
+  },
+  "experiment_id": "phase1_attempt_1_20260815",
+  "outlier_policy": "report Tukey 1.5*IQR candidates; do not remove or transform values",
+  "phase": "Phase 1",
+  "random_seed": null,
+  "random_seed_note": "No randomized operations are used.",
+  "started_at_utc": "2026-08-15T20:27:12.644893+00:00"
+}
