@@ -152,12 +152,20 @@ Current Phase: Phase 6 implemented and tested; awaiting independent validation
   hashes, seeds, and logs are preserved under
   `artifacts/phase6/phase6_attempt_1_20260815T233000Z/`. Focused tests pass (3),
   full discovery passes (184), and no tuning or improvement claim was made.
+- Independent Phase 6 validation returned PASS. Phase 7 attempt 1 then completed
+  validation-only Optuna selection and one frozen locked-test evaluation. Repair
+  attempt 2 added the evaluation artifacts required by `EXPERIMENT_PLAN.md` from
+  the already-preserved predictions only: actual-vs-predicted scatter,
+  residual-vs-predicted, residual distribution, error-over-time, highest-error
+  dates, and row-level diagnostics. The prediction and model hashes are unchanged.
+  Focused tests pass (3), full discovery passes (187), and repair evidence is
+  preserved in the Phase 7 artifact directory.
 
 ## Current
-Phases 0 through 5 are approved after exact independent validator PASS. Phase 6
-attempt 1 is implemented and tested but is not complete until independent validator
-PASS. Phase 5 attempt 1 and repaired attempt 2 artifacts remain preserved.
+Phases 0 through 6 are approved after exact independent validator PASS. Phase 7
+repair attempt 2 is implemented and tested but is not complete until independent
+validator PASS. Earlier Phase 5 and Phase 7 artifacts remain preserved.
 
 ## Next
-Independently validate Phase 6. Do not advance to Phase 7 unless the validator
-returns exact PASS.
+Independently revalidate repaired Phase 7. Do not advance to Phase 8 unless the
+validator returns exact PASS.

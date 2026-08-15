@@ -1,0 +1,17 @@
+{
+  "phase_name": "Phase 7",
+  "phase_number": 7,
+  "schema_version": 2,
+  "test_evidence": {
+    "command": [
+      "python",
+      "-m",
+      "pytest",
+      "-q"
+    ],
+    "returncode": 0
+  },
+  "validated_at_utc": "2026-08-15T22:16:08.853003+00:00",
+  "validation_report": "PASS\n\nPhase 7 independently validated:\n\n- Chronological split verified: 2,660 train / 570 validation / 570 locked-test rows, with strict date boundaries.\n- Optuna tuning and model selection use training/validation data only.\n- Locked-test mutations do not affect trials, selection, or fitted preprocessing.\n- Imputer and RobustScaler statistics independently confirmed as training-only.\n- Saved Ridge and linear-model predictions reproduce all 570 locked-test predictions.\n- MAE, MSE, RMSE, and R\u00b2 independently recomputed and matched saved results.\n- Residuals, absolute errors, and descending highest-error rows are correct.\n- Required plots and tables exist, are non-empty, and visual inspection found them valid.\n- Recorded prediction/model and generated-artifact hashes match.\n- Focused tests: 3 passed.\n- Full suite: 187 passed.\n- `git diff --check` passed.\n- Git changes are limited to expected Phase 7 implementation, tests, artifacts, and `STATUS.md`; no destructive or unexpected modifications were found.\n- Random seed, environment, configuration, input hashes, split details, trials, models, predictions, metrics, and logs are preserved.",
+  "validation_verdict": "PASS"
+}
