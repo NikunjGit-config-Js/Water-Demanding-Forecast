@@ -1,0 +1,32 @@
+{
+  "completed_at_utc": "2026-08-15T23:35:58.539392+00:00",
+  "configuration": {
+    "batch_size": 32,
+    "context_length": 56,
+    "d_model": 32,
+    "dropout": 0.1,
+    "encoder_layers": 2,
+    "epochs": 40,
+    "expected_total_rows": 3800,
+    "feedforward_dim": 64,
+    "learning_rate": 0.001,
+    "num_heads": 4,
+    "patch_length": 7,
+    "patch_stride": 7,
+    "patience": 6,
+    "random_seed": 42,
+    "train_fraction": 0.7,
+    "validation_fraction": 0.15
+  },
+  "dataset": "/home/asus/projects/water-forecast/data/preprocessed/all/preprocessed_data.csv",
+  "environment": {
+    "numpy": "2.5.2",
+    "pandas": "3.0.5",
+    "python": "3.12.14",
+    "tensorflow": "2.20.0"
+  },
+  "experiment_id": "phase10_attempt_1_20260816T020000Z",
+  "phase": "Phase 10",
+  "random_seed": 42,
+  "started_at_utc": "2026-08-15T23:35:41.005868+00:00"
+}
