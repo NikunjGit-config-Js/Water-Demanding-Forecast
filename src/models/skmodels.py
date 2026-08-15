@@ -92,7 +92,7 @@ class SKLearnModel(ModelStrategy):
                                  'model': train_preds[:,consumption_idx]})
         df_test = pd.DataFrame({'ds': test_dates.tolist(), 'gt': test_set['Consumption'].tolist(),
                                  'forecast': test_forecast_df['Consumption'].tolist(), 'test_pred': test_preds[:,consumption_idx].tolist()})
-        df_forecast = df_train.append(df_test)
+        df_forecast = pd.concat([df_train, df_test])
 
         # Compute evaluation metrics for the forecast
         test_metrics = self.evaluate_forecast(df_forecast, save_dir=save_dir, plot=plot)

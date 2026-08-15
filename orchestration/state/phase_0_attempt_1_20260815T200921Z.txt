@@ -1,0 +1,83 @@
+PHASE: Phase 0 - Repository audit and original baseline reproduction
+ROLE: Supervisor
+ATTEMPT: 1 of 3
+RECORDED_AT_UTC: 2026-08-15T20:09:21Z
+STATUS: IMPLEMENTED; independent validation not invoked
+
+GOVERNANCE REVIEWED
+- AGENTS.md
+- PROJECT_SPEC.md
+- EXPERIMENT_PLAN.md
+- VALIDATION_RULES.md
+- PERMISSIONS.md
+- SUCCESS_CRITERIA.md
+- STATUS.md
+- DECISIONS.md
+- README.md
+- config.yml
+- orchestration/README.md
+- orchestration/config/agents.yaml (supervisor profile and all role profiles)
+- orchestration/config/tasks.yaml
+
+ROUTING AND SCOPE
+- The deterministic phase map in orchestration/flow.py assigns Phase 0 to the
+  supervisor.
+- Phase 0 scope is repository audit and original baseline reproduction.
+- No later phase was started or advanced.
+- No validator was invoked and no PASS is claimed.
+- No push, scraping, Indian-city data acquisition, destructive operation,
+  danger-full-access, or approved-methodology change occurred.
+
+DATASET AUDIT
+- Path: data/preprocessed/all/preprocessed_data.csv
+- SHA-256: 2d95a510176c4dad93eae25958c714ab713790512193f55cf5747b44153da6c9
+- Shape: 3,800 rows x 2 columns
+- Columns: Date, Consumption
+- Date range: 2009-07-01 through 2020-09-02
+- Chronologically increasing: yes
+- Invalid dates: 0
+- Missing values: 0
+- Duplicate rows: 0
+- Duplicate dates: 0
+- Non-positive Consumption values: 0
+
+BASELINE REPRODUCTION
+- Selected the original LinearRegressionModel as the smallest practical
+  historical baseline.
+- Used the repository's existing TEST_FRAC=0.1 chronological split: 3,420
+  training rows and 380 test rows.
+- Used the original T_X=300 and existing training/evaluation implementation.
+- Disabled artifact/model writes for the smoke reproduction.
+- Initial attempt fit the model but failed in evaluation because current pandas
+  removed DataFrame.append.
+- Applied the minimal compatibility correction in src/models/skmodels.py:
+  replaced df_train.append(df_test) with pd.concat([df_train, df_test]).
+- The correction does not alter data, ordering, split, features, model,
+  preprocessing, forecasts, or metric definitions.
+- Re-run completed successfully with:
+  residuals_mean = 4.011104838588299e-13
+  residuals_std = 508.19427016521934
+  error_mean = 2894.162929040157
+  error_std = 6917.482913145948
+  MAE = 4906.92098711926
+  MAPE = 0.041361037066790236
+  MSE = 56101823.72967101
+  RMSE = 7490.115067852496
+- These values are baseline reproduction evidence only, not an improvement or
+  final-methodology claim.
+
+CHECKS
+- .venv/bin/python -c "import src.train; ...": PASS
+- .venv/bin/python -m compileall -q src orchestration tests: PASS
+- .venv/bin/python -m pytest -q: PASS (122 passed)
+- Post-change git diff inspected: only the compatibility correction, this
+  evidence record, and the status update belong to Phase 0.
+
+KNOWN OBSERVATIONS
+- Import reports that Plotly interactive support is unavailable; it does not
+  block this non-interactive baseline.
+- TensorFlow reports CPU feature initialization during the aggregate training
+  module import; the sklearn baseline does not benefit from or require GPU.
+- The historical LinearRegressionModel prints the score method object instead
+  of an R2 value. This pre-existing reporting defect does not block the returned
+  forecast metrics and was not broadened into a Phase 0 methodology change.

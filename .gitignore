@@ -220,5 +220,8 @@ orchestration/logs/
 orchestration/state/*
 !orchestration/state/post_correction_read_only_smoke.txt
 !orchestration/state/orchestration_fail_corrections_test_evidence.txt
+!orchestration/state/phase_0_attempt_1_20260815T200921Z.txt
+!orchestration/state/phase_0_attempt_2_20260815T201523Z.txt
+!orchestration/state/phase_0_attempt_2_validator_pass_20260815.txt
 __pycache__/
 .pytest_cache/

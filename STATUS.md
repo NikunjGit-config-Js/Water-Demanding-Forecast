@@ -1,6 +1,6 @@
 # Project Status
 
-Current Phase: Environment and orchestration setup
+Current Phase: Phase 0 complete and independently validated
 
 ## Completed
 - Repository cloned
@@ -68,14 +68,32 @@ Current Phase: Environment and orchestration setup
 - Raw-response adversarial and wrapper-regression coverage passes in full
   discovery (122 tests). Supervisor evidence is preserved at
   `orchestration/state/raw_validator_response_hardening_20260815T195910Z.txt`.
+- Phase 0 supervisor attempt 1 audited the repository and supplied London
+  dataset, repaired the removed pandas `DataFrame.append` call with the
+  equivalent `pd.concat`, and reproduced the original linear-regression
+  baseline using the existing chronological 90/10 split. Full discovery remains
+  at 122 passing tests. Evidence is preserved at
+  `orchestration/state/phase_0_attempt_1_20260815T200921Z.txt`.
+- Phase 0 supervisor attempt 2 added a dedicated reproducible baseline runner
+  and preserved configuration, split manifest, structured metrics, dated
+  predictions and errors, an actual-versus-predicted plot, fitted model,
+  training-only scaler, execution log, environment details, dataset SHA-256,
+  and an explicit deterministic/no-seed declaration under
+  `artifacts/phase0/phase0_attempt_2_20260815/`. Historical metrics were
+  reproduced, and project-policy R2 was added as a separately labeled
+  supplemental metric. Focused tests and full discovery pass (124 tests).
+  Supervisor evidence is preserved at
+  `orchestration/state/phase_0_attempt_2_20260815T201523Z.txt`.
+- An independent read-only validator reproduced the Phase 0 split, scaler fit
+  scope, all predictions and metrics, loaded the saved model/scaler, inspected
+  the plot and artifacts, reran the full suite (124 passing), and returned exact
+  PASS. The validation report is preserved at
+  `orchestration/state/phase_0_attempt_2_validator_pass_20260815.txt`.
 
 ## Current
-The raw live-validator response FAIL corrections are implemented. Full discovery
-and supervisor checks pass, with current evidence preserved in
-`orchestration/state/raw_validator_response_hardening_20260815T195910Z.txt`.
-Independent read-only revalidation remains. No independent validator PASS is
-claimed, and Phase 0 has not started.
+Phase 0 attempt 2 is approved after exact independent validator PASS. The
+complete baseline experiment artifact set is preserved. Phase 1 has not started.
 
 ## Next
-Run the independent read-only validation step for the orchestration remediation.
-Phase 0 may be invoked explicitly only after that validator returns PASS.
+Phase 1 may begin through the required specialist and validation workflow when
+explicitly requested. Preserve the locked Phase 0 evidence and artifacts.
