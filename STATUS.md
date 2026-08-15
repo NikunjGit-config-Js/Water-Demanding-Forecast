@@ -1,6 +1,6 @@
 # Project Status
 
-Current Phase: Phase 3 implementation attempt 1 awaiting independent validation
+Current Phase: Phase 4 implementation attempt 1 awaiting independent validation
 
 ## Completed
 - Repository cloned
@@ -109,14 +109,27 @@ Current Phase: Phase 3 implementation attempt 1 awaiting independent validation
   and final evidence is preserved under
   `artifacts/phase3/phase3_attempt_1_final_20260815T210000Z/` and
   `orchestration/state/phase_3_attempt_1_20260815T210000Z.txt`.
+- Independent Phase 3 validation returned exact PASS. The strict schema-version-2
+  checkpoint is preserved at `orchestration/state/checkpoints/phase_3_passed.json`.
+- Phase 4 ML Agent attempt 1 implemented the ten approved traditional model
+  families with deterministic seeds and per-model sklearn pipelines. Median
+  imputation and RobustScaler fitting occur only on the earlier development-fit
+  portion of the already approved 70% training prefix. A chronological later
+  portion of that same prefix provides smoke comparison only; all reserved rows
+  remain unloaded, and formal evaluation remains deferred to Phases 5 and 6.
+  Naive lag-1 and linear-regression baselines are reported without a model-selection
+  or improvement claim. Focused tests pass (4), full discovery passes (137), and
+  evidence is preserved under
+  `artifacts/phase4/phase4_attempt_1_final_20260815T213000Z/` and
+  `orchestration/state/phase_4_attempt_1_20260815T213000Z.txt`.
 
 ## Current
-Phases 0 through 2 are approved after exact independent validator PASS. Phase 3
-Feature Agent attempt 1 is implemented and awaiting independent validation.
-Phase 2 features and the source dataset remain unchanged; Phase 3 selection reads
-only the chronological training prefix and fits fold imputation on earlier fit rows.
+Phases 0 through 3 are approved after exact independent validator PASS. Phase 4
+ML Agent attempt 1 is implemented and awaiting independent validation. Phase 4
+loads only the approved chronological training prefix and fits preprocessing only
+on its earlier development-fit rows.
 
 ## Next
-The supervisor may invoke independent read-only Phase 3 validation. Do not advance
-to Phase 4 unless the validator returns exact PASS. Preserve all approved Phase
-0/1/2 evidence, both Phase 3 attempt outputs, and the source dataset.
+The supervisor may invoke independent read-only Phase 4 validation. Do not advance
+to Phase 5 unless the validator returns exact PASS. Preserve all approved Phase
+0/1/2/3 evidence, both Phase 4 attempt outputs, and the source dataset.

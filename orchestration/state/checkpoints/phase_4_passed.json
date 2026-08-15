@@ -1,0 +1,17 @@
+{
+  "phase_name": "Phase 4",
+  "phase_number": 4,
+  "schema_version": 2,
+  "test_evidence": {
+    "command": [
+      "python",
+      "-m",
+      "pytest",
+      "-q"
+    ],
+    "returncode": 0
+  },
+  "validated_at_utc": "2026-08-15T20:58:16.898470+00:00",
+  "validation_report": "PASS\n\nPhase 4 satisfies the approved scope.\n\n- All 10 required traditional model families are implemented.\n- Only the chronological 70% training prefix is parsed: 2,660 of 3,800 rows.\n- Smoke split is chronological: 2,128 fit rows followed by 532 assessment rows.\n- Phase 3\u2019s training-only selected features are used; no new feature selection or tuning occurs.\n- Median imputation and required `RobustScaler` transformations are fitted inside sklearn pipelines on fit rows only.\n- Validation and locked-test observations do not influence fitting, preprocessing, selection, or metrics.\n- Naive lag-1 and linear-regression baselines are present. No improvement or model-selection claim is made.\n- MAE, MSE, RMSE, and R\u00b2 were independently recomputed and match saved metrics.\n- All 10 serialized models loaded successfully and exactly reproduced saved predictions.\n- Saved scaler centers match the imputed development-fit data.\n- Seed 42, environment versions, configuration, selected features, split boundaries, hashes, predictions, metrics, models, log, and plot are preserved.\n- Phase 2 and Phase 3 artifact hashes match the recorded inputs.\n- Repository inspection found no deleted or destructive changes; `git diff --check` passed.\n- The focused and full pytest reruns could not start because the read-only validator environment provides no writable temporary directory. The preserved implementation evidence records 4 focused and 137 full-suite tests passing; independent code and artifact audits found no contradictory result.",
+  "validation_verdict": "PASS"
+}
