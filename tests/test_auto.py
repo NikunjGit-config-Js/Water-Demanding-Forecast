@@ -142,7 +142,9 @@ def build_runner(
     monkeypatch.setattr(
         auto_module, "_validate_phase_paths", lambda number, paths, **kwargs: None
     )
-    monkeypatch.setattr(auto_module, "_checkpoint_commit_for_phase", lambda number: None)
+    monkeypatch.setattr(
+        auto_module, "_checkpoint_commit_for_phase", lambda number: f"existing{number}"
+    )
     commit = committer or (
         lambda **kwargs: GitCheckpointResult("abc123", tuple(kwargs["expected_paths"]))
     )
@@ -328,10 +330,84 @@ def test_restart_commits_pass_checkpoint_without_rerunning_phase(
         ),
         encoding="utf-8",
     )
+    monkeypatch.setattr(
+        auto_module,
+        "_checkpoint_commit_for_phase",
+        lambda number: None if number == 13 else f"existing{number}",
+    )
     summary = runner.run()
     assert FakeFlow.calls == []
     assert len(commits) == 1
     assert summary["git_checkpoint_commits"]["13"] == "resumed123"
+
+
+def test_all_attempt_artifacts_are_owned_by_the_same_phase(
+    monkeypatch: pytest.MonkeyPatch, tmp_path: Path, checkpoint_dir: Path
+) -> None:
+    write_checkpoint(checkpoint_dir, 5)
+    monkeypatch.setattr(auto_module, "PROJECT_ROOT", tmp_path)
+    auto_module._validate_phase_paths(
+        5,
+        (
+            "artifacts/phase5/phase5_attempt_1_20260815T220000Z/actual_vs_predicted.png",
+            "artifacts/phase5/phase5_attempt_2_20260815T230000Z/models/ridge.joblib",
+            "experiments/phase5_chronological_holdout.py",
+            "tests/test_phase5_chronological_holdout.py",
+            "orchestration/state/phase_5_attempt_1_20260815T220000Z.txt",
+            "orchestration/state/checkpoints/phase_5_passed.json",
+            "STATUS.md",
+        ),
+    )
+
+
+def test_nested_artifact_from_another_phase_remains_rejected(
+    monkeypatch: pytest.MonkeyPatch, tmp_path: Path, checkpoint_dir: Path
+) -> None:
+    write_checkpoint(checkpoint_dir, 5)
+    monkeypatch.setattr(auto_module, "PROJECT_ROOT", tmp_path)
+    with pytest.raises(GitSafetyError, match="Unexpected Phase 5"):
+        auto_module._validate_phase_paths(
+            5, ("artifacts/phase6/phase6_attempt_1/results.json",)
+        )
+
+
+def test_missing_pass_commit_recovers_without_state_then_continues(
+    monkeypatch: pytest.MonkeyPatch, tmp_path: Path, checkpoint_dir: Path
+) -> None:
+    for number in range(6):
+        write_checkpoint(checkpoint_dir, number)
+    commits: list[dict[str, object]] = []
+    validate_phase_paths = auto_module._validate_phase_paths
+    runner = build_runner(
+        monkeypatch,
+        tmp_path,
+        checkpoint_dir,
+        outcomes={6: ("failed", 1, "failed", "deliberate stop")},
+        committer=lambda **kwargs: commits.append(kwargs)
+        or GitCheckpointResult("recovered5", tuple(kwargs["expected_paths"])),
+    )
+    monkeypatch.setattr(
+        auto_module,
+        "_checkpoint_commit_for_phase",
+        lambda number: None if number == 5 else f"commit{number}",
+    )
+    monkeypatch.setattr(auto_module, "PROJECT_ROOT", tmp_path)
+    monkeypatch.setattr(auto_module, "_validate_phase_paths", validate_phase_paths)
+    monkeypatch.setattr(
+        auto_module,
+        "changed_paths",
+        lambda: (
+            "artifacts/phase5/phase5_attempt_1/fail.png",
+            "artifacts/phase5/phase5_attempt_2/pass.png",
+            "experiments/phase5_chronological_holdout.py",
+        ),
+    )
+
+    summary = runner.run()
+
+    assert len(commits) == 1
+    assert summary["git_checkpoint_commits"]["5"] == "recovered5"
+    assert FakeFlow.calls == [6]
 
 
 @pytest.mark.parametrize(

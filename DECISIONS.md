@@ -112,3 +112,16 @@ Permission-required specialist output begins with exact `PERMISSION_REQUIRED`.
 Auto mode latches this state, preserves evidence, and stops until the user takes
 an explicit approved recovery action. Infrastructure errors and malformed
 validator output remain failures and can never create PASS checkpoints.
+
+## D026
+Treat all explicitly phase-owned outputs under a phase directory as belonging to
+that phase across failed, repaired, and passing attempts. Use boundary-safe
+prefix and filename checks instead of recursive `PurePosixPath.match` globs;
+retain protected-path, dataset, deletion, symlink, repository-control, and
+streamed secret checks, and never delete failed-attempt evidence.
+
+## D027
+Derive a missing local phase commit from the strict consecutive PASS checkpoint
+chain and Git history, not only ignored runtime state. Recover only one latest
+validated phase after its complete dirty delta passes the same narrow ownership
+and Git safety checks, then continue at the next phase without rerunning it.

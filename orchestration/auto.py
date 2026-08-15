@@ -5,7 +5,6 @@ import re
 from collections.abc import Callable
 from datetime import UTC, datetime
 from pathlib import Path
-from pathlib import PurePosixPath
 from typing import Any, Literal
 
 from pydantic import BaseModel, ConfigDict, Field
@@ -141,26 +140,30 @@ def _permission_request(summary: str) -> str | None:
 
 
 def _phase_path_is_expected(number: int, path: str) -> bool:
+    """Return whether *path* is explicitly owned by this phase."""
     if path in {"STATUS.md", "DECISIONS.md"}:
         return True
-    patterns = [
-        f"artifacts/phase{number}/**",
-        f"experiments/phase{number}*",
-        f"tests/test_phase{number}*",
-        f"src/**/phase{number}_*",
-        f"reports/phase{number}/**",
-        f"results/**/phase{number}*",
-        f"img/**/phase{number}*",
-        f"orchestration/state/Phase_{number}_attempt_*",
-        f"orchestration/state/phase_{number}_attempt_*",
-        f"orchestration/logs/Phase_{number}_attempt_*",
-    ]
+    if path == f"orchestration/state/checkpoints/phase_{number}_passed.json":
+        return True
+    if path.startswith((f"artifacts/phase{number}/", f"reports/phase{number}/")):
+        return True
+    patterns = (
+        rf"experiments/phase{number}(?:_|\.|$).+",
+        rf"tests/test_phase{number}(?:_|\.|$).+",
+        rf"src/(?:.*/)?phase{number}_.+",
+        rf"results/(?:.*/)?phase{number}(?:_|\.|$).+",
+        rf"img/(?:.*/)?phase{number}(?:_|\.|$).+",
+        rf"orchestration/state/[Pp]hase_{number}(?:_|\.|$).+",
+        rf"orchestration/logs/[Pp]hase_{number}(?:_|\.|$).+",
+    )
+    if any(re.fullmatch(pattern, path) for pattern in patterns):
+        return True
     if number == 11:
-        patterns.extend(("app/**", "tests/test_app*", "tests/test_phase11*"))
+        if path.startswith("app/") or re.fullmatch(r"tests/test_app(?:_|\.|$).+", path):
+            return True
     if number == 13:
-        patterns.extend(("README.md", "docs/**", "reports/**"))
-    candidate = PurePosixPath(path)
-    return any(candidate.match(pattern) for pattern in patterns)
+        return path == "README.md" or path.startswith(("docs/", "reports/"))
+    return False
 
 
 def _file_contains_secret(path: Path) -> bool:
@@ -326,40 +329,42 @@ class AutoRunner:
             if attempts is not None:
                 state.attempts_per_phase.setdefault(str(number), attempts)
 
-        # A crash can occur after PASS checkpoint creation but before its commit.
-        # The ignored state record identifies that exact phase and permits only
-        # the same safety-reviewed checkpoint operation on restart.
-        if state.active_phase is not None and state.active_phase in completed:
-            pending = state.active_phase
-            existing_commit = _checkpoint_commit_for_phase(pending)
+        # Discover a crash after PASS checkpoint creation but before its commit
+        # from the validated checkpoint chain and Git, not only ignored state.
+        missing_commits = [
+            number for number in completed if _checkpoint_commit_for_phase(number) is None
+        ]
+        if missing_commits:
+            pending = missing_commits[-1]
+            if len(missing_commits) != 1 or pending != completed[-1]:
+                return self._stop(
+                    state,
+                    "Validated checkpoints without Git commits are not a single "
+                    f"latest phase; refusing ambiguous recovery: {missing_commits}",
+                )
             try:
-                if existing_commit:
-                    require_clean_worktree()
-                    state.git_checkpoint_commits[str(pending)] = existing_commit
-                else:
-                    paths = changed_paths()
-                    _validate_phase_paths(pending, paths)
-                    checkpoint_path = (
-                        f"orchestration/state/checkpoints/phase_{pending}_passed.json"
-                    )
-                    result = self.committer(
-                        message=(
-                            f"feat: complete validated Phase {pending} "
-                            f"{PHASE_SHORT_NAMES[pending]}"
-                        ),
-                        expected_paths=paths,
-                        force_add_paths=(checkpoint_path,),
-                    )
-                    state.git_checkpoint_commits[str(pending)] = result.commit
-                    self._log(f"Phase {pending} pending local checkpoint committed")
+                paths = changed_paths()
+                _validate_phase_paths(pending, paths)
+                checkpoint_path = f"orchestration/state/checkpoints/phase_{pending}_passed.json"
+                result = self.committer(
+                    message=(
+                        f"feat: complete validated Phase {pending} "
+                        f"{PHASE_SHORT_NAMES[pending]}"
+                    ),
+                    expected_paths=paths,
+                    force_add_paths=(checkpoint_path,),
+                )
+                state.git_checkpoint_commits[str(pending)] = result.commit
+                self._log(f"Phase {pending} pending local checkpoint committed")
             except GitSafetyError as exc:
                 return self._stop(
                     state,
                     f"Phase {pending} PASS is preserved, but resume checkpoint was refused: {exc}",
                 )
-            state.active_phase = None
-            state.active_attempt = 0
-            state.failure_report = ""
+            if state.active_phase == pending:
+                state.active_phase = None
+                state.active_attempt = 0
+                state.failure_report = ""
             _save_state(state, self.state_path)
 
         start_number = len(completed)

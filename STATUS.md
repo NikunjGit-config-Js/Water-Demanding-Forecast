@@ -1,6 +1,6 @@
 # Project Status
 
-Current Phase: Phase 5 ready; automatic execution mode awaiting independent validation
+Current Phase: Auto-checkpoint recovery repair implemented; Phase 5 remains independently validated
 
 ## Completed
 - Repository cloned
@@ -137,13 +137,20 @@ Current Phase: Phase 5 ready; automatic execution mode awaiting independent vali
   credential formats and checkpoint scanning; both were added with regression
   coverage. Independent read-only revalidation returned exact PASS with 175 tests
   passing and `git diff --check` clean.
+- Phase 5 independently passed on attempt 2, but its local Git checkpoint was
+  blocked because nested attempt 1 artifacts were misclassified as unexpected.
+  Both failed/repaired attempt artifact sets remain preserved.
+- Phase ownership now accepts nested outputs from every attempt of only the
+  current phase, and restart recovery detects a structurally valid latest PASS
+  checkpoint missing its Git commit, safety-reviews and commits that phase delta,
+  then continues without rerunning the validated phase.
 
 ## Current
-Phases 0 through 4 are approved after exact independent validator PASS. The
-worktree was clean before the orchestration auto-mode implementation. Phase 5 has
-not been started.
+Phases 0 through 5 are approved after exact independent validator PASS. Phase 5
+attempt 1 and repaired attempt 2 artifacts are preserved; its local checkpoint
+commit awaits safe recovery after this orchestration repair is reviewed.
 
 ## Next
-The orchestration auto-mode change is independently approved. After committing
-this implementation change so the worktree is clean, `--auto` may resume at
-Phase 5. Preserve all approved Phase 0 through 4 evidence and the source dataset.
+Validate this orchestration repair without running Phase 5, Phase 6, or any ML
+experiment. A later `--auto` invocation may recover the missing Phase 5 local
+commit and continue at Phase 6.
