@@ -98,17 +98,20 @@
     }
   },
   "best_conventional_ml": {
-    "model": "naive_lag_1",
-    "mae": 13.20,
-    "source": "Phase 6/8 5-fold time-series CV"
+    "model": "ridge",
+    "mae": 17.32,
+    "mse": 818.29,
+    "rmse": 28.61,
+    "r2": 0.52,
+    "source": "Phase 5 chronological holdout"
   },
-  "best_overall": {
+  "best_simple_baseline": {
     "model": "naive_lag_1",
     "mae": 13.20,
     "rmse": 25.33,
     "r2": 0.09,
     "source": "Phase 6 5-fold time-series cross-validation",
-    "note": "Naive lag-1 baseline outperforms all ML/time-series models on this dataset"
+    "note": "Naive lag-1 baseline outperforms all conventional ML and time-series models on this dataset"
   },
   "checkpoints": {
     "phase_0": "PASS",
