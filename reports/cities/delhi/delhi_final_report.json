@@ -1,0 +1,140 @@
+{
+  "title": "Delhi Water Demand Forecasting - Validated ML Results",
+  "city": "delhi",
+  "dataset": {
+    "path": "data/cities/delhi/canonical/water_demand.csv",
+    "sha256": "cb0863a5089598b1cb88cab1a0670b00be9100f2b1625a929f7eb38d05ed5e1f",
+    "rows": 944,
+    "date_range": ["2018-04-01", "2022-02-27"],
+    "unit": "MGD",
+    "source": "Delhi Jal Board daily production data (13 pages, 125 production documents)",
+    "compatibility": "READY",
+    "coverage_percent": 66.06
+  },
+  "methodology": {
+    "calendar": "India (country=IN, subdivision=None, feature=is_india_holiday)",
+    "phase10_expected_rows": 944,
+    "tests_passing": 351,
+    "git_clean": true,
+    "upstream_push": "NEVER"
+  },
+  "validated_results": {
+    "phase5_holdout": {
+      "description": "Chronological 80/20 holdout evaluation",
+      "protocol": "train on first 755 rows, test on last 189 rows",
+      "best_model": "naive_lag_1",
+      "mae": 16.94,
+      "mse": 910.94,
+      "rmse": 30.18,
+      "r2": 0.46,
+      "all_models_tested": [
+        "naive_lag_1", "linear_regression", "ridge", "lasso",
+        "decision_tree", "knn", "svr", "random_forest",
+        "bagging", "gradient_boosting", "voting"
+      ]
+    },
+    "phase6_cv": {
+      "description": "5-fold time-series cross-validation",
+      "protocol": "expanding window, no shuffle",
+      "best_model": "naive_lag_1",
+      "mae_mean": 13.20,
+      "mae_std": 3.33,
+      "mse_mean": 656.40,
+      "mse_std": 215.91,
+      "rmse_mean": 25.33,
+      "rmse_std": 4.30,
+      "r2_mean": 0.09,
+      "r2_std": 0.48,
+      "folds": 5
+    },
+    "phase7_optuna": {
+      "description": "70/15/15 split with Optuna tuning on validation, locked test evaluation",
+      "protocol": "train 660, validation 141, locked test 143",
+      "best_model": "naive_lag_1",
+      "mae": 18.02,
+      "mse": 1029.70,
+      "rmse": 32.09,
+      "r2": 0.43,
+      "tuning": "Optuna on validation set only, locked test untouched until final"
+    },
+    "phase8_cv_optuna": {
+      "description": "Nested time-series CV with Optuna per fold",
+      "protocol": "5-fold expanding window with per-fold Optuna tuning",
+      "best_model": "naive_lag_1",
+      "mae_mean": 13.20,
+      "mae_std": 3.33,
+      "mse_mean": 656.40,
+      "mse_std": 215.91,
+      "rmse_mean": 25.33,
+      "rmse_std": 4.30,
+      "r2_mean": 0.09,
+      "r2_std": 0.48,
+      "folds": 5
+    },
+    "phase9_timeseries": {
+      "description": "Classical time-series baselines (ARIMA, SARIMAX, Prophet, LSTM, GRU, CNN-1D)",
+      "protocol": "fixed-origin recursive multi-step forecast, 189 holdout rows",
+      "best_model": "naive_last",
+      "mae": 25.52,
+      "mse": 2158.20,
+      "rmse": 46.46,
+      "r2": -0.28,
+      "models_tested": [
+        "naive_last", "seasonal_naive_7", "arima", "sarimax",
+        "prophet", "lstm", "gru", "cnn_1d"
+      ],
+      "neural_gpu": true
+    },
+    "phase10_patchtst": {
+      "description": "PatchTST transformer forecasting model",
+      "protocol": "causal rolling one-step validation, 141 validation rows, 143 locked test rows",
+      "best_model": "naive_lag1",
+      "mae": 16.28,
+      "mse": 752.75,
+      "rmse": 27.44,
+      "r2": 0.53,
+      "improvement_claimed": false,
+      "gpu_used": true
+    }
+  },
+  "best_conventional_ml": {
+    "model": "naive_lag_1",
+    "mae": 13.20,
+    "source": "Phase 6/8 5-fold time-series CV"
+  },
+  "best_overall": {
+    "model": "naive_lag_1",
+    "mae": 13.20,
+    "rmse": 25.33,
+    "r2": 0.09,
+    "source": "Phase 6 5-fold time-series cross-validation",
+    "note": "Naive lag-1 baseline outperforms all ML/time-series models on this dataset"
+  },
+  "checkpoints": {
+    "phase_0": "PASS",
+    "phase_1": "PASS",
+    "phase_2": "PASS",
+    "phase_3": "PASS",
+    "phase_4": "PASS",
+    "phase_5": "PASS",
+    "phase_6": "PASS",
+    "phase_7": "PASS",
+    "phase_8": "PASS",
+    "phase_9": "PASS",
+    "phase_10": "PASS",
+    "phase_11": "PASS",
+    "phase_12": "PASS",
+    "phase_13": "PASS",
+    "total": "14/14 PASS"
+  },
+  "validation_status": {
+    "overall": "PASS",
+    "leakage": "NONE - all splits chronological, no future info in training",
+    "locked_test_isolation": "PASS - test set untouched until final evaluation",
+    "delhi_london_isolation": "PASS - no London artifacts reused",
+    "artifact_completeness": "PASS - all 11 phase artifact dirs present",
+    "checkpoint_completeness": "PASS - all 14 checkpoints present and valid",
+    "provenance": "PASS - dataset SHA256 recorded, DJB documents archived",
+    "no_secrets": "PASS - no keys or secrets in committed files"
+  }
+}
