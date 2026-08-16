@@ -33,9 +33,11 @@ def source(**changes: object) -> CitySource:
 
 def test_registry_contains_supported_cities_without_invented_india_sources() -> None:
     assert supported_cities() == ("london", "bengaluru", "delhi", "gurgaon", "hyderabad", "pune")
-    for city in supported_cities()[1:]:
+    for city in ("bengaluru", "gurgaon", "hyderabad", "pune"):
         entry = get_city_source(city)
         assert not entry.configured and entry.source_url is None and entry.source_name is None
+    delhi = get_city_source("delhi")
+    assert delhi.configured and delhi.adapter_type == "djb_archive"
     assert get_city_source("london").source_url is None
 
 
@@ -45,7 +47,7 @@ def test_invalid_city_slugs_are_rejected(slug: str) -> None:
 
 
 def test_missing_and_unknown_sources_fail_cleanly(tmp_path: Path) -> None:
-    assert acquire(get_city_source("delhi"), tmp_path).status == DataStatus.DATA_SOURCE_REQUIRED
+    assert acquire(get_city_source("gurgaon"), tmp_path).status == DataStatus.DATA_SOURCE_REQUIRED
     with pytest.raises(KeyError, match="unknown city"): get_city_source("mumbai")
 
 
@@ -222,7 +224,7 @@ def test_configured_source_mocked_end_to_end_is_ready(tmp_path: Path) -> None:
 
 
 def test_unconfigured_preflight_writes_machine_readable_gate_and_stops(tmp_path: Path) -> None:
-    report = prepare_city_data("delhi", tmp_path)
+    report = prepare_city_data("pune", tmp_path)
     path = tmp_path / "canonical" / "city_data_compatibility.json"
     assert report.status == DataStatus.DATA_SOURCE_REQUIRED
     assert json.loads(path.read_text())["status"] == "DATA_SOURCE_REQUIRED"

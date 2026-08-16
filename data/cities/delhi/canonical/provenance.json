@@ -1,0 +1,30 @@
+{
+  "acquisition_method": "djb_archive_crawl",
+  "adapter_type": "djb_archive",
+  "canonical_path": "/home/asus/projects/water-forecast/data/cities/delhi/canonical/water_demand.csv",
+  "canonical_sha256": "cb0863a5089598b1cb88cab1a0670b00be9100f2b1625a929f7eb38d05ed5e1f",
+  "canonical_unit": "MGD",
+  "city": "delhi",
+  "date_end": "2022-02-27",
+  "date_start": "2018-04-01",
+  "downloaded_at_utc": "2026-08-16T10:34:29.068710+00:00",
+  "expected_frequency": "daily",
+  "official": true,
+  "raw_format": "pdf_archive",
+  "raw_path": "/home/asus/projects/water-forecast/data/cities/delhi/documents",
+  "raw_sha256": "2dd4ea40347713ab9d08c887c7e2359d4b1c54f461bcfc963c1f60ca1cd7ac2a",
+  "row_count": 944,
+  "schema_version": 1,
+  "source_name": "Delhi Jal Board - Daily Water Production Report Archive",
+  "source_unit": "MGD",
+  "source_url": "https://delhijalboard.delhi.gov.in/daily-water-production-report",
+  "transformations": [
+    "classified 129 archive entries",
+    "accepted 125 production documents",
+    "rejected 4 non-production documents",
+    "extracted 944 daily observations",
+    "resolved 32 duplicates",
+    "excluded 25 conflicting duplicates"
+  ],
+  "wards_aggregated": false
+}

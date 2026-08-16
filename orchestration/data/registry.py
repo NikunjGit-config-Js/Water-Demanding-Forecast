@@ -49,8 +49,24 @@ _REGISTRY = MappingProxyType({
         consumption_column="Consumption", adapter_type="existing_canonical",
         notes="Existing validated artifact; external source URL and unit are not evidenced here.",
     ),
-    **{city: CitySource(city=city, configured=False, notes="Verified compatible source required.")
-       for city in ("bengaluru", "delhi", "gurgaon", "hyderabad", "pune")},
+    "bengaluru": CitySource(city="bengaluru", configured=False, notes="Verified compatible source required."),
+    "delhi": CitySource(
+        city="delhi", configured=True,
+        source_name="Delhi Jal Board - Daily Water Production Report Archive",
+        source_url="https://delhijalboard.delhi.gov.in/daily-water-production-report",
+        official=True, format="pdf", expected_frequency="daily",
+        date_column="Date", consumption_column="Consumption",
+        unit="MGD", canonical_unit="MGD",
+        adapter_type="djb_archive",
+        notes=(
+            "Official DJB daily water production reports. Multi-document paginated "
+            "archive. Source-specific adapter required. Values represent verified "
+            "Delhi municipal daily water production/supply proxy in MGD."
+        ),
+    ),
+    "gurgaon": CitySource(city="gurgaon", configured=False, notes="Verified compatible source required."),
+    "hyderabad": CitySource(city="hyderabad", configured=False, notes="Verified compatible source required."),
+    "pune": CitySource(city="pune", configured=False, notes="Verified compatible source required."),
 })
 
 
