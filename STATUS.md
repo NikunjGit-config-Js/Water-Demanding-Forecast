@@ -1,6 +1,6 @@
 # Project Status
 
-Current Phase: Phase 11 repair attempt 2 implemented and tested; awaiting independent validation
+Current Phase: Phase 12 repair attempt 2 independently validated PASS
 
 ## Completed
 - Repository cloned
@@ -209,13 +209,35 @@ Current Phase: Phase 11 repair attempt 2 implemented and tested; awaiting indepe
   (8), full discovery passes (204), syntax compilation and `git diff --check`
   pass. Evidence is preserved under
   `artifacts/phase11/phase11_attempt_2_20260816T000800Z/`.
+- Independent Phase 11 validation returned exact PASS and its validated local
+  checkpoint commit is `1402a9e`.
+- Phase 12 supervisor attempt 1 added a reproducible pre-validator full-validation
+  audit. It verifies the strict Phase 0--11 PASS checkpoint chain, source dataset
+  integrity, and recomputes preserved Phase 5--10 metrics from predictions without
+  fitting, tuning, or selecting models. Focused tests pass (2), full discovery
+  passes (206), and evidence is preserved under
+  `artifacts/phase12/phase12_attempt_1_20260816T040000Z/`.
+- Phase 12 repair attempt 2 made the audit fail closed against the approved
+  dataset digest, preserved Phase 8--10 hash manifests, and validated-commit
+  digests for the pre-manifest Phase 5--7 artifacts. It now enforces exact
+  evaluation dates, rows, boundaries, chronological folds, canonical actuals,
+  and Phase 8 fold-local winners. After an independent review exposed mutable
+  protocol and manifest trust roots, the repair also anchored manifests and
+  reports to their validated commits and checks canonical expanding training
+  prefixes. Sixteen focused tests include coordinated-tamper cases; full
+  discovery passes (220), compilation and `git diff --check` pass, and the
+  regenerated report is preserved under
+  `artifacts/phase12/phase12_attempt_2_20260816T050000Z/`.
+- Independent Phase 12 revalidation returned exact PASS after reproducing the
+  prior protocol-tampering exploit and confirming it now fails closed. The
+  focused suite passed 16 tests, the full suite passed 220 tests, and validation
+  was read-only.
 
 ## Current
-Phases 0 through 10 are approved after exact independent validator PASS. Phase
-11 repair attempt 2 is implemented and tested, awaiting independent validation.
+Phases 0 through 11 are approved after exact independent validator PASS. Phase
+12 repair attempt 2 is independently approved after exact validator PASS.
 Invalid/interim Phase 8 and failed Phase 9 attempts remain preserved but are not
 exposed by the dashboard.
 
 ## Next
-Independent Validator must review Phase 11 attempt 2 and return exact PASS before
-Phase 12 may begin.
+Phase 13 may begin under the deterministic specialist routing and validation gates.

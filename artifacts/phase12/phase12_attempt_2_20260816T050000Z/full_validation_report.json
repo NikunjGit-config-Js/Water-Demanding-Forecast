@@ -1,0 +1,202 @@
+{
+  "checkpoint_chain": [
+    {
+      "phase": "Phase 0",
+      "test_returncode": 0,
+      "validated_at_utc": "2026-08-15T20:19:29.162244+00:00"
+    },
+    {
+      "phase": "Phase 1",
+      "test_returncode": 0,
+      "validated_at_utc": "2026-08-15T20:30:26.329309+00:00"
+    },
+    {
+      "phase": "Phase 2",
+      "test_returncode": 0,
+      "validated_at_utc": "2026-08-15T20:40:35.899757+00:00"
+    },
+    {
+      "phase": "Phase 3",
+      "test_returncode": 0,
+      "validated_at_utc": "2026-08-15T20:49:55.259893+00:00"
+    },
+    {
+      "phase": "Phase 4",
+      "test_returncode": 0,
+      "validated_at_utc": "2026-08-15T20:58:16.898470+00:00"
+    },
+    {
+      "phase": "Phase 5",
+      "test_returncode": 0,
+      "validated_at_utc": "2026-08-15T21:47:22.974226+00:00"
+    },
+    {
+      "phase": "Phase 6",
+      "test_returncode": 0,
+      "validated_at_utc": "2026-08-15T22:03:38.107402+00:00"
+    },
+    {
+      "phase": "Phase 7",
+      "test_returncode": 0,
+      "validated_at_utc": "2026-08-15T22:16:08.853003+00:00"
+    },
+    {
+      "phase": "Phase 8",
+      "test_returncode": 0,
+      "validated_at_utc": "2026-08-15T23:15:05.013428+00:00"
+    },
+    {
+      "phase": "Phase 9",
+      "test_returncode": 0,
+      "validated_at_utc": "2026-08-15T23:33:18.280991+00:00"
+    },
+    {
+      "phase": "Phase 10",
+      "test_returncode": 0,
+      "validated_at_utc": "2026-08-15T23:49:03.106864+00:00"
+    },
+    {
+      "phase": "Phase 11",
+      "test_returncode": 0,
+      "validated_at_utc": "2026-08-16T00:18:37.901674+00:00"
+    }
+  ],
+  "dataset": {
+    "approved_sha256": "2d95a510176c4dad93eae25958c714ab713790512193f55cf5747b44153da6c9",
+    "end_date": "2020-09-02",
+    "path": "data/preprocessed/all/preprocessed_data.csv",
+    "rows": 3800,
+    "sha256": "2d95a510176c4dad93eae25958c714ab713790512193f55cf5747b44153da6c9",
+    "start_date": "2009-07-01"
+  },
+  "evaluations": {
+    "phase10": {
+      "end_date": "2019-02-10",
+      "hashes": {
+        "authority": "artifacts/phase10/phase10_attempt_1_final_20260816T021000Z/artifact_hashes.json",
+        "forecast_report.json": "113b9a34f49fb2b7b79cdc53fd25c4a0b63e038d426f7b9d01e844f897c4e0d8",
+        "manifest_sha256": "c774646adde34a23eaf1805a87e46c10eef32d55a5e235e014726e22321be4c9",
+        "metrics.csv": "55e968b903d679f92d3f69bdf67c05e38be69040c909bfb7b9836b047875c5c1",
+        "predictions.csv": "8a5d4d0191f2ed51fb501e0cf5f73fb57e6c5623922e23c76c49fb72d89f6bea"
+      },
+      "models": [
+        "patchtst",
+        "naive_lag1"
+      ],
+      "rows": 570,
+      "start_date": "2017-07-21"
+    },
+    "phase5": {
+      "end_date": "2020-09-02",
+      "hashes": {
+        "authority": "approved validated-commit digest registry",
+        "holdout_report.json": "11d7dab2bd6d948ab287d025a62251e5d254857b0005c5339cc37115b8cbc043",
+        "metrics.csv": "8f0870ae83755fa77180b4d73a950101edbd2d3f1a12e32eb732de4e25992c02",
+        "predictions.csv": "2131a887ebdf4900bd53d5d02573042c789c72f970b127bfc111563e17921ef9"
+      },
+      "models": [
+        "naive_lag_1",
+        "linear_regression",
+        "ridge",
+        "lasso",
+        "decision_tree",
+        "knn",
+        "svr",
+        "random_forest",
+        "bagging",
+        "gradient_boosting",
+        "voting"
+      ],
+      "rows": 760,
+      "start_date": "2018-08-05"
+    },
+    "phase6": {
+      "end_date": "2020-09-02",
+      "hashes": {
+        "authority": "approved validated-commit digest registry",
+        "cv_report.json": "2b90df125d15e8a973fba1009fb9c5553580c71e650193b12efa1dbcdfe34b06",
+        "metrics_summary.csv": "6105242b742e5b2d08a9edc20b6f5380b1ff589d2297a5ecef2ec4a7ad449546",
+        "predictions.csv": "f34d86aaf21827c3a96763a84c500e489ed3a3772d519948253ebd0384df378e"
+      },
+      "models": [
+        "naive_lag_1",
+        "linear_regression",
+        "ridge",
+        "lasso",
+        "decision_tree",
+        "knn",
+        "svr",
+        "random_forest",
+        "bagging",
+        "gradient_boosting",
+        "voting"
+      ],
+      "rows": 3165,
+      "start_date": "2011-03-28"
+    },
+    "phase7": {
+      "end_date": "2020-09-02",
+      "hashes": {
+        "authority": "approved validated-commit digest registry",
+        "locked_test_metrics.csv": "5615144d6fb72f857c8a40068cf9d6791b0a91c990fea0271c49b7b1ee078780",
+        "locked_test_predictions.csv": "17941ef9f4367f82fa83abffbec637922139678a4e0370868924dbbb95a1e78e",
+        "split_and_selection_report.json": "fef0e44d1ae6eecf7654c684323f9d794280acc3f437d7ef9ec3fbf303b2506c"
+      },
+      "models": [
+        "naive_lag_1",
+        "linear_regression",
+        "selected_model"
+      ],
+      "rows": 570,
+      "start_date": "2019-02-11"
+    },
+    "phase8": {
+      "end_date": "2020-09-02",
+      "hashes": {
+        "authority": "artifacts/phase8/phase8_attempt_2_final_20260816T003000Z/artifact_hashes.json",
+        "cv_selection_report.json": "2f74f207ccff61f5ca854f51a344c743c0ed785e350321d9251d85d82b2bf54d",
+        "manifest_sha256": "49e8036bbb3d9339ba1a3edd3b4c47e90486d854ecbb09b9c32dac28282cfe7b",
+        "metrics_summary.csv": "613cbd756c6d334d2e7cb8843900373a40667a13d1c1c8e95cb3ee15e63ff045",
+        "predictions.csv": "c8b058c92d5a3fc2fa3b4483cc6d56a428af8ecbbe9e901b45605ae4ee5af606"
+      },
+      "models": [
+        "naive_lag_1",
+        "linear_regression",
+        "selected_model"
+      ],
+      "rows": 3165,
+      "start_date": "2011-03-28"
+    },
+    "phase9": {
+      "end_date": "2020-09-02",
+      "hashes": {
+        "authority": "artifacts/phase9/phase9_attempt_1_final_20260816T012000Z/artifact_hashes.json",
+        "forecast_report.json": "1a0b160cd21dd5a806abc781fd224287686ea0bc8660b46219ab62170ba9432f",
+        "manifest_sha256": "f332d903da3e7fd9e40d11ae4cded28df078c844ee26a957787d75dd968d398a",
+        "metrics.csv": "3b3e05553d5b4eec34208613806c4530293fec32d6ba6b0e8a5229e3901c455e",
+        "predictions.csv": "855c9bca3603292b05685ddad3d65f9a479045fdacda24dc6e0cbb95b60c7011"
+      },
+      "models": [
+        "naive_last",
+        "seasonal_naive_7",
+        "arima",
+        "sarimax",
+        "prophet",
+        "lstm",
+        "gru",
+        "cnn_1d"
+      ],
+      "rows": 760,
+      "start_date": "2018-08-05"
+    }
+  },
+  "generated_at_utc": "2026-08-16T00:46:41.563540+00:00",
+  "independent_validator_invoked": false,
+  "limitations": [
+    "This report is implementation evidence, not an independent validator verdict.",
+    "Phase 13 documentation and final artifacts are outside this audit's scope."
+  ],
+  "phase": "Phase 12",
+  "scope": "pre-validator full validation audit",
+  "status": "AUDIT_CHECKS_PASSED"
+}
