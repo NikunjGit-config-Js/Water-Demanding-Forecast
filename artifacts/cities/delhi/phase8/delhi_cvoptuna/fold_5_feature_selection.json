@@ -1,0 +1,95 @@
+{
+  "candidate_feature_count": 40,
+  "domain_sanity": {
+    "constant_features_excluded": [],
+    "finite_values_required_after_training-fitted_imputation": true,
+    "known_season_encoding": {
+      "autumn": 3.0,
+      "spring": 1.0,
+      "summer": 2.0,
+      "winter": 0.0
+    }
+  },
+  "importance": {
+    "combined_score": "equal-weight mean of normalized model importance, non-negative normalized permutation importance, and stability",
+    "model": "RandomForestRegressor",
+    "model_importance": "mean impurity importance across expanding-window folds",
+    "permutation_importance": "mean increase in MAE on each later in-training assessment fold",
+    "stability": "fraction of folds ranked in the top 15"
+  },
+  "leakage_screening": {
+    "exact_target_matches": [],
+    "forbidden_candidate_names": [],
+    "phase2_causality_manifest_required": true,
+    "rows_screened": 787,
+    "status": "passed"
+  },
+  "redundancy": {
+    "dropped_feature_to_retained_feature": {
+      "day_of_year_sin": "fourier_yearly_sin_1",
+      "fourier_yearly_cos_1": "day_of_year_cos"
+    },
+    "pairs_at_or_above_threshold": [
+      {
+        "absolute_correlation": 0.9999812910405476,
+        "feature_a": "day_of_year_sin",
+        "feature_b": "fourier_yearly_sin_1"
+      },
+      {
+        "absolute_correlation": 0.9999908175557519,
+        "feature_a": "day_of_year_cos",
+        "feature_b": "fourier_yearly_cos_1"
+      }
+    ],
+    "threshold": 0.98
+  },
+  "selected_feature_count": 20,
+  "selected_features": [
+    "rolling_median_7",
+    "consumption_lag_1",
+    "day_of_year_cos",
+    "consumption_lag_14",
+    "ema_7",
+    "growth_7d",
+    "rolling_mean_7",
+    "rolling_slope_7",
+    "rolling_std_7",
+    "day_over_day_change",
+    "fourier_yearly_cos_2",
+    "rolling_std_30",
+    "rolling_min_7",
+    "rolling_max_30",
+    "ema_30",
+    "rolling_mean_30",
+    "fourier_yearly_sin_2",
+    "same_weekday_previous_week",
+    "consumption_lag_7",
+    "consumption_lag_30"
+  ],
+  "time_splits": [
+    {
+      "assessment_end_row_inclusive": 394,
+      "assessment_start_row": 199,
+      "fit_end_row_inclusive": 198,
+      "fit_start_row": 0,
+      "fold": 1,
+      "imputation_fitted_on_fit_rows_only": true
+    },
+    {
+      "assessment_end_row_inclusive": 590,
+      "assessment_start_row": 395,
+      "fit_end_row_inclusive": 394,
+      "fit_start_row": 0,
+      "fold": 2,
+      "imputation_fitted_on_fit_rows_only": true
+    },
+    {
+      "assessment_end_row_inclusive": 786,
+      "assessment_start_row": 591,
+      "fit_end_row_inclusive": 590,
+      "fit_start_row": 0,
+      "fold": 3,
+      "imputation_fitted_on_fit_rows_only": true
+    }
+  ]
+}

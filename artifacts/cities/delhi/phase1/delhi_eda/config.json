@@ -1,0 +1,30 @@
+{
+  "analysis_scope": "non-mutating validation and univariate exploratory data analysis",
+  "artifacts": [
+    "calendar_seasonality.png",
+    "calendar_summary.csv",
+    "data_quality_report.json",
+    "descriptive_statistics.csv",
+    "suspicious_observations.csv",
+    "target_distribution_boxplot.png",
+    "time_series_trend.png",
+    "config.json"
+  ],
+  "chronology_policy": "preserve input row order; do not sort or impute",
+  "completed_at_utc": "2026-08-16T10:55:23.971351+00:00",
+  "dataset": {
+    "path": "/home/asus/projects/water-forecast/data/cities/delhi/canonical/water_demand.csv",
+    "sha256": "cb0863a5089598b1cb88cab1a0670b00be9100f2b1625a929f7eb38d05ed5e1f"
+  },
+  "environment": {
+    "numpy": "2.5.2",
+    "pandas": "2.3.3",
+    "python": "3.12.14"
+  },
+  "experiment_id": "delhi_eda",
+  "outlier_policy": "report Tukey 1.5*IQR candidates; do not remove or transform values",
+  "phase": "Phase 1",
+  "random_seed": null,
+  "random_seed_note": "No randomized operations are used.",
+  "started_at_utc": "2026-08-16T10:55:23.615259+00:00"
+}

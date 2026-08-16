@@ -1,0 +1,426 @@
+{
+  "chronology": {
+    "gap_count": 61,
+    "gaps": [
+      {
+        "elapsed_days": 274,
+        "missing_calendar_days": 273,
+        "next_date": "2018-12-31",
+        "previous_date": "2018-04-01"
+      },
+      {
+        "elapsed_days": 2,
+        "missing_calendar_days": 1,
+        "next_date": "2019-01-03",
+        "previous_date": "2019-01-01"
+      },
+      {
+        "elapsed_days": 2,
+        "missing_calendar_days": 1,
+        "next_date": "2019-01-09",
+        "previous_date": "2019-01-07"
+      },
+      {
+        "elapsed_days": 2,
+        "missing_calendar_days": 1,
+        "next_date": "2019-02-01",
+        "previous_date": "2019-01-30"
+      },
+      {
+        "elapsed_days": 4,
+        "missing_calendar_days": 3,
+        "next_date": "2019-04-04",
+        "previous_date": "2019-03-31"
+      },
+      {
+        "elapsed_days": 2,
+        "missing_calendar_days": 1,
+        "next_date": "2019-05-05",
+        "previous_date": "2019-05-03"
+      },
+      {
+        "elapsed_days": 3,
+        "missing_calendar_days": 2,
+        "next_date": "2019-05-22",
+        "previous_date": "2019-05-19"
+      },
+      {
+        "elapsed_days": 3,
+        "missing_calendar_days": 2,
+        "next_date": "2019-05-30",
+        "previous_date": "2019-05-27"
+      },
+      {
+        "elapsed_days": 2,
+        "missing_calendar_days": 1,
+        "next_date": "2019-07-31",
+        "previous_date": "2019-07-29"
+      },
+      {
+        "elapsed_days": 2,
+        "missing_calendar_days": 1,
+        "next_date": "2019-09-05",
+        "previous_date": "2019-09-03"
+      },
+      {
+        "elapsed_days": 2,
+        "missing_calendar_days": 1,
+        "next_date": "2019-09-29",
+        "previous_date": "2019-09-27"
+      },
+      {
+        "elapsed_days": 2,
+        "missing_calendar_days": 1,
+        "next_date": "2019-10-05",
+        "previous_date": "2019-10-03"
+      },
+      {
+        "elapsed_days": 2,
+        "missing_calendar_days": 1,
+        "next_date": "2019-10-25",
+        "previous_date": "2019-10-23"
+      },
+      {
+        "elapsed_days": 2,
+        "missing_calendar_days": 1,
+        "next_date": "2019-11-06",
+        "previous_date": "2019-11-04"
+      },
+      {
+        "elapsed_days": 6,
+        "missing_calendar_days": 5,
+        "next_date": "2019-11-18",
+        "previous_date": "2019-11-12"
+      },
+      {
+        "elapsed_days": 2,
+        "missing_calendar_days": 1,
+        "next_date": "2019-12-14",
+        "previous_date": "2019-12-12"
+      },
+      {
+        "elapsed_days": 2,
+        "missing_calendar_days": 1,
+        "next_date": "2019-12-23",
+        "previous_date": "2019-12-21"
+      },
+      {
+        "elapsed_days": 5,
+        "missing_calendar_days": 4,
+        "next_date": "2019-12-31",
+        "previous_date": "2019-12-26"
+      },
+      {
+        "elapsed_days": 3,
+        "missing_calendar_days": 2,
+        "next_date": "2020-01-03",
+        "previous_date": "2019-12-31"
+      },
+      {
+        "elapsed_days": 2,
+        "missing_calendar_days": 1,
+        "next_date": "2020-01-06",
+        "previous_date": "2020-01-04"
+      },
+      {
+        "elapsed_days": 2,
+        "missing_calendar_days": 1,
+        "next_date": "2020-01-18",
+        "previous_date": "2020-01-16"
+      },
+      {
+        "elapsed_days": 5,
+        "missing_calendar_days": 4,
+        "next_date": "2020-01-31",
+        "previous_date": "2020-01-26"
+      },
+      {
+        "elapsed_days": 2,
+        "missing_calendar_days": 1,
+        "next_date": "2020-03-15",
+        "previous_date": "2020-03-13"
+      },
+      {
+        "elapsed_days": 9,
+        "missing_calendar_days": 8,
+        "next_date": "2020-03-28",
+        "previous_date": "2020-03-19"
+      },
+      {
+        "elapsed_days": 3,
+        "missing_calendar_days": 2,
+        "next_date": "2020-03-31",
+        "previous_date": "2020-03-28"
+      },
+      {
+        "elapsed_days": 2,
+        "missing_calendar_days": 1,
+        "next_date": "2020-04-02",
+        "previous_date": "2020-03-31"
+      },
+      {
+        "elapsed_days": 2,
+        "missing_calendar_days": 1,
+        "next_date": "2020-04-29",
+        "previous_date": "2020-04-27"
+      },
+      {
+        "elapsed_days": 3,
+        "missing_calendar_days": 2,
+        "next_date": "2020-06-10",
+        "previous_date": "2020-06-07"
+      },
+      {
+        "elapsed_days": 6,
+        "missing_calendar_days": 5,
+        "next_date": "2020-06-30",
+        "previous_date": "2020-06-24"
+      },
+      {
+        "elapsed_days": 3,
+        "missing_calendar_days": 2,
+        "next_date": "2020-07-08",
+        "previous_date": "2020-07-05"
+      },
+      {
+        "elapsed_days": 2,
+        "missing_calendar_days": 1,
+        "next_date": "2020-08-04",
+        "previous_date": "2020-08-02"
+      },
+      {
+        "elapsed_days": 2,
+        "missing_calendar_days": 1,
+        "next_date": "2020-08-08",
+        "previous_date": "2020-08-06"
+      },
+      {
+        "elapsed_days": 2,
+        "missing_calendar_days": 1,
+        "next_date": "2020-08-24",
+        "previous_date": "2020-08-22"
+      },
+      {
+        "elapsed_days": 2,
+        "missing_calendar_days": 1,
+        "next_date": "2020-09-04",
+        "previous_date": "2020-09-02"
+      },
+      {
+        "elapsed_days": 43,
+        "missing_calendar_days": 42,
+        "next_date": "2020-10-31",
+        "previous_date": "2020-09-18"
+      },
+      {
+        "elapsed_days": 2,
+        "missing_calendar_days": 1,
+        "next_date": "2020-11-21",
+        "previous_date": "2020-11-19"
+      },
+      {
+        "elapsed_days": 2,
+        "missing_calendar_days": 1,
+        "next_date": "2021-01-12",
+        "previous_date": "2021-01-10"
+      },
+      {
+        "elapsed_days": 2,
+        "missing_calendar_days": 1,
+        "next_date": "2021-02-11",
+        "previous_date": "2021-02-09"
+      },
+      {
+        "elapsed_days": 3,
+        "missing_calendar_days": 2,
+        "next_date": "2021-02-23",
+        "previous_date": "2021-02-20"
+      },
+      {
+        "elapsed_days": 32,
+        "missing_calendar_days": 31,
+        "next_date": "2021-03-31",
+        "previous_date": "2021-02-27"
+      },
+      {
+        "elapsed_days": 2,
+        "missing_calendar_days": 1,
+        "next_date": "2021-05-23",
+        "previous_date": "2021-05-21"
+      },
+      {
+        "elapsed_days": 2,
+        "missing_calendar_days": 1,
+        "next_date": "2021-05-31",
+        "previous_date": "2021-05-29"
+      },
+      {
+        "elapsed_days": 2,
+        "missing_calendar_days": 1,
+        "next_date": "2021-06-10",
+        "previous_date": "2021-06-08"
+      },
+      {
+        "elapsed_days": 3,
+        "missing_calendar_days": 2,
+        "next_date": "2021-06-16",
+        "previous_date": "2021-06-13"
+      },
+      {
+        "elapsed_days": 2,
+        "missing_calendar_days": 1,
+        "next_date": "2021-06-22",
+        "previous_date": "2021-06-20"
+      },
+      {
+        "elapsed_days": 2,
+        "missing_calendar_days": 1,
+        "next_date": "2021-07-01",
+        "previous_date": "2021-06-29"
+      },
+      {
+        "elapsed_days": 2,
+        "missing_calendar_days": 1,
+        "next_date": "2021-07-03",
+        "previous_date": "2021-07-01"
+      },
+      {
+        "elapsed_days": 2,
+        "missing_calendar_days": 1,
+        "next_date": "2021-07-10",
+        "previous_date": "2021-07-08"
+      },
+      {
+        "elapsed_days": 2,
+        "missing_calendar_days": 1,
+        "next_date": "2021-07-12",
+        "previous_date": "2021-07-10"
+      },
+      {
+        "elapsed_days": 2,
+        "missing_calendar_days": 1,
+        "next_date": "2021-08-07",
+        "previous_date": "2021-08-05"
+      },
+      {
+        "elapsed_days": 2,
+        "missing_calendar_days": 1,
+        "next_date": "2021-08-14",
+        "previous_date": "2021-08-12"
+      },
+      {
+        "elapsed_days": 2,
+        "missing_calendar_days": 1,
+        "next_date": "2021-09-07",
+        "previous_date": "2021-09-05"
+      },
+      {
+        "elapsed_days": 3,
+        "missing_calendar_days": 2,
+        "next_date": "2021-09-10",
+        "previous_date": "2021-09-07"
+      },
+      {
+        "elapsed_days": 2,
+        "missing_calendar_days": 1,
+        "next_date": "2021-09-14",
+        "previous_date": "2021-09-12"
+      },
+      {
+        "elapsed_days": 4,
+        "missing_calendar_days": 3,
+        "next_date": "2021-09-21",
+        "previous_date": "2021-09-17"
+      },
+      {
+        "elapsed_days": 16,
+        "missing_calendar_days": 15,
+        "next_date": "2021-10-11",
+        "previous_date": "2021-09-25"
+      },
+      {
+        "elapsed_days": 9,
+        "missing_calendar_days": 8,
+        "next_date": "2021-11-16",
+        "previous_date": "2021-11-07"
+      },
+      {
+        "elapsed_days": 3,
+        "missing_calendar_days": 2,
+        "next_date": "2021-11-30",
+        "previous_date": "2021-11-27"
+      },
+      {
+        "elapsed_days": 11,
+        "missing_calendar_days": 10,
+        "next_date": "2021-12-16",
+        "previous_date": "2021-12-05"
+      },
+      {
+        "elapsed_days": 10,
+        "missing_calendar_days": 9,
+        "next_date": "2022-01-31",
+        "previous_date": "2022-01-21"
+      },
+      {
+        "elapsed_days": 10,
+        "missing_calendar_days": 9,
+        "next_date": "2022-02-23",
+        "previous_date": "2022-02-13"
+      }
+    ],
+    "missing_calendar_day_count": 485,
+    "non_increasing_transition_count": 0,
+    "observed_frequency": null,
+    "strictly_increasing": true
+  },
+  "columns": [
+    "Date",
+    "Consumption"
+  ],
+  "correlation_analysis": {
+    "performed": false,
+    "reason": "Consumption is the only numeric variable; self-correlation is not informative."
+  },
+  "date_range": {
+    "end": "2022-02-27",
+    "start": "2018-04-01"
+  },
+  "duplicates": {
+    "duplicate_date_count": 0,
+    "duplicate_row_count": 0
+  },
+  "invalid_values": {
+    "invalid_date_count": 0,
+    "invalid_date_rows": [],
+    "non_finite_consumption_count": 0,
+    "non_numeric_consumption_count": 0,
+    "non_numeric_consumption_rows": [],
+    "non_positive_consumption_count": 0
+  },
+  "missing_values": {
+    "Consumption": 0,
+    "Date": 0
+  },
+  "parsed_dtypes": {
+    "Consumption": "float64",
+    "Date": "datetime64[ns]"
+  },
+  "shape": {
+    "columns": 2,
+    "rows": 944
+  },
+  "source_preservation": {
+    "sha256_after": "cb0863a5089598b1cb88cab1a0670b00be9100f2b1625a929f7eb38d05ed5e1f",
+    "sha256_before": "cb0863a5089598b1cb88cab1a0670b00be9100f2b1625a929f7eb38d05ed5e1f",
+    "unchanged": true
+  },
+  "suspicious_observations": {
+    "candidate_count": 77,
+    "lower_fence": 867.5175000000002,
+    "method": "Tukey 1.5*IQR inspection candidates; values are not removed or called anomalies",
+    "repeated_value_note": "Repeated target values are reported for inspection but are not duplicate rows.",
+    "rows_with_repeated_consumption_value": 463,
+    "upper_fence": 979.3774999999998
+  }
+}

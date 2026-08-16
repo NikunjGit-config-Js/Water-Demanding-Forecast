@@ -1,0 +1,72 @@
+{
+  "assessment_end_date_inclusive": "2021-02-02",
+  "assessment_start_date": "2020-08-09",
+  "boosting_choice": "GradientBoostingRegressor; one approved boosting family is sufficient",
+  "chronological_order_preserved": true,
+  "development_assessment_rows": 132,
+  "development_fit_rows": 528,
+  "fit_end_date_inclusive": "2020-08-08",
+  "formal_evaluation_deferred_to": [
+    "Phase 5 chronological 80/20",
+    "Phase 6 time-aware CV"
+  ],
+  "improvement_claimed": false,
+  "model_names": [
+    "linear_regression",
+    "ridge",
+    "lasso",
+    "decision_tree",
+    "knn",
+    "svr",
+    "random_forest",
+    "bagging",
+    "gradient_boosting",
+    "voting"
+  ],
+  "model_selection_claimed": false,
+  "phase": "Phase 4",
+  "phase2_features_sha256": "4be8fca22f09af4222371902f0776933fc7907173519516759656e73f076e426",
+  "phase3_selection_report_sha256": "0b3c40ef4e8a3ab0350c1f1ef17f961529c46f4c3bfb8495795e0dc423116c2a",
+  "preprocessing": {
+    "imputer": "median fitted by each Pipeline on development fit rows only",
+    "scaled_models": [
+      "knn",
+      "lasso",
+      "linear_regression",
+      "ridge",
+      "svr"
+    ],
+    "scaler": "RobustScaler fitted by each scaled-model Pipeline on development fit rows only",
+    "tree_models_scaled": false
+  },
+  "purpose": "training-prefix-only model construction and smoke comparison",
+  "reserved_rows_loaded": 0,
+  "selected_feature_count": 20,
+  "selected_features": [
+    "consumption_lag_1",
+    "day_of_year_cos",
+    "month",
+    "ema_7",
+    "rolling_median_7",
+    "rolling_mean_7",
+    "fourier_yearly_sin_2",
+    "ema_30",
+    "rolling_slope_7",
+    "rolling_std_7",
+    "growth_7d",
+    "day_over_day_change",
+    "rolling_slope_30",
+    "rolling_min_7",
+    "consumption_lag_14",
+    "day_of_year_sin",
+    "same_weekday_previous_week",
+    "rolling_std_30",
+    "rolling_max_7",
+    "rolling_min_30"
+  ],
+  "simple_baselines": [
+    "naive_lag_1",
+    "linear_regression"
+  ],
+  "training_prefix_rows_loaded": 660
+}

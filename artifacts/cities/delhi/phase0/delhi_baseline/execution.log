@@ -1,0 +1,6 @@
+2026-08-16 10:55:23,425Z INFO Starting deterministic Phase 0 baseline reproduction
+2026-08-16 10:55:23,425Z INFO Dataset: /home/asus/projects/water-forecast/data/cities/delhi/canonical/water_demand.csv
+2026-08-16 10:55:23,611Z INFO Historical metrics: {"MAE": 66.63804402633062, "MAPE": 0.07520330881413277, "MSE": 6594.244830074918, "RMSE": 81.20495569898993}
+2026-08-16 10:55:23,611Z INFO Supplemental R2: -1.99443723743738
+2026-08-16 10:55:23,611Z INFO Saved fitted model and training-only scaler
+2026-08-16 10:55:23,611Z INFO Completed Phase 0 reproduction with 95 test predictions

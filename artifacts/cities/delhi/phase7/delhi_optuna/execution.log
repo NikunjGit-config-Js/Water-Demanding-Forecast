@@ -1,0 +1,4 @@
+Phase 7 completed with seed 42.
+Optuna ran 20 train/validation trials for each of 3 model families.
+Selection was frozen as ridge before one locked-test evaluation.
+No preprocessing was fit on validation/test data and no improvement claim was made.

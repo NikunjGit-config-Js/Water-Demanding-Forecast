@@ -1,0 +1,23 @@
+{
+  "preprocessing_fit_scope": "StandardScaler fitted on training rows only",
+  "strategy": "chronological 90/10 holdout; no shuffle",
+  "test": {
+    "end_date": "2022-02-27",
+    "positional_rows": [
+      849,
+      943
+    ],
+    "row_count": 95,
+    "start_date": "2021-10-18"
+  },
+  "total_rows": 944,
+  "train": {
+    "end_date": "2021-10-17",
+    "positional_rows": [
+      0,
+      848
+    ],
+    "row_count": 849,
+    "start_date": "2018-04-01"
+  }
+}

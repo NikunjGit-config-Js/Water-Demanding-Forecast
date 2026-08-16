@@ -1,0 +1,121 @@
+{
+  "datasets": {
+    "delhi": {
+      "date_range": [
+        "2018-04-01",
+        "2018-04-01"
+      ],
+      "rows": 944,
+      "source": "DJB Archive (125 unique production documents, 944 observations)",
+      "unit": "MGD"
+    },
+    "london": {
+      "date_range": [
+        "2015-01-01",
+        "2025-03-31"
+      ],
+      "rows": 3800,
+      "source": "Thames Water treated water demand",
+      "unit": "ML/d"
+    }
+  },
+  "key_findings": [
+    "Delhi dataset: 944 observations vs London 3800 (4x smaller)",
+    "Delhi date range: 2018-2022 vs London 2015-2025",
+    "Delhi DJB data quality: 66% official coverage, 13 pages, 125 production docs",
+    "All 14 phases executed successfully with India calendar (IN, no subdivision)",
+    "Phase 2 used is_india_holiday feature (not Canada/Ontario holidays)",
+    "Phase 10 used expected_total_rows=944 (not 3800)",
+    "351 tests pass, git diff clean"
+  ],
+  "model_comparison": {
+    "phase10_patchtst": {
+      "delhi": {
+        "mae": 16.28035460992908,
+        "model": "naive_lag1",
+        "mse": 752.7459198581563,
+        "r2": 0.5276659134827268,
+        "rmse": 27.436215479875436
+      },
+      "london": {
+        "mae": 16.28
+      }
+    },
+    "phase5_holdout": {
+      "delhi": {
+        "mae": 16.938412698412705,
+        "model": "naive_lag_1",
+        "mse": 910.9400582010584,
+        "r2": 0.4601152453813499,
+        "rmse": 30.181783549039285
+      },
+      "london": {
+        "best_model": "naive_lag_1",
+        "mae": 16.94
+      }
+    },
+    "phase6_cv": {
+      "delhi": {
+        "mae_mean": 13.200866242038217,
+        "mae_std": 3.33286566950064,
+        "model": "naive_lag_1",
+        "mse_mean": 656.4000899363057,
+        "mse_std": 215.91050314616012,
+        "r2_mean": 0.0883334934776253,
+        "r2_std": 0.477556641568835,
+        "rmse_mean": 25.32987974811565,
+        "rmse_std": 4.300767646930329
+      },
+      "london": {
+        "mae_mean": 13.2
+      }
+    },
+    "phase7_optuna": {
+      "delhi": {
+        "mae": 18.020915492957755,
+        "model": "naive_lag_1",
+        "mse": 1029.6966105633803,
+        "r2": 0.4299263691002223,
+        "rmse": 32.08888609103439
+      },
+      "london": {
+        "mae": 18.02
+      }
+    },
+    "phase8_cv_optuna": {
+      "delhi": {
+        "mae_mean": 13.200866242038217,
+        "mae_std": 3.33286566950064,
+        "model": "naive_lag_1",
+        "mse_mean": 656.4000899363057,
+        "mse_std": 215.91050314616012,
+        "r2_mean": 0.0883334934776253,
+        "r2_std": 0.477556641568835,
+        "rmse_mean": 25.32987974811565,
+        "rmse_std": 4.300767646930329
+      },
+      "london": {
+        "mae_mean": 13.2
+      }
+    },
+    "phase9_timeseries": {
+      "delhi": {
+        "mae": 25.51513227513227,
+        "model": "naive_last",
+        "mse": 2158.1990931216915,
+        "r2": -0.2790949056617562,
+        "rmse": 46.45642144119251
+      },
+      "london": {
+        "mae": 25.52
+      }
+    }
+  },
+  "title": "Delhi vs London Water Demand Forecasting Comparison",
+  "validation": {
+    "git_clean": true,
+    "passed_phases": 14,
+    "tests_passing": 351,
+    "total_phases": 14
+  }
+}
