@@ -239,5 +239,26 @@ Phases 0 through 11 are approved after exact independent validator PASS. Phase
 Invalid/interim Phase 8 and failed Phase 9 attempts remain preserved but are not
 exposed by the dashboard.
 
+Phase 13 supervisor attempt 1 has implemented the final README, interview guide,
+and deterministic final-artifact manifest. Focused tests pass (2), full discovery
+passes (222), bytecode compilation, manifest reproduction, and `git diff --check`
+pass. Implementation evidence is preserved under
+`artifacts/phase13/phase13_attempt_1_20260816T060000Z/`. Phase 13 has not been
+independently validated and is not marked complete.
+
+Phase 13 supervisor repair attempt 2 now validates every prerequisite checkpoint
+through the shared strict schema-v2 model and exact Phase 0--12 identity gate.
+Adversarial coverage rejects missing or extra fields, forged identities, unsafe
+test evidence (including zero-like non-integer return codes), invalid or non-UTC
+timestamps, and contradictory reports. Focused tests pass (30), the combined
+orchestration/Phase 13 suite passes (84), and full discovery passes (250) with 85
+pre-existing warnings. The regenerated manifest and implementation evidence are preserved under
+`artifacts/phase13/phase13_attempt_2_20260816T011930Z/`. Independent read-only
+revalidation returned exact PASS after independently rerunning 30 focused, 84
+combined, and 250 full-suite tests and verifying all 25 manifest entries. Phase
+13 is approved and its strict schema-v2 PASS checkpoint is preserved.
+
 ## Next
-Phase 13 may begin under the deterministic specialist routing and validation gates.
+All planned phases, Phase 0 through Phase 13, are independently approved. Keep
+the preserved checkpoints, manifests, experiment outputs, and failed/superseded
+attempts intact for audit history.

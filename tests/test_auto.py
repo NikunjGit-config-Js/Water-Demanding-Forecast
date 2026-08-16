@@ -542,6 +542,31 @@ def test_common_credentials_are_refused(
         auto_module._validate_phase_paths(5, ("artifacts/phase5/config.bin",))
 
 
+@pytest.mark.parametrize(
+    "placeholder",
+    [
+        b"SENDGRID_API_KEY: YOUR_SENDGRID_API_KEY",
+        b"SENDGRID_API_KEY: 'your-sendgrid-api-key'",
+        b"TOKEN=${SERVICE_TOKEN}",
+        b"PASSWORD=<password>",
+        b"TOKEN=REDACTED",
+        b"PASSWORD=CHANGEME",
+        b"TOKEN=EXAMPLE_TOKEN",
+        b"TOKEN=PLACEHOLDER_TOKEN",
+        b"TOKEN=DUMMY_TOKEN",
+        b"TOKEN=TEST_TOKEN",
+        b"API_KEY=TEST_KEY",
+        b"SECRET=XXXXXXXXXXXX",
+    ],
+)
+def test_documentation_placeholders_are_allowed(
+    tmp_path: Path, placeholder: bytes
+) -> None:
+    candidate = tmp_path / "documentation.txt"
+    candidate.write_bytes(placeholder)
+    assert auto_module._file_contains_secret(candidate) is False
+
+
 def test_secret_bearing_force_added_checkpoint_is_refused(
     monkeypatch: pytest.MonkeyPatch, tmp_path: Path, checkpoint_dir: Path
 ) -> None:

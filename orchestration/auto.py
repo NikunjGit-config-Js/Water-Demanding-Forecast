@@ -59,6 +59,16 @@ SECRET_NAME_RE = re.compile(
     r"(^|/)(\.env($|\.)|.*(?:secret|credential|api[_-]?key|private[_-]?key).*)",
     re.IGNORECASE,
 )
+ENV_SECRET_RE = re.compile(
+    rb"(?im)^\s*(?:[A-Z0-9_]*API[_-]?KEY|ACCESS[_-]?TOKEN|AUTH[_-]?TOKEN|"
+    rb"CLIENT[_-]?SECRET|PASSWORD|TOKEN|SECRET)\s*[:=]\s*"
+    rb"(?P<value>['\"]?[A-Za-z0-9._~+/${}<>-]{8,}['\"]?)\s*$"
+)
+DOCUMENTATION_PLACEHOLDER_RE = re.compile(
+    rb"(?i)^(?:YOUR(?:_|-).+|\$\{[^}]+\}|<[^>]+>|REDACTED|CHANGEME|"
+    rb"EXAMPLE.*|PLACEHOLDER.*|DUMMY.*|"
+    rb"TEST(?:_|-).*(?:KEY|TOKEN)(?:_|-)?|X{4,})$"
+)
 class AutoState(BaseModel):
     model_config = ConfigDict(extra="forbid", strict=True)
 
@@ -177,12 +187,6 @@ def _file_contains_secret(path: Path) -> bool:
             rb"[A-Za-z0-9_-]{8,}\b"
         ),
         re.compile(rb"(?i)\bBearer\s+[A-Za-z0-9._~+/-]{16,}={0,2}\b"),
-        re.compile(
-            rb"(?im)^\s*(?:[A-Z0-9_]*API[_-]?KEY|ACCESS[_-]?TOKEN|AUTH[_-]?TOKEN|"
-            rb"CLIENT[_-]?SECRET|PASSWORD|TOKEN|SECRET)\s*[:=]\s*"
-            rb"(?:['\"])?(?!\$\{|<|REDACTED|CHANGEME|EXAMPLE)"
-            rb"[A-Za-z0-9._~+/-]{8,}(?:['\"])?\s*$"
-        ),
     )
     overlap = b""
     try:
@@ -191,6 +195,10 @@ def _file_contains_secret(path: Path) -> bool:
                 searchable = overlap + chunk
                 if any(pattern.search(searchable) for pattern in patterns):
                     return True
+                for match in ENV_SECRET_RE.finditer(searchable):
+                    value = match.group("value").strip(b"'\"")
+                    if not DOCUMENTATION_PLACEHOLDER_RE.fullmatch(value):
+                        return True
                 overlap = searchable[-512:]
     except OSError as exc:
         raise GitSafetyError(f"Cannot inspect candidate for secrets: {path}") from exc
