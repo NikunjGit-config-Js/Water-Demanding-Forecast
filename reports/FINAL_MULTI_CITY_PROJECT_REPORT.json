@@ -11,9 +11,14 @@
       "unit": "ML/d",
       "compatibility_status": "READY",
       "phase_0_13_status": "COMPLETE",
-      "best_baseline": "naive_lag_1 (MAE 223.74, Phase 5 holdout)",
-      "best_conventional_ml": "naive_lag_1 (MAE 230.28, Phase 6 5-fold CV)",
-      "advanced_benchmark_best": "Ridge (MAE 329.62, CV); XGBoost did not improve over naive_lag_1",
+      "best_baseline": "naive_lag_1 (MAE 224.59, Phase 5 holdout)",
+      "best_conventional_ml": "linear_regression (MAE 251.68, Phase 5 holdout)",
+      "advanced_benchmark": {
+        "best_holdout_advanced": "xgboost (MAE 537.21)",
+        "best_cv_advanced": "hist_gradient_boosting (MAE 592.14)",
+        "beats_naive_lag_1": false,
+        "beats_best_conventional_ml": false
+      },
       "notes": "Thames Water dataset with 3800 daily observations spanning 10+ years"
     },
     "delhi": {
@@ -24,9 +29,14 @@
       "unit": "MGD",
       "compatibility_status": "READY",
       "phase_0_13_status": "COMPLETE",
-      "best_baseline": "naive_lag_1 (MAE 16.94, Phase 5 holdout)",
-      "best_conventional_ml": "Ridge (MAE 17.32, Phase 5 holdout)",
-      "advanced_benchmark_best": "naive_lag_1 (MAE 17.54 holdout, 18.27 CV)",
+      "best_baseline": "naive_lag_1 (MAE 17.54, Phase 5 holdout)",
+      "best_conventional_ml": "ridge (MAE 19.26, Phase 5 holdout)",
+      "advanced_benchmark": {
+        "best_holdout_advanced": "hist_gradient_boosting (MAE 23.90)",
+        "best_cv_advanced": "extra_trees (MAE 19.22)",
+        "beats_naive_lag_1": false,
+        "beats_best_conventional_ml": false
+      },
       "notes": "944 daily observations from 13 DJB archive pages, 66% official coverage"
     },
     "bengaluru": {

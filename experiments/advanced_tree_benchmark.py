@@ -178,8 +178,7 @@ def run_cv_benchmark(city: str, features_df: pd.DataFrame, selected: list[str]) 
         for name, model in models.items():
             start = time.time()
             if name == "naive_lag_1":
-                last_train_val = float(y.iloc[train_idx[-1]])
-                preds = np.full(len(test_idx), last_train_val)
+                preds = np.asarray([y.iloc[i - 1] for i in test_idx])
             else:
                 model.fit(X_train_s, y_train)
                 preds = model.predict(X_test_s)

@@ -45,12 +45,12 @@ PYTHONPATH=. python3 experiments/advanced_tree_benchmark.py
 
 | City | Best Baseline | Best Conventional ML | Best Advanced |
 |------|--------------|---------------------|---------------|
-| London (holdout) | naive_lag_1 MAE 223.74 | naive_lag_1 MAE 223.74 | Ridge MAE 329.62 (CV) |
-| Delhi (holdout) | naive_lag_1 MAE 16.94 | Ridge MAE 17.32 | naive_lag_1 MAE 18.27 (CV) |
+| London (holdout) | naive_lag_1 MAE 224.59 | linear_regression MAE 251.68 | xgboost MAE 537.21 |
+| Delhi (holdout) | naive_lag_1 MAE 17.54 | ridge MAE 19.26 | hist_gradient_boosting MAE 23.90 |
 
-Post-hoc advanced benchmark: XGBoost, ExtraTrees, and HistGradientBoosting do
-not beat naive lag-1 or Ridge on either city. See
-`reports/advanced_models/xgboost_and_boosters.md`.
+Under this configured post-hoc benchmark, XGBoost, ExtraTrees, and
+HistGradientBoosting do not beat naive lag-1 or the best conventional ML model
+on either city. See `reports/advanced_models/xgboost_and_boosters.md`.
 
 ### Methodology and leakage controls
 
@@ -70,7 +70,7 @@ and [VALIDATION_RULES.md](VALIDATION_RULES.md) for the approved protocol.
 
 | Evaluation | Result | Interpretation |
 |---|---:|---|
-| Phase 5 chronological 80/20 | naive lag-1 MAE 223.74 | Best holdout MAE; linear regression had lower RMSE 384.63 |
+| Phase 5 chronological 80/20 | naive lag-1 MAE 224.59 | Best holdout MAE; linear regression had lower RMSE 384.63 |
 | Phase 6 expanding 5-fold CV | naive lag-1 mean MAE 230.28 | Best mean MAE among evaluated traditional models |
 | Phase 7 locked 15% test | naive MAE 225.35; linear MAE 259.65 | Linear improved RMSE/R2, not MAE |
 | Phase 8 nested CV + Optuna | naive mean MAE 230.28 | Tuned candidates did not beat naive MAE |

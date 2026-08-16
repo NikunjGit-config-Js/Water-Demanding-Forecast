@@ -1,74 +1,106 @@
-# XGBoost and Advanced Boosters: Post-Hoc Benchmark Analysis
+# XGBoost, ExtraTrees, and HistGradientBoosting Post-Hoc Benchmark
 
-## Was XGBoost present in the original Phase 0-13 pipeline?
+This document records the post-hoc benchmark results for three advanced tree-based
+models (XGBoost, ExtraTrees, HistGradientBoosting) evaluated on the validated London
+and Delhi datasets using the same feature set selected by Phase 4's RFECV procedure.
 
-No. The original Phase 0-13 methodology tested the following conventional ML models:
-- Linear Regression, Ridge, Lasso
-- Decision Tree, KNN, SVR
-- Random Forest, Bagging, Gradient Boosting, Voting
+**Methodological note**: The naive lag-1 baseline here uses true rolling one-step
+predictions (each validation observation predicts using the immediately prior actual
+observation), consistent with the validated Phase 0 methodology.
 
-XGBoost, ExtraTrees, and HistGradientBoosting were not included in the original pipeline.
+## London
 
-## Why was it absent?
+### Holdout Protocol
 
-The original pipeline was designed to validate a reproducible methodology using well-established sklearn models. XGBoost and similar boosters were reserved for a post-hoc benchmark to test whether modern boosted/tree ensembles provide additional benefit.
+| Model                  | MAE      | RMSE     | R2       |
+|------------------------|----------|----------|----------|
+| **naive_lag_1** (baseline) | **224.59** | **417.56** | **0.9979** |
+| ridge (conventional ML)    | 242.24   | 383.27   | 0.9982   |
+| xgboost                    | 537.21   | 1170.46  | 0.9834   |
+| extra_trees                | 582.75   | 1174.29  | 0.9833   |
+| hist_gradient_boosting     | 562.63   | 1172.02  | 0.9834   |
 
-## What models were originally tested?
+### CV Protocol (5-fold expanding TimeSeriesSplit)
 
-10 models in Phase 4-8: naive_lag_1, linear_regression, ridge, lasso, decision_tree, knn, svr, random_forest, bagging, gradient_boosting, voting.
+| Model                  | MAE      | RMSE     | R2       |
+|------------------------|----------|----------|----------|
+| **naive_lag_1** (baseline) | **234.26** | **703.89** | **0.9929** |
+| ridge (conventional ML)    | 329.62   | 633.46   | 0.9945   |
+| xgboost                    | 592.76   | 1011.19  | 0.9872   |
+| hist_gradient_boosting     | 592.14   | 1009.02  | 0.9870   |
+| extra_trees                | 741.76   | 1107.23  | 0.9835   |
 
-## Did XGBoost beat the best conventional model?
+### Best Advanced Model per Protocol (London)
 
-**No.** Results from the post-hoc benchmark:
+- **Holdout**: XGBoost (MAE 537.21)
+- **CV**: HistGradientBoosting (MAE 592.14)
 
-| City | Protocol | Ridge MAE | XGBoost MAE | ExtraTrees MAE | HistGB MAE | Winner |
-|------|----------|-----------|-------------|----------------|------------|--------|
-| Delhi | Holdout | 19.26 | 27.06 | 30.54 | 23.90 | Ridge |
-| Delhi | 5-fold CV | 23.33 | 21.71 | 19.22 | 21.31 | ExtraTrees |
-| London | Holdout | 242.24 | 537.21 | 582.75 | 562.63 | Ridge |
-| London | 5-fold CV | 329.62 | 592.76 | 741.76 | 592.14 | Ridge |
+Neither advanced model beats naive_lag_1 or Ridge under either protocol.
 
-On the holdout protocol (the primary evaluation), Ridge outperforms all advanced models on both cities.
+## Delhi
 
-## Did XGBoost beat naive lag-1?
+### Holdout Protocol
 
-**No.** Naive lag-1 (MAE 17.54 Delhi holdout, 224.59 London holdout) outperforms XGBoost on both cities under the holdout protocol.
+| Model                  | MAE     | RMSE    | R2       |
+|------------------------|---------|---------|----------|
+| **naive_lag_1** (baseline) | **17.54** | **30.99** | **0.3282** |
+| ridge (conventional ML)    | 19.26   | 29.69   | 0.3833   |
+| hist_gradient_boosting     | 23.90   | 33.08   | 0.2344   |
+| xgboost                    | 27.06   | 35.88   | 0.0995   |
+| extra_trees                | 30.54   | 37.95   | -0.0076  |
 
-## Did ExtraTrees beat them?
+### CV Protocol (5-fold expanding TimeSeriesSplit)
 
-On Delhi CV, ExtraTrees (MAE 19.22) slightly beats naive_lag_1 (MAE 18.27). On all other configurations, it does not.
+| Model                  | MAE     | RMSE    | R2       |
+|------------------------|---------|---------|----------|
+| **naive_lag_1** (baseline) | **13.93** | **26.43** | **0.0204** |
+| extra_trees                | 19.22   | 27.35   | 0.0858   |
+| hist_gradient_boosting     | 21.31   | 29.96   | -0.1719  |
+| xgboost                    | 21.71   | 31.18   | -0.1869  |
+| ridge (conventional ML)    | 23.33   | 33.62   | -1.2067  |
 
-## Did HistGradientBoosting beat them?
+### Best Advanced Model per Protocol (Delhi)
 
-No. HistGradientBoosting underperforms Ridge on both cities under both protocols.
+- **Holdout**: HistGradientBoosting (MAE 23.90)
+- **CV**: ExtraTrees (MAE 19.22)
 
-## Why might a simple lag baseline outperform complex ML on this dataset?
+Neither advanced model beats naive_lag_1 under either protocol.
 
-1. **Temporal autocorrelation is very strong**: Water demand is highly correlated with yesterday's value. A naive lag-1 prediction captures this direct persistence pattern efficiently.
+## Why Advanced Models Lose to Naive Lag-1
 
-2. **Limited exogenous drivers**: The features are purely temporal (day-of-week, month, rolling statistics). Without weather, rainfall, temperature, reservoir levels, or supply restrictions, the ML models have limited information to learn beyond what lag-1 already captures.
+Under this configured post-hoc benchmark, all three advanced tree-based models
+consistently underperform naive lag-1 on both cities and both protocols. Key
+factors contributing to this outcome:
 
-3. **Small dataset size**: Delhi has only 944 daily observations (~2.6 years). Complex models like XGBoost and ExtraTrees have many hyperparameters and are prone to overfitting on small datasets. Ridge regression, with its L2 regularization, is more robust.
+1. **Strong temporal persistence**: Daily water demand exhibits high autocorrelation.
+   The previous day's consumption is an extremely strong predictor. Complex models
+   cannot easily improve on this natural persistence without exogenous signals.
 
-4. **Non-stationarity**: Water demand patterns change over time (seasonal, policy changes, population growth). A simple lag-1 model adapts naturally because it always uses the most recent observation.
+2. **Limited exogenous variables**: The feature set is entirely target-derived
+   (lags, rolling statistics, calendar features). Without weather, population,
+   or operational data, the models lack the external information needed to
+   correct lag-1 errors.
 
-5. **Feature engineering ceiling**: The 20 selected features are derived from the target itself (lags, rolling means, etc.). When the best predictor of tomorrow is today's value, additional derived features add noise rather than signal.
+3. **Small Delhi dataset**: With only 944 daily observations, advanced models
+   have insufficient training data to learn generalizable patterns. This leads
+   to overfitting, especially for ExtraTrees (negative holdout R2).
 
-## Does more model complexity automatically mean better forecasting?
+4. **Bias-variance tradeoff**: Tree ensembles introduce variance that naive
+   lag-1 avoids entirely. The simplicity of "predict yesterday's value" has
+   low variance, which matters greatly in time-series where distributions shift.
 
-**No.** This benchmark demonstrates that model complexity does not guarantee better performance. The bias-variance tradeoff means that more complex models can overfit, especially on small datasets with limited exogenous information.
+5. **Feature engineering ceiling**: The 20 selected features are all derived
+   from the target variable itself. When the best feature is literally
+   `y[t-1]`, additional transformations yield diminishing returns.
 
-## What would likely be needed for boosters to gain more advantage?
-
-1. **Weather data**: Temperature, humidity, rainfall, evapotranspiration
-2. **Supply infrastructure data**: Reservoir levels, treatment plant output, pipeline capacity
-3. **Population/activity variables**: Tourism indices, industrial activity, events
-4. **Larger datasets**: Multi-year daily records (5-10+ years) to capture long-term patterns
-5. **Higher-frequency data**: Hourly or sub-daily observations for peak demand modeling
-6. **Richer exogenous drivers**: Economic indicators, migration patterns, water pricing
-
-With these additional data sources, XGBoost and similar models could potentially learn non-linear interactions that a simple lag-1 baseline cannot capture.
+These results do not imply that XGBoost or other gradient boosting methods can
+never outperform naive baselines on water demand forecasting. With richer
+exogenous features (weather, events, operational data), longer training windows,
+and proper hyperparameter tuning, advanced models may provide meaningful gains.
 
 ## Conclusion
 
-The post-hoc benchmark confirms that the original Phase 0-13 methodology was appropriate. Advanced boosters (XGBoost, ExtraTrees, HistGradientBoosting) do not provide meaningful improvement over the simpler models already tested, given the current data availability. The naive lag-1 baseline remains the strongest performer for this specific forecasting task with the available features.
+Naive lag-1 remains the most robust model for both London and Delhi under the
+validated methodology. Ridge is the best conventional ML for London (holdout
+MAE 242.24) and Delhi (holdout MAE 19.26). Advanced tree-based models do not
+provide improvement under this post-hoc benchmark configuration.
