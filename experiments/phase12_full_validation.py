@@ -14,7 +14,7 @@ import sys
 from dataclasses import dataclass
 from datetime import UTC, datetime
 from pathlib import Path
-from typing import Any
+from typing import Any, Callable
 
 import numpy as np
 import pandas as pd
@@ -275,34 +275,57 @@ def _verify_evaluation(name: str, spec: EvaluationSpec, source: pd.DataFrame) ->
             "start_date": predictions["Date"].iloc[0], "end_date": predictions["Date"].iloc[-1]}
 
 
-def run_audit() -> dict[str, Any]:
+def run_audit(
+    dataset: Path | None = None,
+    approved_dataset_sha256: str | None = None,
+    evaluations: dict[str, EvaluationSpec] | None = None,
+    expected_rows: int = 3800,
+    checkpoint_reader: Callable[[int], Any] | None = None,
+) -> dict[str, Any]:
+    """Audit an explicit artifact set; defaults remain the approved London set."""
+    dataset = DATASET if dataset is None else dataset
+    approved_dataset_sha256 = (
+        APPROVED_DATASET_SHA256
+        if approved_dataset_sha256 is None
+        else approved_dataset_sha256
+    )
+    evaluations = EVALUATIONS if evaluations is None else evaluations
+    checkpoint_reader = (
+        _read_persisted_checkpoint if checkpoint_reader is None else checkpoint_reader
+    )
     checkpoints = []
     for number in range(12):
-        checkpoint = _read_persisted_checkpoint(number)
+        checkpoint = checkpoint_reader(number)
         checkpoints.append({"phase": checkpoint.phase_name, "validated_at_utc": checkpoint.validated_at_utc,
                             "test_returncode": checkpoint.test_evidence.returncode})
 
-    digest = _sha256(DATASET)
-    if digest != APPROVED_DATASET_SHA256:
-        raise ValueError(f"Canonical dataset hash mismatch: {digest} != {APPROVED_DATASET_SHA256}")
-    data = pd.read_csv(DATASET)
+    digest = _sha256(dataset)
+    if digest != approved_dataset_sha256:
+        raise ValueError(f"Canonical dataset hash mismatch: {digest} != {approved_dataset_sha256}")
+    data = pd.read_csv(dataset)
     if list(data.columns) != ["Date", "Consumption"]:
         raise ValueError("Unexpected source dataset columns")
     data["Date"] = pd.to_datetime(data["Date"], format="%Y-%m-%d", errors="raise")
-    if len(data) != 3800 or data.isna().any().any() or data.duplicated().any():
+    if len(data) != expected_rows or data.isna().any().any() or data.duplicated().any():
         raise ValueError("Source dataset shape, null, or duplicate invariant failed")
     if not data["Date"].is_monotonic_increasing or data["Date"].duplicated().any():
         raise ValueError("Source dates are not unique chronological observations")
 
-    evaluations = {name: _verify_evaluation(name, spec, data) for name, spec in EVALUATIONS.items()}
+    evaluation_results = {
+        name: _verify_evaluation(name, spec, data) for name, spec in evaluations.items()
+    }
+    try:
+        dataset_display = str(dataset.relative_to(ROOT))
+    except ValueError:
+        dataset_display = str(dataset.resolve())
     return {"phase": "Phase 12", "scope": "pre-validator full validation audit",
             "independent_validator_invoked": False, "generated_at_utc": datetime.now(UTC).isoformat(),
             "status": "AUDIT_CHECKS_PASSED", "checkpoint_chain": checkpoints,
-            "dataset": {"path": str(DATASET.relative_to(ROOT)), "rows": len(data),
+            "dataset": {"path": dataset_display, "rows": len(data),
                         "start_date": data["Date"].iloc[0].date().isoformat(),
                         "end_date": data["Date"].iloc[-1].date().isoformat(), "sha256": digest,
-                        "approved_sha256": APPROVED_DATASET_SHA256},
-            "evaluations": evaluations,
+                        "approved_sha256": approved_dataset_sha256},
+            "evaluations": evaluation_results,
             "limitations": ["This report is implementation evidence, not an independent validator verdict.",
                             "Phase 13 documentation and final artifacts are outside this audit's scope."]}
 

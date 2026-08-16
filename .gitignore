@@ -1,5 +1,9 @@
 data/preprocessed/*
 data/raw/*
+data/cities/*/raw/**
+!data/cities/*/raw/.gitkeep
+data/cities/*/canonical/**
+!data/cities/*/canonical/.gitkeep
 data/raw/quarterly/*
 data/raw/intermediate/*
 data/serializations/*

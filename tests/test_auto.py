@@ -92,8 +92,11 @@ class FakeFlow:
         state_reporter=None,
         starting_attempt: int = 0,
         repair_report: str = "",
+        run_context=None,
     ):
         self.number = int(phases[0].split()[1])
+        if run_context is not None:
+            self.checkpoint_dir = run_context.checkpoint_root
         self.init_calls.append(
             {
                 "number": self.number,
@@ -267,6 +270,197 @@ def test_auto_cli_parser() -> None:
     assert args.auto is True
     assert args.phase is None
     assert args.max_attempts == 3
+
+
+def test_city_cli_parsing_and_mutual_exclusion() -> None:
+    from orchestration.main import build_parser
+
+    assert build_parser().parse_args(["--auto", "--city", "bengaluru"]).city == "bengaluru"
+    assert build_parser().parse_args(["--auto", "--cities", "delhi", "pune"]).cities == [
+        "delhi", "pune"
+    ]
+    with pytest.raises(SystemExit):
+        build_parser().parse_args(["--auto", "--city", "delhi", "--cities", "pune"])
+
+
+def test_city_context_isolates_paths_and_rejects_invalid_slug(tmp_path: Path) -> None:
+    from orchestration.context import RunContext
+
+    london = RunContext.for_city("london", project_root=tmp_path)
+    bengaluru = RunContext.for_city("bengaluru", project_root=tmp_path)
+    assert london.checkpoint_root == tmp_path / "orchestration/state/checkpoints"
+    assert "cities/bengaluru" in bengaluru.checkpoint_root.as_posix()
+    assert london.checkpoint_root != bengaluru.checkpoint_root
+    assert london.dataset_path == tmp_path / "data/preprocessed/all/preprocessed_data.csv"
+    with pytest.raises(ValueError):
+        RunContext.for_city("../delhi", project_root=tmp_path)
+
+
+def test_non_london_checkpoint_chain_does_not_reuse_london(
+    tmp_path: Path,
+) -> None:
+    from orchestration.context import RunContext
+
+    london = RunContext.for_city("london", project_root=tmp_path)
+    bengaluru = RunContext.for_city("bengaluru", project_root=tmp_path)
+    write_checkpoint(london.checkpoint_root, 0)
+    assert validated_phase_numbers(london) == [0]
+    assert validated_phase_numbers(bengaluru) == []
+
+
+def test_city_artifact_and_model_paths_are_isolated_and_cross_city_rejected(
+    tmp_path: Path,
+) -> None:
+    from orchestration.context import RunContext
+
+    bengaluru = RunContext.for_city("bengaluru", project_root=tmp_path)
+    delhi = RunContext.for_city("delhi", project_root=tmp_path)
+    assert bengaluru.phase_artifact_root(7) != delhi.phase_artifact_root(7)
+    assert "bengaluru" in str(bengaluru.phase_artifact_root(7) / "models/model.joblib")
+    with pytest.raises(GitSafetyError, match="Unexpected Phase 7"):
+        auto_module._validate_phase_paths(
+            7,
+            ("artifacts/cities/delhi/phase7/models/model.joblib",),
+            require_checkpoint=False,
+            context=bengaluru,
+        )
+
+
+def test_city_auto_resume_uses_only_own_checkpoint_chain(
+    monkeypatch: pytest.MonkeyPatch, tmp_path: Path
+) -> None:
+    from orchestration.context import RunContext
+
+    context = RunContext.for_city("bengaluru", project_root=tmp_path)
+    for number in range(7):
+        write_checkpoint(context.checkpoint_root, number)
+    FakeFlow.calls = []
+    FakeFlow.init_calls = []
+    FakeFlow.outcomes = {7: ("failed", 1, "failed", "deliberate stop")}
+    FakeFlow.checkpoint_dir = context.checkpoint_root
+    monkeypatch.setattr(auto_module, "require_clean_worktree", lambda: None)
+    monkeypatch.setattr(auto_module, "changed_paths", lambda: ())
+    monkeypatch.setattr(
+        auto_module, "_checkpoint_commit_for_phase", lambda number, context=None: f"c{number}"
+    )
+    runner = AutoRunner(
+        flow_factory=FakeFlow,
+        committer=lambda **kwargs: GitCheckpointResult("new", ()),
+        final_test_executor=passing_tests,
+        progress=lambda message: None,
+        run_context=context,
+    )
+    summary = runner.run()
+    assert FakeFlow.calls == [7]
+    assert summary["status"] == "failed"
+    assert validated_phase_numbers(context) == list(range(7))
+
+
+def test_default_london_and_explicit_london_dispatch_identically(
+    monkeypatch: pytest.MonkeyPatch, capsys: pytest.CaptureFixture[str]
+) -> None:
+    from orchestration import main as main_module
+
+    kwargs_seen: list[dict[str, object]] = []
+
+    class FakeRunner:
+        def __init__(self, **kwargs: object) -> None:
+            kwargs_seen.append(kwargs)
+
+        def run(self) -> dict[str, object]:
+            return {"status": "completed"}
+
+    monkeypatch.setattr(main_module, "AutoRunner", FakeRunner)
+    monkeypatch.setattr(
+        main_module,
+        "prepare_city_data",
+        lambda *args, **kwargs: SimpleNamespace(status=main_module.DataStatus.READY, reasons=()),
+    )
+    monkeypatch.setattr("sys.argv", ["orchestration.main", "--auto"])
+    assert main_module.main() == 0
+    capsys.readouterr()
+    monkeypatch.setattr("sys.argv", ["orchestration.main", "--city", "london", "--auto"])
+    assert main_module.main() == 0
+    capsys.readouterr()
+    assert kwargs_seen == [{"max_attempts": 3}, {"max_attempts": 3}]
+
+
+def test_phase_with_cities_is_rejected_before_flow_dispatch(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    from orchestration import main as main_module
+
+    monkeypatch.setattr(
+        "sys.argv", ["orchestration.main", "--phase", "Phase 0", "--cities", "delhi", "pune"]
+    )
+    with pytest.raises(SystemExit):
+        main_module.main()
+
+
+def test_configured_city_reaches_isolated_runner_without_london_paths(
+    monkeypatch: pytest.MonkeyPatch, capsys: pytest.CaptureFixture[str]
+) -> None:
+    from orchestration import main as main_module
+
+    contexts = []
+
+    class FakeRunner:
+        def __init__(self, *, max_attempts: int, run_context) -> None:
+            contexts.append(run_context)
+
+        def run(self) -> dict[str, object]:
+            return {"status": "completed"}
+
+    monkeypatch.setattr(main_module, "AutoRunner", FakeRunner)
+    monkeypatch.setattr(
+        main_module,
+        "prepare_city_data",
+        lambda *args, **kwargs: SimpleNamespace(
+            status=main_module.DataStatus.READY, reasons=()
+        ),
+    )
+    monkeypatch.setattr(
+        "sys.argv", ["orchestration.main", "--city", "bengaluru", "--auto"]
+    )
+    assert main_module.main() == 0
+    capsys.readouterr()
+    assert [context.city for context in contexts] == ["bengaluru"]
+    context = contexts[0]
+    assert "artifacts/cities/bengaluru" in context.artifact_root.as_posix()
+    assert "data/preprocessed/all" not in context.dataset_path.as_posix()
+
+
+def test_multi_city_failure_does_not_stop_later_city(
+    monkeypatch: pytest.MonkeyPatch, capsys: pytest.CaptureFixture[str]
+) -> None:
+    from orchestration import main as main_module
+
+    called: list[str] = []
+
+    class FakeRunner:
+        def __init__(self, *, max_attempts: int, run_context) -> None:
+            self.city = run_context.city
+
+        def run(self) -> dict[str, object]:
+            called.append(self.city)
+            if self.city == "bengaluru":
+                raise RuntimeError("incompatible")
+            return {"status": "completed"}
+
+    monkeypatch.setattr(main_module, "AutoRunner", FakeRunner)
+    monkeypatch.setattr(
+        main_module,
+        "prepare_city_data",
+        lambda *args, **kwargs: SimpleNamespace(status=main_module.DataStatus.READY, reasons=()),
+    )
+    monkeypatch.setattr(
+        "sys.argv",
+        ["orchestration.main", "--cities", "bengaluru", "delhi", "--auto"],
+    )
+    assert main_module.main() == 1
+    result = json.loads(capsys.readouterr().out)
+    assert called == ["bengaluru", "delhi"]
+    assert [item["status"] for item in result["cities"]] == ["failed", "completed"]
 
 
 def test_auto_cli_dispatches_runner(

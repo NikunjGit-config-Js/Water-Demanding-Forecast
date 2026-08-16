@@ -2,6 +2,7 @@ import json
 import shutil
 from dataclasses import replace
 from pathlib import Path
+from types import SimpleNamespace
 
 import pandas as pd
 import pytest
@@ -188,3 +189,25 @@ def test_audit_fails_on_malformed_cv_training_boundaries(
     _trust_test_manifest(directory, monkeypatch)
     with pytest.raises(ValueError, match="training end/rows|training-validation adjacency|expanding"):
         audit.run_audit()
+
+
+def test_audit_accepts_city_scoped_dataset_and_checkpoint_reader(tmp_path: Path) -> None:
+    dataset = tmp_path / "canonical.csv"
+    pd.DataFrame(
+        {"Date": ["2024-01-01", "2024-01-02"], "Consumption": [1.0, 2.0]}
+    ).to_csv(dataset, index=False)
+
+    report = audit.run_audit(
+        dataset=dataset,
+        approved_dataset_sha256=audit._sha256(dataset),
+        evaluations={},
+        expected_rows=2,
+        checkpoint_reader=lambda number: SimpleNamespace(
+            phase_name=f"Phase {number}",
+            validated_at_utc="2026-01-01T00:00:00+00:00",
+            test_evidence=SimpleNamespace(returncode=0),
+        ),
+    )
+
+    assert report["dataset"]["path"] == str(dataset.resolve())
+    assert len(report["checkpoint_chain"]) == 12

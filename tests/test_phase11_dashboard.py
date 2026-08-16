@@ -36,6 +36,20 @@ def test_all_preserved_predictions_load_with_declared_models() -> None:
         assert set(("Date", "actual", *spec.model_columns)).issubset(frame.columns)
 
 
+def test_prediction_loading_accepts_an_explicit_city_root(tmp_path: Path) -> None:
+    artifact = tmp_path / "artifacts/cities/pune/phase5/run"
+    artifact.mkdir(parents=True)
+    pd.DataFrame(
+        {"Date": ["2024-01-01"], "actual": [1.0], "model": [1.5]}
+    ).to_csv(artifact / "predictions.csv", index=False)
+    spec = ExperimentSpec(
+        "Pune", "Phase 5", "holdout", "artifacts/cities/pune/phase5/run",
+        "predictions.csv", ("model",),
+    )
+
+    assert load_predictions(spec, tmp_path).loc[0, "model"] == 1.5
+
+
 def test_trailing_window_uses_dates_not_row_count() -> None:
     frame = pd.DataFrame(
         {"Date": pd.to_datetime(["2024-01-01", "2024-01-02", "2024-01-02", "2024-01-03"]), "actual": range(4)}

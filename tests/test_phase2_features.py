@@ -4,7 +4,12 @@ from pathlib import Path
 import numpy as np
 import pandas as pd
 
-from experiments.phase2_features import build_past_only_features, run_phase2_features, sha256_file
+from experiments.phase2_features import (
+    CalendarConfig,
+    build_past_only_features,
+    run_phase2_features,
+    sha256_file,
+)
 
 
 def _daily_frame(periods: int = 800) -> pd.DataFrame:
@@ -38,6 +43,20 @@ def test_exact_calendar_offsets_do_not_bridge_missing_dates() -> None:
     assert np.isnan(features.loc[jan_28, "same_weekday_previous_week"])
     assert np.isnan(features.loc[jan_2_2019, "same_period_previous_year"])
     assert features.loc[jan_28, "consumption_lag_7"] == frame.loc[jan_28 - 7, "Consumption"]
+
+
+def test_calendar_jurisdiction_is_configurable_without_changing_london_default() -> None:
+    frame = _daily_frame(10)
+    london = build_past_only_features(frame)
+    india = build_past_only_features(
+        frame, CalendarConfig(country="IN", subdivision=None, feature_name="is_india_holiday")
+    )
+
+    assert "is_canada_ontario_holiday" in london
+    assert "is_india_holiday" in india
+    assert "is_canada_ontario_holiday" not in india
+    common = [column for column in london if column != "is_canada_ontario_holiday"]
+    pd.testing.assert_frame_equal(london[common], india[common])
 
 
 def test_runner_preserves_source_and_records_no_selection(tmp_path: Path) -> None:

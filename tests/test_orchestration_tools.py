@@ -129,3 +129,27 @@ def test_local_git_checkpoint_refuses_unexpected_delta(
         git_tool.create_local_checkpoint(
             message="should not commit", expected_paths=("expected.txt",)
         )
+
+
+def test_push_safety_accepts_only_approved_branch_and_remotes(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    values = {
+        ("branch", "--show-current"): git_tool.EXPECTED_PUSH_BRANCH + "\n",
+        ("remote", "get-url", "origin"): git_tool.EXPECTED_ORIGIN_URL + "\n",
+        ("remote", "get-url", "upstream"): git_tool.EXPECTED_UPSTREAM_URL + "\n",
+    }
+    monkeypatch.setattr(git_tool, "_read_git", lambda *args: values[args])
+    git_tool.validate_push_target()
+    with pytest.raises(git_tool.GitSafetyError, match="not approved"):
+        git_tool.validate_push_target(branch="main")
+
+
+def test_guarded_push_uses_normal_explicit_origin_command(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    calls: list[tuple[str, ...]] = []
+    monkeypatch.setattr(git_tool, "validate_push_target", lambda **kwargs: None)
+    monkeypatch.setattr(git_tool, "_run_git", lambda *args: calls.append(args) or "")
+    git_tool.push_approved_branch()
+    assert calls == [("push", "origin", "feature/india-multicity")]

@@ -40,10 +40,14 @@ def _sha256(path: Path) -> str:
     return digest.hexdigest()
 
 
-def build_manifest(repository_root: Path) -> dict[str, object]:
+def build_manifest(
+    repository_root: Path,
+    checkpoint_dir: Path | None = None,
+    final_evidence: tuple[str, ...] = FINAL_EVIDENCE,
+) -> dict[str, object]:
     """Return a deterministic manifest, failing if approved evidence is absent."""
     root = repository_root.resolve()
-    checkpoint_dir = root / "orchestration/state/checkpoints"
+    checkpoint_dir = checkpoint_dir or root / "orchestration/state/checkpoints"
     checkpoints: list[dict[str, object]] = []
     for expected_phase_number, filename in enumerate(REQUIRED_CHECKPOINTS):
         path = checkpoint_dir / filename
@@ -73,7 +77,7 @@ def build_manifest(repository_root: Path) -> dict[str, object]:
         )
 
     files: list[dict[str, object]] = []
-    for relative in FINAL_EVIDENCE:
+    for relative in final_evidence:
         path = root / relative
         if not path.is_file():
             raise FileNotFoundError(f"missing final evidence: {path}")

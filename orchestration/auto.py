@@ -24,6 +24,7 @@ from orchestration.tools.git_tool import (
     require_clean_worktree,
 )
 from orchestration.tools.test_tool import TestReport, run_test_commands
+from orchestration.context import RunContext
 
 
 AUTO_STATE_PATH = PROJECT_ROOT / "orchestration" / "state" / "auto_run.json"
@@ -116,12 +117,13 @@ def _save_state(state: AutoState, path: Path = AUTO_STATE_PATH) -> None:
     temporary.replace(path)
 
 
-def validated_phase_numbers() -> list[int]:
+def validated_phase_numbers(context: RunContext | None = None) -> list[int]:
     """Return the consecutive valid PASS prefix, rejecting gaps and bad records."""
     completed: list[int] = []
     gap_seen = False
     for number in PHASE_NUMBERS:
-        path = CHECKPOINT_DIR / f"phase_{number}_passed.json"
+        checkpoint_dir = context.checkpoint_root if context else CHECKPOINT_DIR
+        path = checkpoint_dir / f"phase_{number}_passed.json"
         if not path.exists():
             gap_seen = True
             continue
@@ -129,13 +131,13 @@ def validated_phase_numbers() -> list[int]:
             raise ValueError(
                 f"Checkpoint for Phase {number} exists after an incomplete phase; refusing resume."
             )
-        _read_persisted_checkpoint(number)
+        _read_persisted_checkpoint(number, checkpoint_dir)
         completed.append(number)
     return completed
 
 
-def first_incomplete_phase() -> int | None:
-    completed = validated_phase_numbers()
+def first_incomplete_phase(context: RunContext | None = None) -> int | None:
+    completed = validated_phase_numbers(context)
     return None if len(completed) == len(PHASE_NUMBERS) else len(completed)
 
 
@@ -206,11 +208,40 @@ def _file_contains_secret(path: Path) -> bool:
 
 
 def _validate_phase_paths(
-    number: int, paths: tuple[str, ...], *, require_checkpoint: bool = True
+    number: int, paths: tuple[str, ...], *, require_checkpoint: bool = True,
+    context: RunContext | None = None,
 ) -> None:
+    explicit_context = context
+    context = context or RunContext.for_city("london")
+    if not context.legacy_london:
+        prefix = f"cities/{context.city}/phase{number}/"
+        allowed = (
+            f"artifacts/{prefix}", f"reports/{prefix}",
+            f"orchestration/state/cities/{context.city}/",
+        )
+        for path in paths:
+            shared_code = _phase_path_is_expected(number, path) and not path.startswith(
+                ("artifacts/", "reports/", "orchestration/state/")
+            )
+            if path.startswith("data/cities/") or not (
+                path.startswith(allowed) or shared_code
+            ):
+                raise GitSafetyError(
+                    f"Unexpected Phase {number} file change for {context.city}: {path}"
+                )
     checkpoint = f"orchestration/state/checkpoints/phase_{number}_passed.json"
     for path in paths:
-        if not _phase_path_is_expected(number, path):
+        city_owned = (
+            not context.legacy_london
+            and path.startswith(
+                (
+                    f"artifacts/cities/{context.city}/phase{number}/",
+                    f"reports/cities/{context.city}/phase{number}/",
+                    f"orchestration/state/cities/{context.city}/",
+                )
+            )
+        )
+        if not city_owned and not _phase_path_is_expected(number, path):
             raise GitSafetyError(f"Unexpected Phase {number} file change: {path}")
         if path in PROTECTED_PATHS:
             raise GitSafetyError(f"Fundamental methodology/governance change requires approval: {path}")
@@ -224,7 +255,8 @@ def _validate_phase_paths(
         if candidate.is_file() and _file_contains_secret(candidate):
             raise GitSafetyError(f"Possible secret detected; refusing commit: {path}")
     if require_checkpoint:
-        checkpoint_file = CHECKPOINT_DIR / f"phase_{number}_passed.json"
+        checkpoint_root = context.checkpoint_root if explicit_context else CHECKPOINT_DIR
+        checkpoint_file = checkpoint_root / f"phase_{number}_passed.json"
         if not checkpoint_file.is_file():
             raise GitSafetyError(f"Validated PASS checkpoint is missing: {checkpoint}")
         if _file_contains_secret(checkpoint_file):
@@ -233,10 +265,11 @@ def _validate_phase_paths(
             )
 
 
-def _checkpoint_commit_for_phase(number: int) -> str | None:
+def _checkpoint_commit_for_phase(number: int, context: RunContext | None = None) -> str | None:
     import subprocess
 
-    checkpoint = f"orchestration/state/checkpoints/phase_{number}_passed.json"
+    context = context or RunContext.for_city("london")
+    checkpoint = str((context.checkpoint_root / f"phase_{number}_passed.json").relative_to(PROJECT_ROOT))
     completed = subprocess.run(
         ("git", "log", "-1", "--format=%H", "--", checkpoint),
         cwd=PROJECT_ROOT,
@@ -249,8 +282,8 @@ def _checkpoint_commit_for_phase(number: int) -> str | None:
     return commit or None
 
 
-def _preserved_attempt_count(number: int) -> int | None:
-    state_dir = PROJECT_ROOT / "orchestration" / "state"
+def _preserved_attempt_count(number: int, context: RunContext | None = None) -> int | None:
+    state_dir = (context.state_root if context else PROJECT_ROOT / "orchestration" / "state")
     patterns = (
         f"Phase_{number}_attempt_*.txt",
         f"phase_{number}_attempt_*.txt",
@@ -275,8 +308,9 @@ class AutoRunner:
         committer: Committer = create_local_checkpoint,
         final_test_executor: Callable[[], TestReport] = run_test_commands,
         progress: Progress = print,
-        state_path: Path = AUTO_STATE_PATH,
-        summary_path: Path = FINAL_SUMMARY_PATH,
+        state_path: Path | None = None,
+        summary_path: Path | None = None,
+        run_context: RunContext | None = None,
     ) -> None:
         if max_attempts < 1:
             raise ValueError("max_attempts must be at least 1")
@@ -285,8 +319,29 @@ class AutoRunner:
         self.committer = committer
         self.final_test_executor = final_test_executor
         self.progress = progress
-        self.state_path = state_path
-        self.summary_path = summary_path
+        self._explicit_context = run_context
+        self.run_context = run_context or RunContext.for_city("london")
+        self.state_path = state_path or (
+            self.run_context.state_root / "auto_run.json" if run_context else AUTO_STATE_PATH
+        )
+        self.summary_path = summary_path or (
+            self.run_context.state_root / "auto_final_summary.json"
+            if run_context else FINAL_SUMMARY_PATH
+        )
+
+    def _validated_phases(self) -> list[int]:
+        return (
+            validated_phase_numbers(self.run_context)
+            if self._explicit_context is not None
+            else validated_phase_numbers()
+        )
+
+    def _checkpoint_commit(self, number: int) -> str | None:
+        return (
+            _checkpoint_commit_for_phase(number, self.run_context)
+            if self._explicit_context is not None
+            else _checkpoint_commit_for_phase(number)
+        )
 
     def _log(self, message: str) -> None:
         self.progress(f"[AUTO] {message}")
@@ -305,7 +360,7 @@ class AutoRunner:
         test_result: str,
         warnings: list[str] | None = None,
     ) -> dict[str, Any]:
-        completed = validated_phase_numbers()
+        completed = self._validated_phases()
         return {
             "status": state.status,
             "completed_phases": completed,
@@ -325,22 +380,26 @@ class AutoRunner:
                 state, test_result="NOT_RUN", warnings=[state.failure_reason]
             )
         try:
-            completed = validated_phase_numbers()
+            completed = self._validated_phases()
         except ValueError as exc:
             return self._stop(state, str(exc))
 
         for number in completed:
-            commit = _checkpoint_commit_for_phase(number)
+            commit = self._checkpoint_commit(number)
             if commit:
                 state.git_checkpoint_commits.setdefault(str(number), commit)
-            attempts = _preserved_attempt_count(number)
+            attempts = (
+                _preserved_attempt_count(number, self.run_context)
+                if self._explicit_context is not None
+                else _preserved_attempt_count(number)
+            )
             if attempts is not None:
                 state.attempts_per_phase.setdefault(str(number), attempts)
 
         # Discover a crash after PASS checkpoint creation but before its commit
         # from the validated checkpoint chain and Git, not only ignored state.
         missing_commits = [
-            number for number in completed if _checkpoint_commit_for_phase(number) is None
+            number for number in completed if self._checkpoint_commit(number) is None
         ]
         if missing_commits:
             pending = missing_commits[-1]
@@ -352,8 +411,12 @@ class AutoRunner:
                 )
             try:
                 paths = changed_paths()
-                _validate_phase_paths(pending, paths)
-                checkpoint_path = f"orchestration/state/checkpoints/phase_{pending}_passed.json"
+                if self._explicit_context is None:
+                    _validate_phase_paths(pending, paths)
+                    checkpoint_path = f"orchestration/state/checkpoints/phase_{pending}_passed.json"
+                else:
+                    _validate_phase_paths(pending, paths, context=self.run_context)
+                    checkpoint_path = str((self.run_context.checkpoint_root / f"phase_{pending}_passed.json").relative_to(PROJECT_ROOT))
                 result = self.committer(
                     message=(
                         f"feat: complete validated Phase {pending} "
@@ -386,9 +449,13 @@ class AutoRunner:
                     f"{state.failure_report or state.failure_reason}",
                 )
             try:
-                _validate_phase_paths(
-                    start_number, changed_paths(), require_checkpoint=False
-                )
+                if self._explicit_context is None:
+                    _validate_phase_paths(start_number, changed_paths(), require_checkpoint=False)
+                else:
+                    _validate_phase_paths(
+                        start_number, changed_paths(), require_checkpoint=False,
+                        context=self.run_context,
+                    )
             except GitSafetyError as exc:
                 return self._stop(
                     state,
@@ -419,7 +486,7 @@ class AutoRunner:
                     state.failure_reason = flow_state.failure_reason
                 _save_state(state, self.state_path)
 
-            flow = self.flow_factory(
+            flow_kwargs = dict(
                 phases=[f"Phase {number}"],
                 max_attempts=self.max_attempts,
                 progress_reporter=lambda message, n=number: self._log(message),
@@ -427,6 +494,9 @@ class AutoRunner:
                 starting_attempt=state.active_attempt,
                 repair_report=state.failure_report,
             )
+            if not self.run_context.legacy_london:
+                flow_kwargs["run_context"] = self.run_context
+            flow = self.flow_factory(**flow_kwargs)
             flow.orchestrate()
             state.attempts_per_phase[str(number)] = flow.state.attempt
             state.active_attempt = flow.state.attempt
@@ -454,8 +524,12 @@ class AutoRunner:
 
             paths = changed_paths()
             try:
-                _validate_phase_paths(number, paths)
-                checkpoint_path = f"orchestration/state/checkpoints/phase_{number}_passed.json"
+                if self._explicit_context is None:
+                    _validate_phase_paths(number, paths)
+                    checkpoint_path = f"orchestration/state/checkpoints/phase_{number}_passed.json"
+                else:
+                    _validate_phase_paths(number, paths, context=self.run_context)
+                    checkpoint_path = str((self.run_context.checkpoint_root / f"phase_{number}_passed.json").relative_to(PROJECT_ROOT))
                 result = self.committer(
                     message=f"feat: complete validated Phase {number} {PHASE_SHORT_NAMES[number]}",
                     expected_paths=paths,
@@ -487,7 +561,7 @@ class AutoRunner:
             )
             if diff_check.returncode != 0:
                 raise GitSafetyError("git diff --check failed")
-            validated_phase_numbers()
+            self._validated_phases()
         except (GitSafetyError, ValueError) as exc:
             return self._stop(state, f"Final verification failed: {exc}")
 

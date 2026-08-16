@@ -28,6 +28,7 @@ from orchestration.tools.test_tool import (
     TestReport,
     run_test_commands,
 )
+from orchestration.context import RunContext
 
 
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
@@ -162,8 +163,8 @@ def _default_implementation_executor(prompt: str, output_name: str) -> str:
     )
 
 
-def _default_checkpoint_writer(state: OrchestrationState) -> None:
-    CHECKPOINT_DIR.mkdir(parents=True, exist_ok=True)
+def _write_checkpoint(state: OrchestrationState, checkpoint_dir: Path) -> None:
+    checkpoint_dir.mkdir(parents=True, exist_ok=True)
     number = phase_number(state.current_phase)
     checkpoint = PhaseCheckpoint(
         phase_number=number,
@@ -173,7 +174,7 @@ def _default_checkpoint_writer(state: OrchestrationState) -> None:
         test_evidence=state.test_evidence,
         validation_report=state.validation_report,
     )
-    target = CHECKPOINT_DIR / f"phase_{number}_passed.json"
+    target = checkpoint_dir / f"phase_{number}_passed.json"
     temporary = target.with_suffix(".tmp")
     temporary.write_text(
         json.dumps(checkpoint.model_dump(), indent=2, sort_keys=True) + "\n",
@@ -182,8 +183,14 @@ def _default_checkpoint_writer(state: OrchestrationState) -> None:
     temporary.replace(target)
 
 
-def _read_persisted_checkpoint(number: int) -> PhaseCheckpoint:
-    path = CHECKPOINT_DIR / f"phase_{number}_passed.json"
+def _default_checkpoint_writer(state: OrchestrationState) -> None:
+    _write_checkpoint(state, CHECKPOINT_DIR)
+
+
+def _read_persisted_checkpoint(
+    number: int, checkpoint_dir: Path | None = None
+) -> PhaseCheckpoint:
+    path = (checkpoint_dir or CHECKPOINT_DIR) / f"phase_{number}_passed.json"
     try:
         raw = json.loads(path.read_text(encoding="utf-8"))
         checkpoint = PhaseCheckpoint.model_validate(raw)
@@ -226,6 +233,7 @@ class WaterForecastFlow(Flow[OrchestrationState]):
         state_reporter: StateReporter | None = None,
         starting_attempt: int = 0,
         repair_report: str = "",
+        run_context: RunContext | None = None,
     ) -> None:
         if max_attempts < 1:
             raise ValueError("max_attempts must be at least 1")
@@ -242,7 +250,15 @@ class WaterForecastFlow(Flow[OrchestrationState]):
         self._implementation_executor = implementation_executor
         self._test_executor = test_executor
         self._validation_executor = validation_executor
-        self._checkpoint_writer = checkpoint_writer
+        self.run_context = run_context or RunContext.for_city("london")
+        self._checkpoint_dir = (
+            self.run_context.checkpoint_root if run_context is not None else CHECKPOINT_DIR
+        )
+        self._checkpoint_writer = (
+            checkpoint_writer
+            if checkpoint_writer is not _default_checkpoint_writer
+            else lambda state: _write_checkpoint(state, self._checkpoint_dir)
+        )
         self._snapshot_reader = snapshot_reader
         self._progress_reporter = progress_reporter or (lambda message: None)
         self._state_reporter = state_reporter or (lambda state: None)
@@ -259,6 +275,8 @@ class WaterForecastFlow(Flow[OrchestrationState]):
             attempt=self.state.attempt,
             max_attempts=self.state.max_attempts,
             validation_report=self.state.validation_report,
+        ) + "\n\n" + self.run_context.prompt_block(
+            phase_number(self.state.current_phase)
         ) + "\n\nSPECIALIST PROFILE:\n" + yaml.safe_dump(
             profile, sort_keys=False, allow_unicode=True
         ).strip()
@@ -366,7 +384,7 @@ class WaterForecastFlow(Flow[OrchestrationState]):
                 if prerequisite in passed_in_this_run:
                     continue
                 try:
-                    _read_persisted_checkpoint(prerequisite)
+                    _read_persisted_checkpoint(prerequisite, self._checkpoint_dir)
                 except ValueError as exc:
                     return self._fail(str(exc))
             self.state.current_phase = canonical_phase_name(phase)

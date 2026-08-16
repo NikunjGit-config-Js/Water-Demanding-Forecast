@@ -6,6 +6,8 @@ import argparse
 import hashlib
 import json
 import platform
+import re
+from dataclasses import asdict, dataclass
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any, Iterable
@@ -21,6 +23,26 @@ LAGS = (1, 7, 14, 30, 365)
 ROLLING_WINDOWS = (7, 30)
 EMA_SPANS = (7, 30)
 FOURIER_EPOCH = pd.Timestamp("1970-01-01")
+
+
+@dataclass(frozen=True)
+class CalendarConfig:
+    """Known-in-advance calendar feature configuration.
+
+    The default deliberately preserves the validated London methodology. City
+    runs may select another jurisdiction without changing target-derived
+    feature calculations.
+    """
+
+    country: str = "CA"
+    subdivision: str | None = "ON"
+    feature_name: str = "is_canada_ontario_holiday"
+
+    def validate(self) -> None:
+        if not re.fullmatch(r"[A-Z]{2}", self.country):
+            raise ValueError("holiday country must be a two-letter uppercase code")
+        if not re.fullmatch(r"[a-z][a-z0-9_]*", self.feature_name):
+            raise ValueError("holiday feature name must be a safe lowercase identifier")
 
 
 def sha256_file(path: Path) -> str:
@@ -55,13 +77,17 @@ def _add_fourier_terms(result: pd.DataFrame, elapsed_days: np.ndarray, period: f
         result[f"{prefix}_cos_{harmonic}"] = np.cos(angle)
 
 
-def build_past_only_features(frame: pd.DataFrame) -> pd.DataFrame:
+def build_past_only_features(
+    frame: pd.DataFrame, calendar: CalendarConfig | None = None
+) -> pd.DataFrame:
     """Return target plus features available immediately before each row's target.
 
     Observation lags deliberately refer to earlier observed rows. The explicitly
     calendar-based previous-week/year features instead require an exact date
     match, which prevents source-data gaps from changing their meaning.
     """
+    calendar = calendar or CalendarConfig()
+    calendar.validate()
     parsed = _validate_frame(frame)
     dates = parsed["Date"]
     target = parsed["Consumption"].astype(float)
@@ -105,11 +131,13 @@ def build_past_only_features(frame: pd.DataFrame) -> pd.DataFrame:
     _add_fourier_terms(result, elapsed_days, 7.0, "fourier_weekly")
     _add_fourier_terms(result, elapsed_days, 365.2425, "fourier_yearly")
 
-    canada_holidays = holidays.CA(
-        years=range(int(dates.dt.year.min()), int(dates.dt.year.max()) + 1), subdiv="ON"
+    jurisdiction_holidays = holidays.country_holidays(
+        calendar.country,
+        years=range(int(dates.dt.year.min()), int(dates.dt.year.max()) + 1),
+        subdiv=calendar.subdivision,
     )
-    result["is_canada_ontario_holiday"] = dates.dt.date.map(
-        lambda value: int(value in canada_holidays)
+    result[calendar.feature_name] = dates.dt.date.map(
+        lambda value: int(value in jurisdiction_holidays)
     ).astype("int8")
 
     by_date = pd.Series(target.to_numpy(), index=pd.DatetimeIndex(dates))
@@ -165,6 +193,7 @@ def run_phase2_features(
     dataset_path: Path = DEFAULT_DATASET,
     artifact_root: Path = DEFAULT_ARTIFACT_ROOT,
     experiment_id: str | None = None,
+    calendar: CalendarConfig | None = None,
 ) -> Path:
     dataset_path = dataset_path.resolve()
     if not dataset_path.is_file():
@@ -176,7 +205,8 @@ def run_phase2_features(
     source_hash_before = sha256_file(dataset_path)
     started_at = datetime.now(timezone.utc)
 
-    features = build_past_only_features(pd.read_csv(dataset_path))
+    calendar = calendar or CalendarConfig()
+    features = build_past_only_features(pd.read_csv(dataset_path), calendar)
     features.to_csv(output_dir / "features.csv", index=False, date_format="%Y-%m-%d")
     manifest = _feature_manifest(features)
     _write_json(output_dir / "feature_manifest.json", manifest)
@@ -194,7 +224,11 @@ def run_phase2_features(
             "lags": list(LAGS),
             "rolling_windows": list(ROLLING_WINDOWS),
             "ema_spans": list(EMA_SPANS),
-            "holiday_calendar": "Canada, Ontario subdivision",
+            "holiday_calendar": (
+                "Canada, Ontario subdivision"
+                if calendar == CalendarConfig()
+                else asdict(calendar)
+            ),
             "fourier": {"weekly_period_days": 7.0, "yearly_period_days": 365.2425, "harmonics": [1, 2]},
             "missing_feature_policy": "preserve warm-up and calendar-gap NaNs; do not impute or drop rows",
             "random_seed": None,

@@ -34,7 +34,11 @@ class ExperimentSpec:
 
     @property
     def predictions_path(self) -> Path:
-        return PROJECT_ROOT / self.artifact_directory / self.predictions_filename
+        return self.predictions_path_for(PROJECT_ROOT)
+
+    def predictions_path_for(self, project_root: Path) -> Path:
+        """Resolve this preserved relative artifact within an explicit run root."""
+        return project_root / self.artifact_directory / self.predictions_filename
 
 
 # Only independently approved outputs are exposed. Invalid and failed attempt
@@ -98,10 +102,10 @@ def experiment_by_label(label: str) -> ExperimentSpec:
         raise ValueError(f"Unknown approved experiment: {label}") from exc
 
 
-def load_predictions(spec: ExperimentSpec) -> pd.DataFrame:
+def load_predictions(spec: ExperimentSpec, project_root: Path = PROJECT_ROOT) -> pd.DataFrame:
     """Load and validate one preserved prediction artifact."""
-    path = spec.predictions_path.resolve()
-    artifact_root = (PROJECT_ROOT / "artifacts").resolve()
+    path = spec.predictions_path_for(project_root).resolve()
+    artifact_root = (project_root / "artifacts").resolve()
     if artifact_root not in path.parents:
         raise ValueError("Prediction artifact must remain inside the artifact root")
     if not path.is_file():

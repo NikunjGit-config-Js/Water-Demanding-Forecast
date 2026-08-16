@@ -7,6 +7,9 @@ from typing import Iterable
 
 
 PROJECT_ROOT = Path(__file__).resolve().parents[2]
+EXPECTED_ORIGIN_URL = "https://github.com/NikunjGit-config-Js/Water-Demanding-Forecast.git"
+EXPECTED_UPSTREAM_URL = "https://github.com/aildnont/water-forecast.git"
+EXPECTED_PUSH_BRANCH = "feature/india-multicity"
 
 
 @dataclass(frozen=True)
@@ -23,6 +26,27 @@ class GitCheckpointResult:
 
 class GitSafetyError(RuntimeError):
     """Raised when a local checkpoint cannot be created safely."""
+
+
+def validate_push_target(*, branch: str = EXPECTED_PUSH_BRANCH) -> None:
+    """Fail closed unless branch and both remotes match the approved topology."""
+    if branch != EXPECTED_PUSH_BRANCH:
+        raise GitSafetyError(f"Push branch is not approved: {branch}")
+    current = _read_git("branch", "--show-current").strip()
+    if current != branch:
+        raise GitSafetyError(f"Current branch is {current!r}, expected {branch!r}")
+    origin = _read_git("remote", "get-url", "origin").strip()
+    upstream = _read_git("remote", "get-url", "upstream").strip()
+    if origin != EXPECTED_ORIGIN_URL:
+        raise GitSafetyError(f"origin URL is not approved: {origin}")
+    if upstream != EXPECTED_UPSTREAM_URL:
+        raise GitSafetyError(f"upstream URL changed unexpectedly: {upstream}")
+
+
+def push_approved_branch(*, branch: str = EXPECTED_PUSH_BRANCH) -> None:
+    """Perform only the explicitly approved normal push to origin."""
+    validate_push_target(branch=branch)
+    _run_git("push", "origin", branch)
 
 
 def _read_git(*args: str) -> str:
