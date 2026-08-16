@@ -1,0 +1,18 @@
+{
+  "city": "gurgaon",
+  "official_sources_checked": [
+    "https://www.mcg.gov.in/",
+    "https://phedharyana.gov.in/WSStatus",
+    "https://timesofindia.indiatimes.com/city/gurgaon/micro-data-centre-to-digitise-monitoring-of-water-supply-network/articleshow/127569049.cms"
+  ],
+  "source_url": null,
+  "source_organization": "Municipal Corporation of Gurugram (MCG), Gurugram Metropolitan Development Authority (GMDA)",
+  "source_frequency": "N/A - no public daily dataset available",
+  "target_semantics": "N/A",
+  "unit": "N/A",
+  "date_range_if_known": null,
+  "row_count_if_known": null,
+  "daily_compatible": false,
+  "status": "DATA_SOURCE_REQUIRED",
+  "reason": "No verified multi-year daily municipal water production/supply/consumption dataset exists for Gurgaon/Gurugram. MCG is establishing its first micro data centre and SCADA system (announced January 2026) with a 2-year implementation timeline. GMDA reports total supply capacity (670 MLD, expanding to 770 MLD) but does not publish daily production time-series. PHED Haryana provides rural LPCD status, not daily urban supply data. No open-data portal exposes downloadable daily water records for this city."
+}

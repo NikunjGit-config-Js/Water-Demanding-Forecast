@@ -1,0 +1,18 @@
+{
+  "city": "hyderabad",
+  "official_sources_checked": [
+    "https://hyderabadwater.gov.in/en/index.php/about/source",
+    "https://data.opencity.in/dataset/?organization=hyderabad-metropolitan-water-supply-and-sewerage-board-hmwssb",
+    "https://data.telangana.gov.in"
+  ],
+  "source_url": "https://data.opencity.in/dataset/?organization=hyderabad-metropolitan-water-supply-and-sewerage-board-hmwssb",
+  "source_organization": "Hyderabad Metropolitan Water Supply and Sewerage Board (HMWSSB), Telangana government",
+  "source_frequency": "Monthly (water connections data), ad-hoc (tanker supply)",
+  "target_semantics": "Water connections applied/approved (monthly), tanker supply records (ad-hoc), not daily production/supply time-series",
+  "unit": "Connection counts (monthly), tanker trips",
+  "date_range_if_known": "Multiple years of monthly connection data available",
+  "row_count_if_known": "Monthly records per section/division",
+  "daily_compatible": false,
+  "status": "DATA_SOURCE_REQUIRED",
+  "reason": "HMWSSB publishes water connection data (monthly, by section/division) and tanker supply records, but no genuine daily municipal water production/supply/consumption time-series. The HMWSSB website lists source capacities (total 516 MGD normal drawal) but does not publish daily operational production data. No open-data portal or government source exposes a downloadable multi-year daily water dataset for Hyderabad."
+}

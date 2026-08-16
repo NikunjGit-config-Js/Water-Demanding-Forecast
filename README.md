@@ -15,9 +15,42 @@ The implementation includes data-quality analysis, 40 past-only time and
 calendar features, training-only feature selection, ten traditional regression
 families, chronological holdouts, expanding-window cross-validation, locked-test
 Optuna selection, fully nested time-series CV and Optuna, classical/neural
-time-series baselines, PatchTST, and a Streamlit results dashboard. Phases 0--12
-have independent PASS checkpoints; Phase 13 documentation remains subject to
-its own independent validation.
+time-series baselines, PatchTST, and a Streamlit results dashboard. Phases 0--13
+have independent PASS checkpoints for both London and Delhi.
+
+## Multi-City Architecture
+
+The framework supports multiple cities with a generic pipeline runner:
+
+```bash
+# Run full pipeline for any compatible city
+PYTHONPATH=. python3 scripts/city_pipeline.py --city <city>
+
+# Run advanced model benchmark
+PYTHONPATH=. python3 experiments/advanced_tree_benchmark.py
+```
+
+### City Data Status
+
+| City | Source | Status | Reason |
+|------|--------|--------|--------|
+| London | Thames Water daily demand | READY | 3,800 daily rows |
+| Delhi | Delhi Jal Board daily production | READY | 944 daily rows |
+| Bengaluru | BWSSB ward-wise aggregates | DATA_INCOMPATIBLE | Not daily time-series |
+| Pune | PMC partial months | DATA_INCOMPATIBLE | Only 2 months available |
+| Gurgaon | MCG/GMDA | DATA_SOURCE_REQUIRED | No public daily dataset |
+| Hyderabad | HMWSSB connections data | DATA_SOURCE_REQUIRED | No daily production data |
+
+### Selected validated results
+
+| City | Best Baseline | Best Conventional ML | Best Advanced |
+|------|--------------|---------------------|---------------|
+| London (holdout) | naive_lag_1 MAE 223.74 | naive_lag_1 MAE 223.74 | Ridge MAE 329.62 (CV) |
+| Delhi (holdout) | naive_lag_1 MAE 16.94 | Ridge MAE 17.32 | naive_lag_1 MAE 18.27 (CV) |
+
+Post-hoc advanced benchmark: XGBoost, ExtraTrees, and HistGradientBoosting do
+not beat naive lag-1 or Ridge on either city. See
+`reports/advanced_models/xgboost_and_boosters.md`.
 
 ### Methodology and leakage controls
 

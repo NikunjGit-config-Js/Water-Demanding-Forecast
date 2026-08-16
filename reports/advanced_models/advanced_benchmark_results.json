@@ -1,0 +1,202 @@
+[
+  {
+    "city": "london",
+    "mae": 224.5854020919174,
+    "model": "naive_lag_1",
+    "mse": 174353.75722548246,
+    "protocol": "holdout_80_20",
+    "r2": 0.997893392802943,
+    "rmse": 417.55689100466594,
+    "runtime_seconds": 0.001
+  },
+  {
+    "city": "london",
+    "mae": 242.2390121885529,
+    "model": "ridge",
+    "mse": 146898.91104097044,
+    "protocol": "holdout_80_20",
+    "r2": 0.9982251125059579,
+    "rmse": 383.2739373359092,
+    "runtime_seconds": 0.001
+  },
+  {
+    "city": "london",
+    "mae": 537.214411418383,
+    "model": "xgboost",
+    "mse": 1369980.3116083073,
+    "protocol": "holdout_80_20",
+    "r2": 0.983447386335769,
+    "rmse": 1170.46158057764,
+    "runtime_seconds": 0.141
+  },
+  {
+    "city": "london",
+    "mae": 582.7511478674453,
+    "model": "extra_trees",
+    "mse": 1378949.2703617688,
+    "protocol": "holdout_80_20",
+    "r2": 0.9833390200271743,
+    "rmse": 1174.2867070531663,
+    "runtime_seconds": 0.191
+  },
+  {
+    "city": "london",
+    "mae": 562.6306808494139,
+    "model": "hist_gradient_boosting",
+    "mse": 1373637.3270719207,
+    "protocol": "holdout_80_20",
+    "r2": 0.9834032009094382,
+    "rmse": 1172.0227502364964,
+    "runtime_seconds": 0.114
+  },
+  {
+    "city": "london",
+    "mae": 10227.437065,
+    "model": "naive_lag_1",
+    "mse": 174391392.495808,
+    "protocol": "cv_5fold_tscv",
+    "r2": -1.183801,
+    "rmse": 12991.809565,
+    "runtime_seconds": 0.0
+  },
+  {
+    "city": "london",
+    "mae": 329.62163,
+    "model": "ridge",
+    "mse": 450348.569236,
+    "protocol": "cv_5fold_tscv",
+    "r2": 0.994493,
+    "rmse": 633.458522,
+    "runtime_seconds": 0.001
+  },
+  {
+    "city": "london",
+    "mae": 592.756704,
+    "model": "xgboost",
+    "mse": 1124753.186573,
+    "protocol": "cv_5fold_tscv",
+    "r2": 0.987244,
+    "rmse": 1011.19242,
+    "runtime_seconds": 0.117
+  },
+  {
+    "city": "london",
+    "mae": 741.756027,
+    "model": "extra_trees",
+    "mse": 1479672.534586,
+    "protocol": "cv_5fold_tscv",
+    "r2": 0.983472,
+    "rmse": 1107.230367,
+    "runtime_seconds": 0.156
+  },
+  {
+    "city": "london",
+    "mae": 592.139049,
+    "model": "hist_gradient_boosting",
+    "mse": 1180400.166939,
+    "protocol": "cv_5fold_tscv",
+    "r2": 0.98697,
+    "rmse": 1009.024868,
+    "runtime_seconds": 0.096
+  },
+  {
+    "city": "delhi",
+    "mae": 17.542,
+    "model": "naive_lag_1",
+    "mse": 960.2591825000002,
+    "protocol": "holdout_80_20",
+    "r2": 0.3282222328332225,
+    "rmse": 30.988049027003946,
+    "runtime_seconds": 0.0
+  },
+  {
+    "city": "delhi",
+    "mae": 19.256635597718418,
+    "model": "ridge",
+    "mse": 881.5174334865175,
+    "protocol": "holdout_80_20",
+    "r2": 0.38330835676631403,
+    "rmse": 29.6903592683975,
+    "runtime_seconds": 0.001
+  },
+  {
+    "city": "delhi",
+    "mae": 27.0623477935791,
+    "model": "xgboost",
+    "mse": 1287.155014844578,
+    "protocol": "holdout_80_20",
+    "r2": 0.09953256617797457,
+    "rmse": 35.876942663005416,
+    "runtime_seconds": 0.093
+  },
+  {
+    "city": "delhi",
+    "mae": 30.537706249999957,
+    "model": "extra_trees",
+    "mse": 1440.2444104121855,
+    "protocol": "holdout_80_20",
+    "r2": -0.007565657099175782,
+    "rmse": 37.950552175326585,
+    "runtime_seconds": 0.112
+  },
+  {
+    "city": "delhi",
+    "mae": 23.90498683310382,
+    "model": "hist_gradient_boosting",
+    "mse": 1094.400541438809,
+    "protocol": "holdout_80_20",
+    "r2": 0.2343796700805041,
+    "rmse": 33.08172518836962,
+    "runtime_seconds": 0.08
+  },
+  {
+    "city": "delhi",
+    "mae": 18.268,
+    "model": "naive_lag_1",
+    "mse": 1121.870597,
+    "protocol": "cv_5fold_tscv",
+    "r2": -0.17943,
+    "rmse": 31.653417,
+    "runtime_seconds": 0.0
+  },
+  {
+    "city": "delhi",
+    "mae": 23.332513,
+    "model": "ridge",
+    "mse": 1204.494814,
+    "protocol": "cv_5fold_tscv",
+    "r2": -1.206653,
+    "rmse": 33.623827,
+    "runtime_seconds": 0.001
+  },
+  {
+    "city": "delhi",
+    "mae": 21.707025,
+    "model": "xgboost",
+    "mse": 1075.71014,
+    "protocol": "cv_5fold_tscv",
+    "r2": -0.186876,
+    "rmse": 31.179185,
+    "runtime_seconds": 0.087
+  },
+  {
+    "city": "delhi",
+    "mae": 19.224335,
+    "model": "extra_trees",
+    "mse": 812.325514,
+    "protocol": "cv_5fold_tscv",
+    "r2": 0.085758,
+    "rmse": 27.345861,
+    "runtime_seconds": 0.108
+  },
+  {
+    "city": "delhi",
+    "mae": 21.306842,
+    "model": "hist_gradient_boosting",
+    "mse": 962.825438,
+    "protocol": "cv_5fold_tscv",
+    "r2": -0.171855,
+    "rmse": 29.962464,
+    "runtime_seconds": 0.066
+  }
+]
