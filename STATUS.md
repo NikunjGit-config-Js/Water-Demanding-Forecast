@@ -1,6 +1,6 @@
 # Project Status
 
-Current Phase: Phase 8 implemented and tested; awaiting independent validation
+Current Phase: Phase 11 repair attempt 2 implemented and tested; awaiting independent validation
 
 ## Completed
 - Repository cloned
@@ -199,11 +199,23 @@ Current Phase: Phase 8 implemented and tested; awaiting independent validation
   artifact counts, 190 passing tests, and a clean `git diff --check`. The report
   is preserved at
   `orchestration/state/phase_8_attempt_2_validator_pass_20260816.txt`.
+- Phases 9 and 10 received independent PASS checkpoints and validated local
+  commits `cb3c70c` and `fd1f1bf`, respectively.
+- Phase 11 repair attempt 2 added a true 1--365 day future-horizon control with
+  causal last-observation and recursive seven-day seasonal-naive forecasts.
+  Historical evaluation filtering, metrics, plots, and downloads remain clearly
+  separate. Explicit-origin tests prove post-origin target mutations cannot alter
+  forecasts; future exports have no actual or residual fields. Focused tests pass
+  (8), full discovery passes (204), syntax compilation and `git diff --check`
+  pass. Evidence is preserved under
+  `artifacts/phase11/phase11_attempt_2_20260816T000800Z/`.
 
 ## Current
-Phases 0 through 8 are approved after exact independent validator PASS. Phase 8
-attempt 1 and the non-nested attempt-2 interim run remain preserved but invalid.
-Earlier Phase 5 and Phase 7 artifacts remain preserved.
+Phases 0 through 10 are approved after exact independent validator PASS. Phase
+11 repair attempt 2 is implemented and tested, awaiting independent validation.
+Invalid/interim Phase 8 and failed Phase 9 attempts remain preserved but are not
+exposed by the dashboard.
 
 ## Next
-Phase 9 may begin under the mandatory understand-plan-implement-test-review gate.
+Independent Validator must review Phase 11 attempt 2 and return exact PASS before
+Phase 12 may begin.

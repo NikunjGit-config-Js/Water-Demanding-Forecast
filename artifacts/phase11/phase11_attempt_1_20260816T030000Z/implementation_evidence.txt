@@ -1,0 +1,38 @@
+Phase 11 UI Agent implementation evidence
+Attempt: 1 of 3
+
+Scope
+- Added an artifact-backed Streamlit dashboard without model execution or retraining.
+- Allowlisted only approved/final Phase 5 through Phase 10 prediction artifacts.
+- Explicitly excluded invalid/interim Phase 8 outputs and the failed Phase 9 run.
+- Added experiment, model, trailing evaluation-window, highlighted-metric, and plot controls.
+- Added actual/predicted, residual time-series, residual distribution, and scatter views.
+- Added CSV prediction and Excel result downloads.
+- The UI states that its horizon is a preserved historical evaluation window, not a new future forecast.
+
+Checks
+- python -m pytest -q tests/test_phase11_dashboard.py
+  Result before final test addition: 5 passed in 0.26s
+- python -m compileall -q experiments/phase11_dashboard.py app/app.py
+  Result: return code 0
+- Streamlit AppTest runtime render
+  Result: 0 exceptions; experiment/model/metric selectors, evaluation-window slider,
+  plot selector, and 4 metric cards present.
+- Streamlit localhost startup
+  Command: python -m streamlit run app/app.py --server.headless true
+    --server.address 127.0.0.1 --server.port 8765 --browser.gatherUsageStats false
+  Health endpoint result: ok
+  Server was stopped immediately after the smoke check; no deployment occurred.
+- MPLCONFIGDIR=/tmp/water_forecast_matplotlib python -m pytest -q
+  Result: 202 passed, 85 warnings in 267.95s
+  Warnings were pre-existing dependency deprecation/convergence warnings; no failures.
+- MPLCONFIGDIR=/tmp/water_forecast_matplotlib python -m pytest -q
+  tests/test_phase11_dashboard.py
+  Final result after phase-path correction: 6 passed in 0.84s
+- git diff --check
+  Result: return code 0
+
+Permissions and methodology
+- No permission-gated action was required.
+- No public deployment, push, scraping, external data acquisition, credential use,
+  destructive operation, or approved-methodology change was performed.
