@@ -1,4 +1,89 @@
 # Water Demand Forecasting
+
+> This repository contains a validated modern forecasting pipeline alongside
+> the preserved original municipal project. The original README continues
+> below under **Historical project documentation**.
+
+## Validated pipeline overview
+
+The modern workflow forecasts aggregate daily water consumption using the
+supplied London, Canada dataset: 3,800 rows from 2009-07-01 through 2020-09-02,
+with `Date` and `Consumption` columns. It does not claim that weather,
+demographic, customer-level, or Indian-city data is present.
+
+The implementation includes data-quality analysis, 40 past-only time and
+calendar features, training-only feature selection, ten traditional regression
+families, chronological holdouts, expanding-window cross-validation, locked-test
+Optuna selection, fully nested time-series CV and Optuna, classical/neural
+time-series baselines, PatchTST, and a Streamlit results dashboard. Phases 0--12
+have independent PASS checkpoints; Phase 13 documentation remains subject to
+its own independent validation.
+
+### Methodology and leakage controls
+
+- Splits and cross-validation are chronological; shuffled K-fold is not used.
+- Lag and rolling features access only earlier target observations.
+- Imputation and scaling are fitted only on each training prefix.
+- Feature selection never uses the locked test set.
+- Phase 7 tunes on train/validation and evaluates the frozen selection once on
+  the final 15% locked test partition.
+- Phase 8 nests feature selection and tuning within each expanding-window fold.
+- Simple naive forecasts are reported before any improvement claim.
+
+See [PROJECT_SPEC.md](PROJECT_SPEC.md), [EXPERIMENT_PLAN.md](EXPERIMENT_PLAN.md),
+and [VALIDATION_RULES.md](VALIDATION_RULES.md) for the approved protocol.
+
+### Selected validated results
+
+| Evaluation | Result | Interpretation |
+|---|---:|---|
+| Phase 5 chronological 80/20 | naive lag-1 MAE 223.74 | Best holdout MAE; linear regression had lower RMSE 384.63 |
+| Phase 6 expanding 5-fold CV | naive lag-1 mean MAE 230.28 | Best mean MAE among evaluated traditional models |
+| Phase 7 locked 15% test | naive MAE 225.35; linear MAE 259.65 | Linear improved RMSE/R2, not MAE |
+| Phase 8 nested CV + Optuna | naive mean MAE 230.28 | Tuned candidates did not beat naive MAE |
+| Phase 10 validation | naive MAE 215.43; PatchTST MAE 2,123.66 | No transformer superiority claim |
+
+Phase 9 uses fixed-origin recursive multi-step forecasting, a materially harder
+protocol whose metrics are not directly comparable with the table's one-step or
+rolling evaluations. Prophet was descriptively best within Phase 9 (MAE
+3,670.84), but no improvement claim was made. Full metrics and predictions are
+preserved under `artifacts/`; superseded and failed attempts remain for audit
+history and must not be presented as final results.
+
+### Run and verify
+
+Use the active project environment to run the complete regression suite:
+
+```bash
+python -m pytest -q
+```
+
+Launch the artifact-backed dashboard with its isolated requirements:
+
+```bash
+python -m pip install -r app/requirements.txt
+python -m streamlit run app/app.py
+```
+
+The dashboard does not train models. It displays preserved historical
+evaluations and separately produces transparent 1--365 day causal naive future
+forecasts. See [app/README.md](app/README.md) and the
+[interview guide](docs/INTERVIEW_GUIDE.md).
+
+### Reproducibility and limitations
+
+Experiment runners live in `experiments/`, focused regression tests in `tests/`,
+and configurations, predictions, metrics, plots, model files, logs, hashes, and
+seeds in phase-specific artifact directories. Phase 12 independently auditable
+evidence is at
+`artifacts/phase12/phase12_attempt_2_20260816T050000Z/full_validation_report.json`.
+
+The dataset is univariate and from one municipality, so these results do not
+establish transfer to other cities. High R2 values reflect strong persistence
+and must be read alongside MAE, RMSE, horizon, and the naive baseline. The
+preserved neural and PatchTST runs used CPU despite GPU support being allowed.
+
+## Historical project documentation
 ![The City of London, Canada](img/readme/london_logo.png "The City of
 London, Canada")
 
