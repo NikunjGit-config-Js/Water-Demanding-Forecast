@@ -41,12 +41,21 @@ PYTHONPATH=. python3 experiments/advanced_tree_benchmark.py
 | Gurgaon | MCG/GMDA | DATA_SOURCE_REQUIRED | No public daily dataset |
 | Hyderabad | HMWSSB connections data | DATA_SOURCE_REQUIRED | No daily production data |
 
-### Selected validated results
+### Primary validated results (Phase 5)
 
-| City | Best Baseline | Best Conventional ML | Best Advanced |
-|------|--------------|---------------------|---------------|
-| London (holdout) | naive_lag_1 MAE 224.59 | linear_regression MAE 251.68 | xgboost MAE 537.21 |
-| Delhi (holdout) | naive_lag_1 MAE 17.54 | ridge MAE 19.26 | hist_gradient_boosting MAE 23.90 |
+| City | Best Baseline | Best Conventional ML |
+|------|--------------|---------------------|
+| London | naive_lag_1 MAE 223.74 | linear_regression MAE 251.68, RMSE 384.63, R2 0.9979 |
+| Delhi | naive_lag_1 MAE 16.94 | ridge MAE 17.32, RMSE 28.61, R2 0.5150 |
+
+### Post-hoc advanced benchmark
+
+| City | Protocol | Best Advanced | MAE |
+|------|----------|---------------|-----|
+| London | holdout | xgboost | 537.21 |
+| London | CV | hist_gradient_boosting | 592.14 |
+| Delhi | holdout | hist_gradient_boosting | 23.90 |
+| Delhi | CV | extra_trees | 19.22 |
 
 Under this configured post-hoc benchmark, XGBoost, ExtraTrees, and
 HistGradientBoosting do not beat naive lag-1 or the best conventional ML model
@@ -70,7 +79,7 @@ and [VALIDATION_RULES.md](VALIDATION_RULES.md) for the approved protocol.
 
 | Evaluation | Result | Interpretation |
 |---|---:|---|
-| Phase 5 chronological 80/20 | naive lag-1 MAE 224.59 | Best holdout MAE; linear regression had lower RMSE 384.63 |
+| Phase 5 chronological 80/20 | naive lag-1 MAE 223.74 | Best holdout MAE; linear regression had lower RMSE 384.63 |
 | Phase 6 expanding 5-fold CV | naive lag-1 mean MAE 230.28 | Best mean MAE among evaluated traditional models |
 | Phase 7 locked 15% test | naive MAE 225.35; linear MAE 259.65 | Linear improved RMSE/R2, not MAE |
 | Phase 8 nested CV + Optuna | naive mean MAE 230.28 | Tuned candidates did not beat naive MAE |

@@ -11,9 +11,13 @@
       "unit": "ML/d",
       "compatibility_status": "READY",
       "phase_0_13_status": "COMPLETE",
-      "best_baseline": "naive_lag_1 (MAE 224.59, Phase 5 holdout)",
-      "best_conventional_ml": "linear_regression (MAE 251.68, Phase 5 holdout)",
-      "advanced_benchmark": {
+      "best_baseline": "naive_lag_1",
+      "best_baseline_mae": 223.73671344736826,
+      "best_conventional_ml": "linear_regression",
+      "best_conventional_ml_mae": 251.6803039164544,
+      "best_conventional_ml_rmse": 384.631787405011,
+      "best_conventional_ml_r2": 0.997933150342045,
+      "advanced_benchmark_posthoc": {
         "best_holdout_advanced": "xgboost (MAE 537.21)",
         "best_cv_advanced": "hist_gradient_boosting (MAE 592.14)",
         "beats_naive_lag_1": false,
@@ -29,9 +33,13 @@
       "unit": "MGD",
       "compatibility_status": "READY",
       "phase_0_13_status": "COMPLETE",
-      "best_baseline": "naive_lag_1 (MAE 17.54, Phase 5 holdout)",
-      "best_conventional_ml": "ridge (MAE 19.26, Phase 5 holdout)",
-      "advanced_benchmark": {
+      "best_baseline": "naive_lag_1",
+      "best_baseline_mae": 16.938412698412705,
+      "best_conventional_ml": "ridge",
+      "best_conventional_ml_mae": 17.31673702015551,
+      "best_conventional_ml_rmse": 28.6057446701141,
+      "best_conventional_ml_r2": 0.5150267559002881,
+      "advanced_benchmark_posthoc": {
         "best_holdout_advanced": "hist_gradient_boosting (MAE 23.90)",
         "best_cv_advanced": "extra_trees (MAE 19.22)",
         "beats_naive_lag_1": false,

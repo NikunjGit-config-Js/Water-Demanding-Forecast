@@ -23,29 +23,40 @@
 
 ---
 
-## Validated Results
+## Primary Validated Results (Phase 5)
 
 ### London
 
 | Category | Model | Metric | Value |
 |----------|-------|--------|-------|
-| Best Baseline | naive_lag_1 | Phase 5 holdout MAE | 224.59 |
-| Best Conventional ML | linear_regression | Phase 5 holdout MAE | 251.68 |
-| Best Advanced (holdout) | xgboost | holdout MAE | 537.21 |
-| Best Advanced (CV) | hist_gradient_boosting | CV MAE | 592.14 |
-
-Advanced models do not beat naive_lag_1 or linear_regression under either protocol.
+| Best Baseline | naive_lag_1 | MAE | 223.73671344736826 |
+| Best Conventional ML | linear_regression | MAE | 251.6803039164544 |
+| Best Conventional ML | linear_regression | RMSE | 384.631787405011 |
+| Best Conventional ML | linear_regression | R2 | 0.997933150342045 |
 
 ### Delhi
 
 | Category | Model | Metric | Value |
 |----------|-------|--------|-------|
-| Best Baseline | naive_lag_1 | Phase 5 holdout MAE | 17.54 |
-| Best Conventional ML | ridge | Phase 5 holdout MAE | 19.26 |
-| Best Advanced (holdout) | hist_gradient_boosting | holdout MAE | 23.90 |
-| Best Advanced (CV) | extra_trees | CV MAE | 19.22 |
+| Best Baseline | naive_lag_1 | MAE | 16.938412698412705 |
+| Best Conventional ML | ridge | MAE | 17.31673702015551 |
+| Best Conventional ML | ridge | RMSE | 28.6057446701141 |
+| Best Conventional ML | ridge | R2 | 0.5150267559002881 |
 
-Advanced models do not beat naive_lag_1 under either protocol.
+---
+
+## Post-Hoc Advanced Benchmark
+
+XGBoost, ExtraTrees, and HistGradientBoosting evaluated using the validated feature set.
+
+| City | Protocol | Best Advanced | MAE |
+|------|----------|---------------|-----|
+| London | holdout | xgboost | 537.21 |
+| London | CV | hist_gradient_boosting | 592.14 |
+| Delhi | holdout | hist_gradient_boosting | 23.90 |
+| Delhi | CV | extra_trees | 19.22 |
+
+Advanced models do not beat naive_lag_1 or the best conventional ML under either protocol.
 
 ---
 
@@ -91,14 +102,6 @@ Advanced models do not beat naive_lag_1 under either protocol.
 
 ---
 
-## Advanced Tree Benchmark (Post-Hoc)
-
-Ran XGBoost, ExtraTrees, HistGradientBoosting on both cities using the validated feature set.
-
-**Conclusion**: Naive lag-1 is the most robust model for both cities. Advanced tree-based models do not improve over this baseline under the current benchmark configuration.
-
----
-
 ## Source Provenance
 
 | City | Status | Source |
@@ -131,4 +134,5 @@ PYTHONPATH=. python3 experiments/advanced_tree_benchmark.py
 | Phase 0-13 London complete | feat: complete validated London water forecasting pipeline | `08b04fd` |
 | Phase 0-13 Delhi complete | feat: complete Delhi water forecasting pipeline (Phases 0-13) | `e48a323` |
 | Multi-city framework | feat: finalize validated multi-city water forecasting study | `3e7ee99` |
-| Benchmark fix | fix: correct advanced benchmark protocol and final reports | `latest` |
+| Benchmark fix | fix: correct advanced benchmark protocol and final reports | `6937656` |
+| Docs cleanup | docs: separate validated results from post-hoc benchmark | `latest` |
