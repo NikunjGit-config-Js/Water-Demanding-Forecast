@@ -1,0 +1,3263 @@
+COMMAND:
+/home/asus/.local/bin/codex exec -C /home/asus/projects/water-forecast --approve-for-me --output-last-message /home/asus/projects/water-forecast/orchestration/state/Phase_7_attempt_2.txt [PROMPT]
+
+STDOUT:
+Phase 7 repair attempt 2 is ready for independent revalidation.
+
+Changes:
+
+- Added reproducible generation of:
+  - Actual-vs-predicted scatter
+  - Residual-vs-predicted plot
+  - Residual distribution
+  - Error-over-time plot
+  - Highest-error dates table
+  - Row-level locked-test diagnostics
+- Added tests confirming artifacts are non-empty and:
+  - `residual = actual - selected_model`
+  - `absolute_error = abs(residual)`
+  - Highest-error rows are descending by absolute error
+- Generated artifacts solely from the preserved 570 locked-test predictions.
+- Confirmed prediction and saved-model hashes remained unchanged.
+- Updated `STATUS.md` to await validator PASS.
+
+Evidence:
+
+- Focused: `3 passed`
+- Full suite: `187 passed`
+- `git diff --check`: passed
+- No empty Phase 7 artifacts
+- Test and integrity evidence saved under [Phase 7 artifacts](/home/asus/projects/water-forecast/artifacts/phase7/phase7_attempt_1_20260815T223000Z)
+- Implementation: [phase7_locked_test_optuna.py](/home/asus/projects/water-forecast/experiments/phase7_locked_test_optuna.py)
+- Tests: [test_phase7_locked_test_optuna.py](/home/asus/projects/water-forecast/tests/test_phase7_locked_test_optuna.py)
+
+No tuning, selection, fitting, refitting, or additional locked-test model evaluation occurred.
+
+
+STDERR:
+OpenAI Codex v0.147.0
+--------
+workdir: /home/asus/projects/water-forecast
+model: gpt-5.6-sol
+provider: openai
+approval: on-request
+sandbox: workspace-write [workdir, /tmp, $TMPDIR]
+reasoning effort: none
+reasoning summaries: none
+session id: 01a0077a-0f3d-7e53-b44a-99b48249918a
+--------
+user
+Repair phase "Phase 7" as the ml_agent.
+Attempt 2 of 3.
+The independent validator returned this exact report:
+
+FAIL
+
+Phase 7’s core ML methodology is sound:
+
+- Verified chronological 2,660/570/570 train-validation-test partitions.
+- Optuna uses validation MAE only; locked-test data does not affect tuning, preprocessing, or selection.
+- Imputation and `RobustScaler` are fitted on training rows only.
+- Phase 3’s training-only selected features and upstream hashes match.
+- Replayed saved models and reproduced locked-test predictions and MAE/MSE/RMSE/R².
+- Verified 60 completed seeded trials and Ridge selection before test evaluation.
+- Naive lag-1 and Linear Regression baselines are preserved; no improvement claim is made.
+- Phase 6 has a valid independent PASS checkpoint despite stale `STATUS.md`.
+- Changes are Phase 7-scoped; `git diff --check` passes.
+- Live pytest could not start because the read-only environment has no writable temporary directory; preserved evidence reports 3 focused and 187 full-suite tests passing.
+
+The artifact set is incomplete against `EXPERIMENT_PLAN.md`. It contains only the locked-test time-series plot and lacks:
+
+- Actual-versus-predicted scatter
+- Residual-versus-predicted plot
+- Residual distribution
+- Error-over-time plot
+- Highest-error dates table
+
+REQUIRED_CORRECTIONS:
+
+1. Add reproducible generation of all missing evaluation artifacts for the frozen selected model.
+2. Generate them from the already-preserved locked-test predictions so no additional tuning, model selection, or test-informed change occurs.
+3. Add tests asserting these artifacts exist, are non-empty, and that residual/error values equal `actual - selected_model`.
+4. Rerun focused and full tests, preserve the results, and submit the repaired Phase 7 artifacts for revalidation.
+
+Apply every REQUIRED_CORRECTION without changing unrelated code or approved
+methodology. Re-run relevant tests and report the changes and evidence.
+If a correction requires user approval under PERMISSIONS.md, make no such
+change and return PERMISSION_REQUIRED followed by the exact approval needed.
+
+
+SPECIALIST PROFILE:
+role: ML Agent
+goal: Implement traditional ML and validation-only optimization experiments.
+responsibilities:
+- Compare simple baselines before claiming improvement.
+- Fit preprocessing only on training data.
+- Use chronological holdouts and time-aware cross-validation.
+codex
+I’ll repair only the Phase 7 evaluation-artifact gap. I’ll first locate the frozen prediction artifact and existing Phase 7 scripts/tests, then add deterministic plot/table generation, validate residual semantics, run focused and full tests, and preserve fresh evidence without re-tuning or re-selecting the model.
+exec
+/bin/bash -lc "pwd && rg -n \"Phase 7|phase_?7|locked-test|locked_test|selected_model|highest-error|residual\" -S . --glob '"'!**/.git/**'"'" in /home/asus/projects/water-forecast
+ succeeded in 0ms:
+/home/asus/projects/water-forecast
+./SUCCESS_CRITERIA.md:17:13. Actual-vs-predicted and residual artifacts exist.
+./orchestration/auto.py:39:    "locked-test Optuna",
+./orchestration/flow.py:45:    "phase_7": "ml_agent",
+./README.md:86:   predictions (depending on the model type), training residuals, and
+./README.md:95:the residuals and test error. The bottom left image plots the residuals
+./README.md:97:estimator plots for the residuals and test error.")
+./STATUS.md:108:  locked-test rows were loaded. Focused tests pass (4), full discovery passes (133),
+./STATUS.md:162:Independently validate Phase 6. Do not advance to Phase 7 unless the validator
+./experiments/phase5_chronological_holdout.py:130:    residual = predictions["actual"] - predictions[best_name]
+./experiments/phase5_chronological_holdout.py:131:    absolute_error = residual.abs()
+./experiments/phase5_chronological_holdout.py:148:    axes[0].scatter(predictions[best_name], residual, s=10, alpha=0.6)
+./experiments/phase5_chronological_holdout.py:151:    axes[1].hist(residual, bins=30)
+./experiments/phase5_chronological_holdout.py:154:    figure.savefig(output / "residual_diagnostics.png", dpi=150)
+./experiments/phase5_chronological_holdout.py:158:    axis.plot(predictions["Date"], residual, label="Residual (actual - prediction)", alpha=0.75)
+./experiments/phase5_chronological_holdout.py:172:        "residual": residual,
+./orchestration/state/phase_0_attempt_1_20260815T200921Z.txt:58:  residuals_mean = 4.011104838588299e-13
+./orchestration/state/phase_0_attempt_1_20260815T200921Z.txt:59:  residuals_std = 508.19427016521934
+./experiments/phase6_time_series_cv.py:78:    residual = ordered["actual"] - ordered[best_name]
+./experiments/phase6_time_series_cv.py:80:    axes[0].scatter(ordered[best_name], residual, s=10, alpha=0.6)
+./experiments/phase6_time_series_cv.py:83:    axes[1].hist(residual, bins=30)
+./experiments/phase6_time_series_cv.py:86:    figure.savefig(output / "residual_diagnostics.png", dpi=150)
+./tests/test_phase7_locked_test_optuna.py:9:from experiments.phase7_locked_test_optuna import Phase7Config, chronological_partitions, run_phase7_optuna
+./tests/test_phase7_locked_test_optuna.py:26:def test_run_preserves_trials_selection_locked_test_and_model_evidence(tmp_path: Path) -> None:
+./tests/test_phase7_locked_test_optuna.py:28:    output = run_phase7_optuna(phase2, phase3, tmp_path / "runs", "run", _config())
+./tests/test_phase7_locked_test_optuna.py:31:        "locked_test_metrics.csv", "locked_test_predictions.csv", "selected_model.joblib",
+./tests/test_phase7_locked_test_optuna.py:32:        "linear_baseline.joblib", "locked_test_actual_vs_predicted.png", "split_and_selection_report.json",
+./tests/test_phase7_locked_test_optuna.py:37:    assert (report["training_rows"], report["validation_rows"], report["locked_test_rows"]) == (125, 28, 27)
+./tests/test_phase7_locked_test_optuna.py:38:    assert report["locked_test_used_for_tuning_selection_or_refit"] is False
+./tests/test_phase7_locked_test_optuna.py:39:    assert report["locked_test_evaluations_after_selection"] == 1
+./tests/test_phase7_locked_test_optuna.py:43:    assert set(pd.read_csv(output / "locked_test_metrics.csv")["model"]) == {
+./tests/test_phase7_locked_test_optuna.py:44:        "naive_lag_1", "linear_regression", report["selected_model"]
+./tests/test_phase7_locked_test_optuna.py:46:    assert len(pd.read_csv(output / "locked_test_predictions.csv")) == 27
+./tests/test_phase7_locked_test_optuna.py:49:def test_locked_test_changes_cannot_change_trials_selection_or_fitted_preprocessing(tmp_path: Path) -> None:
+./tests/test_phase7_locked_test_optuna.py:51:    first = run_phase7_optuna(phase2, phase3, tmp_path / "runs", "first", _config())
+./tests/test_phase7_locked_test_optuna.py:54:    first_model = joblib.load(first / "selected_model.joblib")
+./tests/test_phase7_locked_test_optuna.py:66:    second = run_phase7_optuna(phase2, phase3, tmp_path / "runs", "second", _config())
+./tests/test_phase7_locked_test_optuna.py:69:    second_model = joblib.load(second / "selected_model.joblib")
+./tests/test_phase7_locked_test_optuna.py:71:    assert first_report["selected_model"] == second_report["selected_model"]
+./experiments/phase3_feature_selection.py:348:            "locked_test_rows_loaded": 0,
+./EXPERIMENT_PLAN.md:64:- residual vs predicted
+./EXPERIMENT_PLAN.md:65:- residual distribution
+./EXPERIMENT_PLAN.md:67:- highest-error dates
+./EXPERIMENT_PLAN.md:70:Large residuals may be called prediction-error/anomaly candidates.
+./PROJECT_SPEC.md:112:### Phase 7 — Test 3
+./PROJECT_SPEC.md:149:- residual plots
+./experiments/phase7_locked_test_optuna.py:1:"""Run Phase 7: train/validation Optuna tuning followed by one locked-test evaluation."""
+./experiments/phase7_locked_test_optuna.py:37:DEFAULT_ARTIFACT_ROOT = Path("artifacts/phase7")
+./experiments/phase7_locked_test_optuna.py:54:            raise ValueError("Phase 7 fractions must be positive and sum to one")
+./experiments/phase7_locked_test_optuna.py:60:            raise ValueError("dataset is too short for the Phase 7 split")
+./experiments/phase7_locked_test_optuna.py:75:    locked_test = frame.iloc[validation_end:].copy()
+./experiments/phase7_locked_test_optuna.py:76:    if not (train["Date"].iloc[-1] < validation["Date"].iloc[0] <= validation["Date"].iloc[-1] < locked_test["Date"].iloc[0]):
+./experiments/phase7_locked_test_optuna.py:77:        raise RuntimeError("Phase 7 partitions are not strictly chronological")
+./experiments/phase7_locked_test_optuna.py:78:    return train, validation, locked_test
+./experiments/phase7_locked_test_optuna.py:112:def _save_plot(predictions: pd.DataFrame, selected_model: str, path: Path) -> None:
+./experiments/phase7_locked_test_optuna.py:116:    axis.plot(predictions["Date"], predictions["selected_model"], label=selected_model, alpha=0.85)
+./experiments/phase7_locked_test_optuna.py:117:    axis.set(title="Phase 7 locked-test evaluation", xlabel="Date", ylabel="Consumption")
+./experiments/phase7_locked_test_optuna.py:124:def run_phase7_optuna(
+./experiments/phase7_locked_test_optuna.py:133:    experiment_id = experiment_id or datetime.now(timezone.utc).strftime("phase7_%Y%m%dT%H%M%SZ")
+./experiments/phase7_locked_test_optuna.py:139:    train, validation, locked_test = chronological_partitions(frame, config)
+./experiments/phase7_locked_test_optuna.py:149:        study = optuna.create_study(direction="minimize", sampler=sampler, study_name=f"phase7_{model_name}")
+./experiments/phase7_locked_test_optuna.py:175:    selected_model = str(tuned_validation.iloc[0]["model"])
+./experiments/phase7_locked_test_optuna.py:176:    selected_pipeline = best_pipelines[selected_model]
+./experiments/phase7_locked_test_optuna.py:178:    # Selection is frozen above. This is the first and only use of locked-test
+./experiments/phase7_locked_test_optuna.py:180:    x_test, y_test = locked_test[selected_features], locked_test["Consumption"]
+./experiments/phase7_locked_test_optuna.py:182:        "Date": locked_test["Date"], "actual": y_test,
+./experiments/phase7_locked_test_optuna.py:183:        "naive_lag_1": locked_test["consumption_lag_1"].to_numpy(dtype=float),
+./experiments/phase7_locked_test_optuna.py:185:        "selected_model": selected_pipeline.predict(x_test),
+./experiments/phase7_locked_test_optuna.py:190:        {"model": selected_model, **regression_metrics(y_test, predictions["selected_model"])},
+./experiments/phase7_locked_test_optuna.py:195:    test_metrics.to_csv(output / "locked_test_metrics.csv", index=False)
+./experiments/phase7_locked_test_optuna.py:196:    predictions.to_csv(output / "locked_test_predictions.csv", index=False, date_format="%Y-%m-%d")
+./experiments/phase7_locked_test_optuna.py:197:    joblib.dump(selected_pipeline, output / "selected_model.joblib")
+./experiments/phase7_locked_test_optuna.py:199:    _save_plot(predictions, selected_model, output / "locked_test_actual_vs_predicted.png")
+./experiments/phase7_locked_test_optuna.py:202:        "phase": "Phase 7", "experiment": "Test 3 chronological 70/15/15 with Optuna",
+./experiments/phase7_locked_test_optuna.py:203:        "row_count": len(frame), "training_rows": len(train), "validation_rows": len(validation), "locked_test_rows": len(locked_test),
+./experiments/phase7_locked_test_optuna.py:207:        "locked_test_start_date": locked_test["Date"].iloc[0].date().isoformat(),
+./experiments/phase7_locked_test_optuna.py:208:        "locked_test_end_date_inclusive": locked_test["Date"].iloc[-1].date().isoformat(),
+./experiments/phase7_locked_test_optuna.py:212:        "selection_metric": "validation MAE", "selected_model": selected_model,
+./experiments/phase7_locked_test_optuna.py:213:        "preprocessing_fit_scope": "training partition only; validation and locked-test rows are transform/predict only",
+./experiments/phase7_locked_test_optuna.py:214:        "locked_test_used_for_tuning_selection_or_refit": False,
+./experiments/phase7_locked_test_optuna.py:215:        "locked_test_evaluations_after_selection": 1,
+./experiments/phase7_locked_test_optuna.py:221:        "phase": "Phase 7", "experiment_id": experiment_id, "configuration": asdict(config),
+./experiments/phase7_locked_test_optuna.py:228:        f"Phase 7 completed with seed {config.random_seed}.\n"
+./experiments/phase7_locked_test_optuna.py:230:        f"Selection was frozen as {selected_model} before one locked-test evaluation.\n"
+./experiments/phase7_locked_test_optuna.py:246:    print(run_phase7_optuna(args.phase2_dir, args.phase3_dir, args.artifact_root, args.experiment_id, config))
+./tests/test_phase5_chronological_holdout.py:50:        "residual_diagnostics.png", "error_over_time.png", "highest_error_dates.csv",
+./tests/test_phase5_chronological_holdout.py:66:        "date", "model", "actual", "prediction", "residual", "absolute_error"
+./tests/test_phase5_chronological_holdout.py:76:    expected["residual"] = expected["actual"] - expected["prediction"]
+./tests/test_phase5_chronological_holdout.py:77:    expected["absolute_error"] = expected["residual"].abs()
+./tests/test_phase3_feature_selection.py:112:    assert report["locked_test_rows_loaded"] == 0
+./tests/test_phase6_time_series_cv.py:31:    required = {"config.json", "execution.log", "cv_report.json", "fold_metrics.csv", "metrics_summary.csv", "predictions.csv", "actual_vs_predicted.png", "residual_diagnostics.png"}
+./src/visualization/visualize.py:81:    # Plot residuals
+./src/visualization/visualize.py:82:    forecast_df[["residuals", "error"]].plot(ax=ax3, color=["green", "red"], title="Residuals", grid=True)
+./src/visualization/visualize.py:85:    # Plot residuals distribution
+./src/visualization/visualize.py:86:    forecast_df[["residuals", "error"]].plot(ax=ax4, color=["green", "red"], kind='kde',
+./src/visualization/visualize.py:89:    print("Training --> Residuals mean:", np.round(metrics['residuals_mean']), " | std:", np.round(metrics['residuals_std']))
+./artifacts/phase5/phase5_attempt_2_20260815T230000Z/highest_error_dates.csv:1:date,model,actual,prediction,residual,absolute_error
+./artifacts/phase7/phase7_attempt_1_20260815T223000Z/config.json:18:  "experiment_id": "phase7_attempt_1_20260815T223000Z",
+./artifacts/phase7/phase7_attempt_1_20260815T223000Z/config.json:20:  "phase": "Phase 7",
+./artifacts/phase7/phase7_attempt_1_20260815T223000Z/locked_test_predictions.csv:1:Date,actual,naive_lag_1,linear_regression,selected_model
+./artifacts/phase7/phase7_attempt_1_20260815T223000Z/split_and_selection_report.json:6:  "locked_test_end_date_inclusive": "2020-09-02",
+./artifacts/phase7/phase7_attempt_1_20260815T223000Z/split_and_selection_report.json:7:  "locked_test_evaluations_after_selection": 1,
+./artifacts/phase7/phase7_attempt_1_20260815T223000Z/split_and_selection_report.json:8:  "locked_test_rows": 570,
+./artifacts/phase7/phase7_attempt_1_20260815T223000Z/split_and_selection_report.json:9:  "locked_test_start_date": "2019-02-11",
+./artifacts/phase7/phase7_attempt_1_20260815T223000Z/split_and_selection_report.json:10:  "locked_test_used_for_tuning_selection_or_refit": false,
+./artifacts/phase7/phase7_attempt_1_20260815T223000Z/split_and_selection_report.json:11:  "phase": "Phase 7",
+./artifacts/phase7/phase7_attempt_1_20260815T223000Z/split_and_selection_report.json:14:  "preprocessing_fit_scope": "training partition only; validation and locked-test rows are transform/predict only",
+./artifacts/phase7/phase7_attempt_1_20260815T223000Z/split_and_selection_report.json:38:  "selected_model": "ridge",
+./src/train.py:172:        metrics = ['residuals_mean', 'residuals_std', 'error_mean', 'error_std', 'MAE', 'MAPE', 'MSE', 'RMSE']
+./src/models/model.py:64:        metrics. Optionally visualize the ground truth, residuals and forecasts.
+./src/models/model.py:73:            forecast_df["residuals"] = forecast_df["gt"] - forecast_df["model"]
+./src/models/model.py:79:            metrics['residuals_mean'] = forecast_df["residuals"].mean()
+./src/models/model.py:80:            metrics['residuals_std'] = forecast_df["residuals"].std()
+./src/models/model.py:90:            forecast_df["conf_int_low"] = forecast_df["forecast"] - STD_DEVS * metrics['residuals_std']
+./src/models/model.py:91:            forecast_df["conf_int_up"] = forecast_df["forecast"] + STD_DEVS * metrics['residuals_std']
+./src/models/model.py:98:            forecast_df = forecast_df[["gt", "model", "residuals", "conf_int_low", "conf_int_up",
+./artifacts/phase3/phase3_attempt_1_final_20260815T210000Z/selection_report.json:28:  "locked_test_rows_loaded": 0,
+./artifacts/phase3/phase3_attempt_1_20260815T210000Z/selection_report.json:28:  "locked_test_rows_loaded": 0,
+
+exec
+/bin/bash -lc "sed -n '1,280p' experiments/phase7_locked_test_optuna.py && sed -n '1,180p' tests/test_phase7_locked_test_optuna.py && sed -n '50,80p' EXPERIMENT_PLAN.md && git status --short && find artifacts/phase7/phase7_attempt_1_20260815T223000Z -maxdepth 1 -type f -printf '%f %s bytes\\n' | sort" in /home/asus/projects/water-forecast
+ succeeded in 0ms:
+"""Run Phase 7: train/validation Optuna tuning followed by one locked-test evaluation."""
+
+from __future__ import annotations
+
+import argparse
+import json
+import platform
+from dataclasses import asdict, dataclass
+from datetime import datetime, timezone
+from pathlib import Path
+from typing import Any, Iterable
+
+import joblib
+import matplotlib
+import numpy as np
+import optuna
+import pandas as pd
+import sklearn
+from optuna.samplers import TPESampler
+from sklearn.ensemble import GradientBoostingRegressor, RandomForestRegressor
+from sklearn.impute import SimpleImputer
+from sklearn.linear_model import LinearRegression, Ridge
+from sklearn.pipeline import Pipeline
+from sklearn.preprocessing import RobustScaler
+
+from experiments.phase4_traditional_ml import (
+    DEFAULT_PHASE2_DIR,
+    DEFAULT_PHASE3_DIR,
+    regression_metrics,
+)
+from experiments.phase5_chronological_holdout import Phase5Config, load_phase5_frame
+
+matplotlib.use("Agg")
+import matplotlib.pyplot as plt
+
+
+DEFAULT_ARTIFACT_ROOT = Path("artifacts/phase7")
+TUNED_MODELS = ("ridge", "random_forest", "gradient_boosting")
+
+
+@dataclass(frozen=True)
+class Phase7Config:
+    """Configuration fixed before the locked test is observed."""
+
+    training_fraction: float = 0.70
+    validation_fraction: float = 0.15
+    test_fraction: float = 0.15
+    trials_per_model: int = 20
+    random_seed: int = 42
+
+    def boundaries(self, row_count: int) -> tuple[int, int]:
+        fractions = (self.training_fraction, self.validation_fraction, self.test_fraction)
+        if not np.isclose(sum(fractions), 1.0) or any(value <= 0 for value in fractions):
+            raise ValueError("Phase 7 fractions must be positive and sum to one")
+        if self.trials_per_model < 1:
+            raise ValueError("trials_per_model must be positive")
+        train_end = int(np.floor(row_count * self.training_fraction))
+        validation_end = int(np.floor(row_count * (self.training_fraction + self.validation_fraction)))
+        if train_end < 2 or validation_end <= train_end or validation_end >= row_count:
+            raise ValueError("dataset is too short for the Phase 7 split")
+        return train_end, validation_end
+
+
+def _write_json(path: Path, payload: dict[str, Any]) -> None:
+    path.write_text(json.dumps(payload, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+
+
+def chronological_partitions(
+    frame: pd.DataFrame, config: Phase7Config
+) -> tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame]:
+    """Return exact, non-overlapping 70/15/15 chronological partitions."""
+    train_end, validation_end = config.boundaries(len(frame))
+    train = frame.iloc[:train_end].copy()
+    validation = frame.iloc[train_end:validation_end].copy()
+    locked_test = frame.iloc[validation_end:].copy()
+    if not (train["Date"].iloc[-1] < validation["Date"].iloc[0] <= validation["Date"].iloc[-1] < locked_test["Date"].iloc[0]):
+        raise RuntimeError("Phase 7 partitions are not strictly chronological")
+    return train, validation, locked_test
+
+
+def _suggested_pipeline(trial: optuna.Trial, model_name: str, seed: int) -> Pipeline:
+    if model_name == "ridge":
+        estimator = Ridge(alpha=trial.suggest_float("alpha", 1e-3, 100.0, log=True))
+        return Pipeline([("imputer", SimpleImputer(strategy="median")), ("scaler", RobustScaler()), ("model", estimator)])
+    if model_name == "random_forest":
+        estimator = RandomForestRegressor(
+            n_estimators=trial.suggest_int("n_estimators", 75, 250, step=25),
+            max_depth=trial.suggest_int("max_depth", 4, 20),
+            min_samples_leaf=trial.suggest_int("min_samples_leaf", 1, 8),
+            max_features=trial.suggest_float("max_features", 0.5, 1.0),
+            random_state=seed,
+            n_jobs=1,
+        )
+    elif model_name == "gradient_boosting":
+        estimator = GradientBoostingRegressor(
+            n_estimators=trial.suggest_int("n_estimators", 50, 250, step=25),
+            learning_rate=trial.suggest_float("learning_rate", 0.01, 0.2, log=True),
+            max_depth=trial.suggest_int("max_depth", 2, 5),
+            min_samples_leaf=trial.suggest_int("min_samples_leaf", 1, 8),
+            random_state=seed,
+        )
+    else:
+        raise ValueError(f"unsupported tuned model: {model_name}")
+    return Pipeline([("imputer", SimpleImputer(strategy="median")), ("model", estimator)])
+
+
+def _fixed_pipeline(model_name: str, params: dict[str, Any], seed: int) -> Pipeline:
+    trial = optuna.trial.FixedTrial(params)
+    return _suggested_pipeline(trial, model_name, seed)
+
+
+def _save_plot(predictions: pd.DataFrame, selected_model: str, path: Path) -> None:
+    figure, axis = plt.subplots(figsize=(12, 5))
+    axis.plot(predictions["Date"], predictions["actual"], label="Actual", linewidth=1.5)
+    axis.plot(predictions["Date"], predictions["naive_lag_1"], label="Naive lag-1", alpha=0.75)
+    axis.plot(predictions["Date"], predictions["selected_model"], label=selected_model, alpha=0.85)
+    axis.set(title="Phase 7 locked-test evaluation", xlabel="Date", ylabel="Consumption")
+    axis.legend()
+    figure.tight_layout()
+    figure.savefig(path, dpi=150)
+    plt.close(figure)
+
+
+def run_phase7_optuna(
+    phase2_dir: Path = DEFAULT_PHASE2_DIR,
+    phase3_dir: Path = DEFAULT_PHASE3_DIR,
+    artifact_root: Path = DEFAULT_ARTIFACT_ROOT,
+    experiment_id: str | None = None,
+    config: Phase7Config | None = None,
+) -> Path:
+    """Tune on train/validation only, freeze selection, then evaluate locked test once."""
+    config = config or Phase7Config()
+    experiment_id = experiment_id or datetime.now(timezone.utc).strftime("phase7_%Y%m%dT%H%M%SZ")
+    output = artifact_root.resolve() / experiment_id
+    output.mkdir(parents=True, exist_ok=False)
+    started = datetime.now(timezone.utc)
+
+    frame, selected_features, _, hashes = load_phase5_frame(phase2_dir, phase3_dir, Phase5Config())
+    train, validation, locked_test = chronological_partitions(frame, config)
+    x_train, y_train = train[selected_features], train["Consumption"]
+    x_validation, y_validation = validation[selected_features], validation["Consumption"]
+
+    trial_rows: list[dict[str, Any]] = []
+    validation_rows: list[dict[str, Any]] = []
+    best_pipelines: dict[str, Pipeline] = {}
+    optuna.logging.set_verbosity(optuna.logging.WARNING)
+    for model_offset, model_name in enumerate(TUNED_MODELS):
+        sampler = TPESampler(seed=config.random_seed + model_offset)
+        study = optuna.create_study(direction="minimize", sampler=sampler, study_name=f"phase7_{model_name}")
+
+        def objective(trial: optuna.Trial) -> float:
+            pipeline = _suggested_pipeline(trial, model_name, config.random_seed)
+            pipeline.fit(x_train, y_train)
+            return regression_metrics(y_validation, pipeline.predict(x_validation))["mae"]
+
+        study.optimize(objective, n_trials=config.trials_per_model, n_jobs=1)
+        for trial in study.trials:
+            trial_rows.append({"model": model_name, "trial_number": trial.number, "validation_mae": trial.value, "state": trial.state.name, "parameters_json": json.dumps(trial.params, sort_keys=True)})
+        best = _fixed_pipeline(model_name, study.best_params, config.random_seed)
+        best.fit(x_train, y_train)
+        best_pipelines[model_name] = best
+        validation_rows.append({"model": model_name, **regression_metrics(y_validation, best.predict(x_validation)), "best_parameters_json": json.dumps(study.best_params, sort_keys=True)})
+
+    # Prespecified simple baselines are compared before selection; only tuned models
+    # are eligible for the Optuna model-selection decision.
+    naive_validation = validation["consumption_lag_1"].to_numpy(dtype=float)
+    linear = Pipeline([("imputer", SimpleImputer(strategy="median")), ("scaler", RobustScaler()), ("model", LinearRegression())])
+    linear.fit(x_train, y_train)
+    validation_rows.extend([
+        {"model": "naive_lag_1", **regression_metrics(y_validation, naive_validation), "best_parameters_json": "{}"},
+        {"model": "linear_regression", **regression_metrics(y_validation, linear.predict(x_validation)), "best_parameters_json": "{}"},
+    ])
+    validation_metrics = pd.DataFrame(validation_rows).sort_values(["mae", "model"]).reset_index(drop=True)
+    tuned_validation = validation_metrics[validation_metrics["model"].isin(TUNED_MODELS)]
+    selected_model = str(tuned_validation.iloc[0]["model"])
+    selected_pipeline = best_pipelines[selected_model]
+
+    # Selection is frozen above. This is the first and only use of locked-test
+    # targets in computation; no refit or preprocessing fit occurs afterwards.
+    x_test, y_test = locked_test[selected_features], locked_test["Consumption"]
+    predictions = pd.DataFrame({
+        "Date": locked_test["Date"], "actual": y_test,
+        "naive_lag_1": locked_test["consumption_lag_1"].to_numpy(dtype=float),
+        "linear_regression": linear.predict(x_test),
+        "selected_model": selected_pipeline.predict(x_test),
+    })
+    test_metrics = pd.DataFrame([
+        {"model": "naive_lag_1", **regression_metrics(y_test, predictions["naive_lag_1"])},
+        {"model": "linear_regression", **regression_metrics(y_test, predictions["linear_regression"])},
+        {"model": selected_model, **regression_metrics(y_test, predictions["selected_model"])},
+    ]).sort_values(["mae", "model"]).reset_index(drop=True)
+
+    pd.DataFrame(trial_rows).to_csv(output / "optuna_trials.csv", index=False)
+    validation_metrics.to_csv(output / "validation_metrics.csv", index=False)
+    test_metrics.to_csv(output / "locked_test_metrics.csv", index=False)
+    predictions.to_csv(output / "locked_test_predictions.csv", index=False, date_format="%Y-%m-%d")
+    joblib.dump(selected_pipeline, output / "selected_model.joblib")
+    joblib.dump(linear, output / "linear_baseline.joblib")
+    _save_plot(predictions, selected_model, output / "locked_test_actual_vs_predicted.png")
+
+    report = {
+        "phase": "Phase 7", "experiment": "Test 3 chronological 70/15/15 with Optuna",
+        "row_count": len(frame), "training_rows": len(train), "validation_rows": len(validation), "locked_test_rows": len(locked_test),
+        "training_end_date_inclusive": train["Date"].iloc[-1].date().isoformat(),
+        "validation_start_date": validation["Date"].iloc[0].date().isoformat(),
+        "validation_end_date_inclusive": validation["Date"].iloc[-1].date().isoformat(),
+        "locked_test_start_date": locked_test["Date"].iloc[0].date().isoformat(),
+        "locked_test_end_date_inclusive": locked_test["Date"].iloc[-1].date().isoformat(),
+        "chronological_order_preserved": True, "shuffle_used": False,
+        "selected_features": selected_features, "feature_selection_source": "Phase 3 training-only 70% prefix",
+        "tuned_models": list(TUNED_MODELS), "simple_baselines": ["naive_lag_1", "linear_regression"],
+        "selection_metric": "validation MAE", "selected_model": selected_model,
+        "preprocessing_fit_scope": "training partition only; validation and locked-test rows are transform/predict only",
+        "locked_test_used_for_tuning_selection_or_refit": False,
+        "locked_test_evaluations_after_selection": 1,
+        "test_metrics_descriptive_only": True, "improvement_claimed": False,
+        **hashes,
+    }
+    _write_json(output / "split_and_selection_report.json", report)
+    _write_json(output / "config.json", {
+        "phase": "Phase 7", "experiment_id": experiment_id, "configuration": asdict(config),
+        "random_seed": config.random_seed, "optuna_sampler": "TPESampler",
+        "phase2_directory": str(Path(phase2_dir).resolve()), "phase3_directory": str(Path(phase3_dir).resolve()),
+        "environment": {"python": platform.python_version(), "numpy": np.__version__, "pandas": pd.__version__, "scikit_learn": sklearn.__version__, "joblib": joblib.__version__, "optuna": optuna.__version__},
+        "started_at_utc": started.isoformat(), "completed_at_utc": datetime.now(timezone.utc).isoformat(),
+    })
+    (output / "execution.log").write_text(
+        f"Phase 7 completed with seed {config.random_seed}.\n"
+        f"Optuna ran {config.trials_per_model} train/validation trials for each of {len(TUNED_MODELS)} model families.\n"
+        f"Selection was frozen as {selected_model} before one locked-test evaluation.\n"
+        "No preprocessing was fit on validation/test data and no improvement claim was made.\n",
+        encoding="utf-8",
+    )
+    return output
+
+
+def main(argv: Iterable[str] | None = None) -> None:
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("--phase2-dir", type=Path, default=DEFAULT_PHASE2_DIR)
+    parser.add_argument("--phase3-dir", type=Path, default=DEFAULT_PHASE3_DIR)
+    parser.add_argument("--artifact-root", type=Path, default=DEFAULT_ARTIFACT_ROOT)
+    parser.add_argument("--experiment-id")
+    parser.add_argument("--trials-per-model", type=int, default=Phase7Config.trials_per_model)
+    args = parser.parse_args(argv)
+    config = Phase7Config(trials_per_model=args.trials_per_model)
+    print(run_phase7_optuna(args.phase2_dir, args.phase3_dir, args.artifact_root, args.experiment_id, config))
+
+
+if __name__ == "__main__":
+    main()
+import json
+from pathlib import Path
+
+import joblib
+import numpy as np
+import pandas as pd
+
+from experiments.phase4_traditional_ml import sha256_file
+from experiments.phase7_locked_test_optuna import Phase7Config, chronological_partitions, run_phase7_optuna
+from tests.test_phase5_chronological_holdout import _inputs
+
+
+def _config() -> Phase7Config:
+    return Phase7Config(trials_per_model=2, random_seed=17)
+
+
+def test_partitions_are_exact_floor_based_chronological_70_15_15(tmp_path: Path) -> None:
+    phase2, phase3 = _inputs(tmp_path, 101)
+    frame = pd.read_csv(phase2 / "features.csv", parse_dates=["Date"])
+    train, validation, test = chronological_partitions(frame, _config())
+    assert (len(train), len(validation), len(test)) == (70, 15, 16)
+    assert train["Date"].iloc[-1] < validation["Date"].iloc[0]
+    assert validation["Date"].iloc[-1] < test["Date"].iloc[0]
+
+
+def test_run_preserves_trials_selection_locked_test_and_model_evidence(tmp_path: Path) -> None:
+    phase2, phase3 = _inputs(tmp_path, 180)
+    output = run_phase7_optuna(phase2, phase3, tmp_path / "runs", "run", _config())
+    required = {
+        "config.json", "execution.log", "optuna_trials.csv", "validation_metrics.csv",
+        "locked_test_metrics.csv", "locked_test_predictions.csv", "selected_model.joblib",
+        "linear_baseline.joblib", "locked_test_actual_vs_predicted.png", "split_and_selection_report.json",
+    }
+    assert required.issubset(path.name for path in output.iterdir())
+    assert all((output / name).stat().st_size > 0 for name in required)
+    report = json.loads((output / "split_and_selection_report.json").read_text())
+    assert (report["training_rows"], report["validation_rows"], report["locked_test_rows"]) == (125, 28, 27)
+    assert report["locked_test_used_for_tuning_selection_or_refit"] is False
+    assert report["locked_test_evaluations_after_selection"] == 1
+    assert report["shuffle_used"] is False and report["improvement_claimed"] is False
+    trials = pd.read_csv(output / "optuna_trials.csv")
+    assert len(trials) == 6 and set(trials["model"]) == set(report["tuned_models"])
+    assert set(pd.read_csv(output / "locked_test_metrics.csv")["model"]) == {
+        "naive_lag_1", "linear_regression", report["selected_model"]
+    }
+    assert len(pd.read_csv(output / "locked_test_predictions.csv")) == 27
+
+
+def test_locked_test_changes_cannot_change_trials_selection_or_fitted_preprocessing(tmp_path: Path) -> None:
+    phase2, phase3 = _inputs(tmp_path, 180)
+    first = run_phase7_optuna(phase2, phase3, tmp_path / "runs", "first", _config())
+    first_report = json.loads((first / "split_and_selection_report.json").read_text())
+    first_trials = pd.read_csv(first / "optuna_trials.csv")
+    first_model = joblib.load(first / "selected_model.joblib")
+
+    frame = pd.read_csv(phase2 / "features.csv")
+    selected = json.loads((phase3 / "selection_report.json").read_text())["selected_features"]
+    frame.loc[153:, selected] = 1_000_000
+    frame.loc[153:, "Consumption"] = -1_000_000
+    frame.to_csv(phase2 / "features.csv", index=False)
+    selection_path = phase3 / "selection_report.json"
+    selection = json.loads(selection_path.read_text())
+    selection["phase2_features_sha256"] = sha256_file(phase2 / "features.csv")
+    selection_path.write_text(json.dumps(selection), encoding="utf-8")
+
+    second = run_phase7_optuna(phase2, phase3, tmp_path / "runs", "second", _config())
+    second_report = json.loads((second / "split_and_selection_report.json").read_text())
+    second_trials = pd.read_csv(second / "optuna_trials.csv")
+    second_model = joblib.load(second / "selected_model.joblib")
+    pd.testing.assert_frame_equal(first_trials, second_trials)
+    assert first_report["selected_model"] == second_report["selected_model"]
+    np.testing.assert_allclose(first_model.named_steps["imputer"].statistics_, second_model.named_steps["imputer"].statistics_)
+    if "scaler" in first_model.named_steps:
+        np.testing.assert_allclose(first_model.named_steps["scaler"].center_, second_model.named_steps["scaler"].center_)
+- best traditional ML model
+- ARIMA
+- SARIMAX
+- Prophet
+- LSTM
+- GRU
+- CNN
+- Transformer if completed
+
+## Evaluation Artifacts
+
+Generate:
+- actual vs predicted over time
+- actual vs predicted scatter
+- residual vs predicted
+- residual distribution
+- error over time
+- highest-error dates
+- metrics table
+
+Large residuals may be called prediction-error/anomaly candidates.
+Do not call them confirmed anomalies unless an anomaly-detection method is implemented.
+
+?? artifacts/phase7/
+?? experiments/phase7_locked_test_optuna.py
+?? tests/test_phase7_locked_test_optuna.py
+config.json 812 bytes
+execution.log 249 bytes
+linear_baseline.joblib 2769 bytes
+locked_test_actual_vs_predicted.png 112016 bytes
+locked_test_metrics.csv 284 bytes
+locked_test_predictions.csv 41306 bytes
+optuna_trials.csv 7653 bytes
+selected_model.joblib 2547 bytes
+split_and_selection_report.json 1801 bytes
+validation_metrics.csv 744 bytes
+
+codex
+The frozen run already contains all 570 locked-test predictions, so the repair can be entirely post-evaluation. I found no need to touch tuning, splits, preprocessing, selection, or model files. I’m adding a reusable diagnostics function that consumes only `locked_test_predictions.csv`, plus assertions against a numeric diagnostics table and the ranked highest-error table.
+apply patch
+patch: completed
+/home/asus/projects/water-forecast/experiments/phase7_locked_test_optuna.py
+/home/asus/projects/water-forecast/tests/test_phase7_locked_test_optuna.py
+diff --git a/experiments/phase7_locked_test_optuna.py b/experiments/phase7_locked_test_optuna.py
+index 83198219551bf0c2d5936d726c4c536ec02533d2..a96c99bfa754b278073713ac52f286a113b1d9df
+--- a/experiments/phase7_locked_test_optuna.py
++++ b/experiments/phase7_locked_test_optuna.py
+@@ -121,6 +121,66 @@
+     plt.close(figure)
+ 
+ 
++def save_locked_test_diagnostics(
++    predictions: pd.DataFrame,
++    selected_model: str,
++    output: Path,
++    highest_error_count: int = 20,
++) -> None:
++    """Create descriptive diagnostics from already-frozen test predictions only."""
++    required = {"Date", "actual", "selected_model"}
++    missing = required.difference(predictions.columns)
++    if missing:
++        raise ValueError(f"locked-test predictions are missing columns: {sorted(missing)}")
++    if highest_error_count < 1:
++        raise ValueError("highest_error_count must be positive")
++
++    diagnostics = predictions[["Date", "actual", "selected_model"]].copy()
++    diagnostics["residual"] = diagnostics["actual"] - diagnostics["selected_model"]
++    diagnostics["absolute_error"] = diagnostics["residual"].abs()
++    diagnostics.to_csv(output / "locked_test_diagnostics.csv", index=False, date_format="%Y-%m-%d")
++    diagnostics.nlargest(highest_error_count, "absolute_error").to_csv(
++        output / "highest_error_dates.csv", index=False, date_format="%Y-%m-%d"
++    )
++
++    figure, axis = plt.subplots(figsize=(7, 6))
++    axis.scatter(diagnostics["actual"], diagnostics["selected_model"], s=18, alpha=0.65)
++    bounds = [
++        min(diagnostics["actual"].min(), diagnostics["selected_model"].min()),
++        max(diagnostics["actual"].max(), diagnostics["selected_model"].max()),
++    ]
++    axis.plot(bounds, bounds, linestyle="--", color="black", linewidth=1, label="Ideal")
++    axis.set(title=f"Locked-test actual vs predicted: {selected_model}", xlabel="Actual", ylabel="Predicted")
++    axis.legend()
++    figure.tight_layout()
++    figure.savefig(output / "actual_vs_predicted_scatter.png", dpi=150)
++    plt.close(figure)
++
++    figure, axis = plt.subplots(figsize=(8, 5))
++    axis.scatter(diagnostics["selected_model"], diagnostics["residual"], s=18, alpha=0.65)
++    axis.axhline(0, linestyle="--", color="black", linewidth=1)
++    axis.set(title=f"Locked-test residuals: {selected_model}", xlabel="Predicted", ylabel="Residual (actual - predicted)")
++    figure.tight_layout()
++    figure.savefig(output / "residual_vs_predicted.png", dpi=150)
++    plt.close(figure)
++
++    figure, axis = plt.subplots(figsize=(8, 5))
++    axis.hist(diagnostics["residual"], bins=30)
++    axis.axvline(0, linestyle="--", color="black", linewidth=1)
++    axis.set(title=f"Locked-test residual distribution: {selected_model}", xlabel="Residual (actual - predicted)", ylabel="Count")
++    figure.tight_layout()
++    figure.savefig(output / "residual_distribution.png", dpi=150)
++    plt.close(figure)
++
++    figure, axis = plt.subplots(figsize=(12, 5))
++    axis.plot(diagnostics["Date"], diagnostics["residual"], linewidth=1)
++    axis.axhline(0, linestyle="--", color="black", linewidth=1)
++    axis.set(title=f"Locked-test error over time: {selected_model}", xlabel="Date", ylabel="Error (actual - predicted)")
++    figure.tight_layout()
++    figure.savefig(output / "error_over_time.png", dpi=150)
++    plt.close(figure)
++
++
+ def run_phase7_optuna(
+     phase2_dir: Path = DEFAULT_PHASE2_DIR,
+     phase3_dir: Path = DEFAULT_PHASE3_DIR,
+@@ -197,6 +257,7 @@
+     joblib.dump(selected_pipeline, output / "selected_model.joblib")
+     joblib.dump(linear, output / "linear_baseline.joblib")
+     _save_plot(predictions, selected_model, output / "locked_test_actual_vs_predicted.png")
++    save_locked_test_diagnostics(predictions, selected_model, output)
+ 
+     report = {
+         "phase": "Phase 7", "experiment": "Test 3 chronological 70/15/15 with Optuna",
+diff --git a/tests/test_phase7_locked_test_optuna.py b/tests/test_phase7_locked_test_optuna.py
+index 32b3a9e11cfd1cfe6bd03a9d439b308b1924705f..4253416ecd0ffebe58303a16e60899a4d8e4d0af
+--- a/tests/test_phase7_locked_test_optuna.py
++++ b/tests/test_phase7_locked_test_optuna.py
+@@ -30,6 +30,9 @@
+         "config.json", "execution.log", "optuna_trials.csv", "validation_metrics.csv",
+         "locked_test_metrics.csv", "locked_test_predictions.csv", "selected_model.joblib",
+         "linear_baseline.joblib", "locked_test_actual_vs_predicted.png", "split_and_selection_report.json",
++        "actual_vs_predicted_scatter.png", "residual_vs_predicted.png",
++        "residual_distribution.png", "error_over_time.png", "highest_error_dates.csv",
++        "locked_test_diagnostics.csv",
+     }
+     assert required.issubset(path.name for path in output.iterdir())
+     assert all((output / name).stat().st_size > 0 for name in required)
+@@ -44,6 +47,17 @@
+         "naive_lag_1", "linear_regression", report["selected_model"]
+     }
+     assert len(pd.read_csv(output / "locked_test_predictions.csv")) == 27
++    predictions = pd.read_csv(output / "locked_test_predictions.csv")
++    diagnostics = pd.read_csv(output / "locked_test_diagnostics.csv")
++    expected_residual = predictions["actual"] - predictions["selected_model"]
++    np.testing.assert_allclose(diagnostics["residual"], expected_residual)
++    np.testing.assert_allclose(diagnostics["absolute_error"], expected_residual.abs())
++    highest_errors = pd.read_csv(output / "highest_error_dates.csv")
++    np.testing.assert_allclose(
++        highest_errors["residual"], highest_errors["actual"] - highest_errors["selected_model"]
++    )
++    np.testing.assert_allclose(highest_errors["absolute_error"], highest_errors["residual"].abs())
++    assert highest_errors["absolute_error"].is_monotonic_decreasing
+ 
+ 
+ def test_locked_test_changes_cannot_change_trials_selection_or_fitted_preprocessing(tmp_path: Path) -> None:
+
+diff --git a/experiments/phase7_locked_test_optuna.py b/experiments/phase7_locked_test_optuna.py
+index 83198219551bf0c2d5936d726c4c536ec02533d2..a96c99bfa754b278073713ac52f286a113b1d9df
+--- a/experiments/phase7_locked_test_optuna.py
++++ b/experiments/phase7_locked_test_optuna.py
+@@ -121,6 +121,66 @@
+     plt.close(figure)
+ 
+ 
++def save_locked_test_diagnostics(
++    predictions: pd.DataFrame,
++    selected_model: str,
++    output: Path,
++    highest_error_count: int = 20,
++) -> None:
++    """Create descriptive diagnostics from already-frozen test predictions only."""
++    required = {"Date", "actual", "selected_model"}
++    missing = required.difference(predictions.columns)
++    if missing:
++        raise ValueError(f"locked-test predictions are missing columns: {sorted(missing)}")
++    if highest_error_count < 1:
++        raise ValueError("highest_error_count must be positive")
++
++    diagnostics = predictions[["Date", "actual", "selected_model"]].copy()
++    diagnostics["residual"] = diagnostics["actual"] - diagnostics["selected_model"]
++    diagnostics["absolute_error"] = diagnostics["residual"].abs()
++    diagnostics.to_csv(output / "locked_test_diagnostics.csv", index=False, date_format="%Y-%m-%d")
++    diagnostics.nlargest(highest_error_count, "absolute_error").to_csv(
++        output / "highest_error_dates.csv", index=False, date_format="%Y-%m-%d"
++    )
++
++    figure, axis = plt.subplots(figsize=(7, 6))
++    axis.scatter(diagnostics["actual"], diagnostics["selected_model"], s=18, alpha=0.65)
++    bounds = [
++        min(diagnostics["actual"].min(), diagnostics["selected_model"].min()),
++        max(diagnostics["actual"].max(), diagnostics["selected_model"].max()),
++    ]
++    axis.plot(bounds, bounds, linestyle="--", color="black", linewidth=1, label="Ideal")
++    axis.set(title=f"Locked-test actual vs predicted: {selected_model}", xlabel="Actual", ylabel="Predicted")
++    axis.legend()
++    figure.tight_layout()
++    figure.savefig(output / "actual_vs_predicted_scatter.png", dpi=150)
++    plt.close(figure)
++
++    figure, axis = plt.subplots(figsize=(8, 5))
++    axis.scatter(diagnostics["selected_model"], diagnostics["residual"], s=18, alpha=0.65)
++    axis.axhline(0, linestyle="--", color="black", linewidth=1)
++    axis.set(title=f"Locked-test residuals: {selected_model}", xlabel="Predicted", ylabel="Residual (actual - predicted)")
++    figure.tight_layout()
++    figure.savefig(output / "residual_vs_predicted.png", dpi=150)
++    plt.close(figure)
++
++    figure, axis = plt.subplots(figsize=(8, 5))
++    axis.hist(diagnostics["residual"], bins=30)
++    axis.axvline(0, linestyle="--", color="black", linewidth=1)
++    axis.set(title=f"Locked-test residual distribution: {selected_model}", xlabel="Residual (actual - predicted)", ylabel="Count")
++    figure.tight_layout()
++    figure.savefig(output / "residual_distribution.png", dpi=150)
++    plt.close(figure)
++
++    figure, axis = plt.subplots(figsize=(12, 5))
++    axis.plot(diagnostics["Date"], diagnostics["residual"], linewidth=1)
++    axis.axhline(0, linestyle="--", color="black", linewidth=1)
++    axis.set(title=f"Locked-test error over time: {selected_model}", xlabel="Date", ylabel="Error (actual - predicted)")
++    figure.tight_layout()
++    figure.savefig(output / "error_over_time.png", dpi=150)
++    plt.close(figure)
++
++
+ def run_phase7_optuna(
+     phase2_dir: Path = DEFAULT_PHASE2_DIR,
+     phase3_dir: Path = DEFAULT_PHASE3_DIR,
+@@ -197,6 +257,7 @@
+     joblib.dump(selected_pipeline, output / "selected_model.joblib")
+     joblib.dump(linear, output / "linear_baseline.joblib")
+     _save_plot(predictions, selected_model, output / "locked_test_actual_vs_predicted.png")
++    save_locked_test_diagnostics(predictions, selected_model, output)
+ 
+     report = {
+         "phase": "Phase 7", "experiment": "Test 3 chronological 70/15/15 with Optuna",
+diff --git a/tests/test_phase7_locked_test_optuna.py b/tests/test_phase7_locked_test_optuna.py
+index 32b3a9e11cfd1cfe6bd03a9d439b308b1924705f..4253416ecd0ffebe58303a16e60899a4d8e4d0af
+--- a/tests/test_phase7_locked_test_optuna.py
++++ b/tests/test_phase7_locked_test_optuna.py
+@@ -30,6 +30,9 @@
+         "config.json", "execution.log", "optuna_trials.csv", "validation_metrics.csv",
+         "locked_test_metrics.csv", "locked_test_predictions.csv", "selected_model.joblib",
+         "linear_baseline.joblib", "locked_test_actual_vs_predicted.png", "split_and_selection_report.json",
++        "actual_vs_predicted_scatter.png", "residual_vs_predicted.png",
++        "residual_distribution.png", "error_over_time.png", "highest_error_dates.csv",
++        "locked_test_diagnostics.csv",
+     }
+     assert required.issubset(path.name for path in output.iterdir())
+     assert all((output / name).stat().st_size > 0 for name in required)
+@@ -44,6 +47,17 @@
+         "naive_lag_1", "linear_regression", report["selected_model"]
+     }
+     assert len(pd.read_csv(output / "locked_test_predictions.csv")) == 27
++    predictions = pd.read_csv(output / "locked_test_predictions.csv")
++    diagnostics = pd.read_csv(output / "locked_test_diagnostics.csv")
++    expected_residual = predictions["actual"] - predictions["selected_model"]
++    np.testing.assert_allclose(diagnostics["residual"], expected_residual)
++    np.testing.assert_allclose(diagnostics["absolute_error"], expected_residual.abs())
++    highest_errors = pd.read_csv(output / "highest_error_dates.csv")
++    np.testing.assert_allclose(
++        highest_errors["residual"], highest_errors["actual"] - highest_errors["selected_model"]
++    )
++    np.testing.assert_allclose(highest_errors["absolute_error"], highest_errors["residual"].abs())
++    assert highest_errors["absolute_error"].is_monotonic_decreasing
+ 
+ 
+ def test_locked_test_changes_cannot_change_trials_selection_or_fitted_preprocessing(tmp_path: Path) -> None:
+
+exec
+/bin/bash -lc 'git diff --check && pytest -q tests/test_phase7_locked_test_optuna.py' in /home/asus/projects/water-forecast
+ exited 2 in 659ms:
+
+==================================== ERRORS ====================================
+___________ ERROR collecting tests/test_phase7_locked_test_optuna.py ___________
+ImportError while importing test module '/home/asus/projects/water-forecast/tests/test_phase7_locked_test_optuna.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+../../.local/share/uv/python/cpython-3.12.14-linux-x86_64-gnu/lib/python3.12/importlib/__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests/test_phase7_locked_test_optuna.py:8: in <module>
+    from experiments.phase4_traditional_ml import sha256_file
+E   ModuleNotFoundError: No module named 'experiments'
+=========================== short test summary info ============================
+ERROR tests/test_phase7_locked_test_optuna.py
+!!!!!!!!!!!!!!!!!!!! Interrupted: 1 error during collection !!!!!!!!!!!!!!!!!!!!
+1 error in 0.38s
+
+diff --git a/experiments/phase7_locked_test_optuna.py b/experiments/phase7_locked_test_optuna.py
+index 83198219551bf0c2d5936d726c4c536ec02533d2..a96c99bfa754b278073713ac52f286a113b1d9df
+--- a/experiments/phase7_locked_test_optuna.py
++++ b/experiments/phase7_locked_test_optuna.py
+@@ -121,6 +121,66 @@
+     plt.close(figure)
+ 
+ 
++def save_locked_test_diagnostics(
++    predictions: pd.DataFrame,
++    selected_model: str,
++    output: Path,
++    highest_error_count: int = 20,
++) -> None:
++    """Create descriptive diagnostics from already-frozen test predictions only."""
++    required = {"Date", "actual", "selected_model"}
++    missing = required.difference(predictions.columns)
++    if missing:
++        raise ValueError(f"locked-test predictions are missing columns: {sorted(missing)}")
++    if highest_error_count < 1:
++        raise ValueError("highest_error_count must be positive")
++
++    diagnostics = predictions[["Date", "actual", "selected_model"]].copy()
++    diagnostics["residual"] = diagnostics["actual"] - diagnostics["selected_model"]
++    diagnostics["absolute_error"] = diagnostics["residual"].abs()
++    diagnostics.to_csv(output / "locked_test_diagnostics.csv", index=False, date_format="%Y-%m-%d")
++    diagnostics.nlargest(highest_error_count, "absolute_error").to_csv(
++        output / "highest_error_dates.csv", index=False, date_format="%Y-%m-%d"
++    )
++
++    figure, axis = plt.subplots(figsize=(7, 6))
++    axis.scatter(diagnostics["actual"], diagnostics["selected_model"], s=18, alpha=0.65)
++    bounds = [
++        min(diagnostics["actual"].min(), diagnostics["selected_model"].min()),
++        max(diagnostics["actual"].max(), diagnostics["selected_model"].max()),
++    ]
++    axis.plot(bounds, bounds, linestyle="--", color="black", linewidth=1, label="Ideal")
++    axis.set(title=f"Locked-test actual vs predicted: {selected_model}", xlabel="Actual", ylabel="Predicted")
++    axis.legend()
++    figure.tight_layout()
++    figure.savefig(output / "actual_vs_predicted_scatter.png", dpi=150)
++    plt.close(figure)
++
++    figure, axis = plt.subplots(figsize=(8, 5))
++    axis.scatter(diagnostics["selected_model"], diagnostics["residual"], s=18, alpha=0.65)
++    axis.axhline(0, linestyle="--", color="black", linewidth=1)
++    axis.set(title=f"Locked-test residuals: {selected_model}", xlabel="Predicted", ylabel="Residual (actual - predicted)")
++    figure.tight_layout()
++    figure.savefig(output / "residual_vs_predicted.png", dpi=150)
++    plt.close(figure)
++
++    figure, axis = plt.subplots(figsize=(8, 5))
++    axis.hist(diagnostics["residual"], bins=30)
++    axis.axvline(0, linestyle="--", color="black", linewidth=1)
++    axis.set(title=f"Locked-test residual distribution: {selected_model}", xlabel="Residual (actual - predicted)", ylabel="Count")
++    figure.tight_layout()
++    figure.savefig(output / "residual_distribution.png", dpi=150)
++    plt.close(figure)
++
++    figure, axis = plt.subplots(figsize=(12, 5))
++    axis.plot(diagnostics["Date"], diagnostics["residual"], linewidth=1)
++    axis.axhline(0, linestyle="--", color="black", linewidth=1)
++    axis.set(title=f"Locked-test error over time: {selected_model}", xlabel="Date", ylabel="Error (actual - predicted)")
++    figure.tight_layout()
++    figure.savefig(output / "error_over_time.png", dpi=150)
++    plt.close(figure)
++
++
+ def run_phase7_optuna(
+     phase2_dir: Path = DEFAULT_PHASE2_DIR,
+     phase3_dir: Path = DEFAULT_PHASE3_DIR,
+@@ -197,6 +257,7 @@
+     joblib.dump(selected_pipeline, output / "selected_model.joblib")
+     joblib.dump(linear, output / "linear_baseline.joblib")
+     _save_plot(predictions, selected_model, output / "locked_test_actual_vs_predicted.png")
++    save_locked_test_diagnostics(predictions, selected_model, output)
+ 
+     report = {
+         "phase": "Phase 7", "experiment": "Test 3 chronological 70/15/15 with Optuna",
+diff --git a/tests/test_phase7_locked_test_optuna.py b/tests/test_phase7_locked_test_optuna.py
+index 32b3a9e11cfd1cfe6bd03a9d439b308b1924705f..4253416ecd0ffebe58303a16e60899a4d8e4d0af
+--- a/tests/test_phase7_locked_test_optuna.py
++++ b/tests/test_phase7_locked_test_optuna.py
+@@ -30,6 +30,9 @@
+         "config.json", "execution.log", "optuna_trials.csv", "validation_metrics.csv",
+         "locked_test_metrics.csv", "locked_test_predictions.csv", "selected_model.joblib",
+         "linear_baseline.joblib", "locked_test_actual_vs_predicted.png", "split_and_selection_report.json",
++        "actual_vs_predicted_scatter.png", "residual_vs_predicted.png",
++        "residual_distribution.png", "error_over_time.png", "highest_error_dates.csv",
++        "locked_test_diagnostics.csv",
+     }
+     assert required.issubset(path.name for path in output.iterdir())
+     assert all((output / name).stat().st_size > 0 for name in required)
+@@ -44,6 +47,17 @@
+         "naive_lag_1", "linear_regression", report["selected_model"]
+     }
+     assert len(pd.read_csv(output / "locked_test_predictions.csv")) == 27
++    predictions = pd.read_csv(output / "locked_test_predictions.csv")
++    diagnostics = pd.read_csv(output / "locked_test_diagnostics.csv")
++    expected_residual = predictions["actual"] - predictions["selected_model"]
++    np.testing.assert_allclose(diagnostics["residual"], expected_residual)
++    np.testing.assert_allclose(diagnostics["absolute_error"], expected_residual.abs())
++    highest_errors = pd.read_csv(output / "highest_error_dates.csv")
++    np.testing.assert_allclose(
++        highest_errors["residual"], highest_errors["actual"] - highest_errors["selected_model"]
++    )
++    np.testing.assert_allclose(highest_errors["absolute_error"], highest_errors["residual"].abs())
++    assert highest_errors["absolute_error"].is_monotonic_decreasing
+ 
+ 
+ def test_locked_test_changes_cannot_change_trials_selection_or_fitted_preprocessing(tmp_path: Path) -> None:
+
+codex
+The first focused invocation exposed an environment/import-path issue (`experiments` was not on Python’s module path), not a test failure. I’m rerunning with the repository root explicitly on `PYTHONPATH`, then I’ll generate the missing files directly from the preserved CSV and verify their hashes/model artifacts remain untouched.
+exec
+/bin/bash -lc 'PYTHONPATH=. pytest -q tests/test_phase7_locked_test_optuna.py' in /home/asus/projects/water-forecast
+ exited 1 in 4988ms:
+..F                                                                      [100%]
+=================================== FAILURES ===================================
+_ test_locked_test_changes_cannot_change_trials_selection_or_fitted_preprocessing _
+
+tmp_path = PosixPath('/tmp/pytest-of-asus/pytest-92/test_locked_test_changes_canno0')
+
+    def test_locked_test_changes_cannot_change_trials_selection_or_fitted_preprocessing(tmp_path: Path) -> None:
+        phase2, phase3 = _inputs(tmp_path, 180)
+        first = run_phase7_optuna(phase2, phase3, tmp_path / "runs", "first", _config())
+        first_report = json.loads((first / "split_and_selection_report.json").read_text())
+        first_trials = pd.read_csv(first / "optuna_trials.csv")
+        first_model = joblib.load(first / "selected_model.joblib")
+    
+        frame = pd.read_csv(phase2 / "features.csv")
+        selected = json.loads((phase3 / "selection_report.json").read_text())["selected_features"]
+        frame.loc[153:, selected] = 1_000_000
+        frame.loc[153:, "Consumption"] = -1_000_000
+        frame.to_csv(phase2 / "features.csv", index=False)
+        selection_path = phase3 / "selection_report.json"
+        selection = json.loads(selection_path.read_text())
+        selection["phase2_features_sha256"] = sha256_file(phase2 / "features.csv")
+        selection_path.write_text(json.dumps(selection), encoding="utf-8")
+    
+>       second = run_phase7_optuna(phase2, phase3, tmp_path / "runs", "second", _config())
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/test_phase7_locked_test_optuna.py:80: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+experiments/phase7_locked_test_optuna.py:260: in run_phase7_optuna
+    save_locked_test_diagnostics(predictions, selected_model, output)
+experiments/phase7_locked_test_optuna.py:168: in save_locked_test_diagnostics
+    axis.hist(diagnostics["residual"], bins=30)
+.venv/lib/python3.12/site-packages/matplotlib/axes/_axes.py:7515: in hist
+    m, bins = np.histogram(x[i], bins, weights=w[i], **hist_kwargs)
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv/lib/python3.12/site-packages/numpy/lib/_histograms_impl.py:792: in histogram
+    bin_edges, uniform_bins = _get_bin_edges(a, bins, range, weights)
+                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+a = array([-8.23384518e+09, -8.23384518e+09, -8.23384518e+09, -8.23384518e+09,
+       -8.23384518e+09, -8.23384518e+09, -8...4518e+09, -8.23384518e+09, -8.23384518e+09, -8.23384518e+09,
+       -8.23384518e+09, -8.23384518e+09, -8.23384518e+09])
+bins = 30
+range = (np.float64(-8233845176.607243), np.float64(-8233845176.607242))
+weights = None
+
+    def _get_bin_edges(a, bins, range, weights):
+        """
+        Computes the bins used internally by `histogram`.
+    
+        Parameters
+        ==========
+        a : ndarray
+            Ravelled data array
+        bins, range
+            Forwarded arguments from `histogram`.
+        weights : ndarray, optional
+            Ravelled weights array, or None
+    
+        Returns
+        =======
+        bin_edges : ndarray
+            Array of bin edges
+        uniform_bins : (Number, Number, int):
+            The upper bound, lowerbound, and number of bins, used in the optimized
+            implementation of `histogram` that works on uniform bins.
+        """
+        # parse the overloaded bins argument
+        n_equal_bins = None
+        bin_edges = None
+    
+        if isinstance(bins, str):
+            bin_name = bins
+            # if `bins` is a string for an automatic method,
+            # this will replace it with the number of bins calculated
+            if bin_name not in _hist_bin_selectors:
+                raise ValueError(
+                    f"{bin_name!r} is not a valid estimator for `bins`")
+            if weights is not None:
+                raise TypeError("Automated estimation of the number of "
+                                "bins is not supported for weighted data")
+    
+            first_edge, last_edge = _get_outer_edges(a, range)
+    
+            # truncate the range if needed
+            if range is not None:
+                keep = (a >= first_edge)
+                keep &= (a <= last_edge)
+                if not np.logical_and.reduce(keep):
+                    a = a[keep]
+    
+            if a.size == 0:
+                n_equal_bins = 1
+            else:
+                # Do not call selectors on empty arrays
+                width = _hist_bin_selectors[bin_name](a, (first_edge, last_edge))
+                if width:
+                    if np.issubdtype(a.dtype, np.integer) and width < 1:
+                        width = 1
+                    delta = _unsigned_subtract(last_edge, first_edge)
+                    n_equal_bins = int(np.ceil(delta / width))
+                else:
+                    # Width can be zero for some estimators, e.g. FD when
+                    # the IQR of the data is zero.
+                    n_equal_bins = 1
+    
+        elif np.ndim(bins) == 0:
+            try:
+                n_equal_bins = operator.index(bins)
+            except TypeError as e:
+                raise TypeError(
+                    '`bins` must be an integer, a string, or an array') from e
+            if n_equal_bins < 1:
+                raise ValueError('`bins` must be positive, when an integer')
+    
+            first_edge, last_edge = _get_outer_edges(a, range)
+    
+        elif np.ndim(bins) == 1:
+            bin_edges = np.asarray(bins)
+            if np.any(bin_edges[:-1] > bin_edges[1:]):
+                raise ValueError(
+                    '`bins` must increase monotonically, when an array')
+    
+        else:
+            raise ValueError('`bins` must be 1d, when an array')
+    
+        if n_equal_bins is not None:
+            # gh-10322 means that type resolution rules are dependent on array
+            # shapes. To avoid this causing problems, we pick a type now and stick
+            # with it throughout.
+            bin_type = np.result_type(first_edge, last_edge, a)
+            if np.issubdtype(bin_type, np.integer):
+                bin_type = np.result_type(bin_type, float)
+    
+            # bin edges must be computed
+            bin_edges = np.linspace(
+                first_edge, last_edge, n_equal_bins + 1,
+                endpoint=True, dtype=bin_type)
+            if np.any(bin_edges[:-1] >= bin_edges[1:]):
+>               raise ValueError(
+                    f'Too many bins for data range. Cannot create {n_equal_bins} '
+                    f'finite-sized bins.')
+E               ValueError: Too many bins for data range. Cannot create 30 finite-sized bins.
+
+.venv/lib/python3.12/site-packages/numpy/lib/_histograms_impl.py:449: ValueError
+=============================== warnings summary ===============================
+tests/test_phase7_locked_test_optuna.py::test_locked_test_changes_cannot_change_trials_selection_or_fitted_preprocessing
+tests/test_phase7_locked_test_optuna.py::test_locked_test_changes_cannot_change_trials_selection_or_fitted_preprocessing
+tests/test_phase7_locked_test_optuna.py::test_locked_test_changes_cannot_change_trials_selection_or_fitted_preprocessing
+tests/test_phase7_locked_test_optuna.py::test_locked_test_changes_cannot_change_trials_selection_or_fitted_preprocessing
+  /home/asus/projects/water-forecast/.venv/lib/python3.12/site-packages/joblib/numpy_pickle.py:207: DeprecationWarning: Setting the shape on a NumPy array has been deprecated in NumPy 2.5.
+  As an alternative, you can create a new view using np.reshape (with copy=False if needed).
+    array.shape = self.shape
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ============================
+FAILED tests/test_phase7_locked_test_optuna.py::test_locked_test_changes_cannot_change_trials_selection_or_fitted_preprocessing
+1 failed, 2 passed, 4 warnings in 4.51s
+
+diff --git a/experiments/phase7_locked_test_optuna.py b/experiments/phase7_locked_test_optuna.py
+index 83198219551bf0c2d5936d726c4c536ec02533d2..a96c99bfa754b278073713ac52f286a113b1d9df
+--- a/experiments/phase7_locked_test_optuna.py
++++ b/experiments/phase7_locked_test_optuna.py
+@@ -121,6 +121,66 @@
+     plt.close(figure)
+ 
+ 
++def save_locked_test_diagnostics(
++    predictions: pd.DataFrame,
++    selected_model: str,
++    output: Path,
++    highest_error_count: int = 20,
++) -> None:
++    """Create descriptive diagnostics from already-frozen test predictions only."""
++    required = {"Date", "actual", "selected_model"}
++    missing = required.difference(predictions.columns)
++    if missing:
++        raise ValueError(f"locked-test predictions are missing columns: {sorted(missing)}")
++    if highest_error_count < 1:
++        raise ValueError("highest_error_count must be positive")
++
++    diagnostics = predictions[["Date", "actual", "selected_model"]].copy()
++    diagnostics["residual"] = diagnostics["actual"] - diagnostics["selected_model"]
++    diagnostics["absolute_error"] = diagnostics["residual"].abs()
++    diagnostics.to_csv(output / "locked_test_diagnostics.csv", index=False, date_format="%Y-%m-%d")
++    diagnostics.nlargest(highest_error_count, "absolute_error").to_csv(
++        output / "highest_error_dates.csv", index=False, date_format="%Y-%m-%d"
++    )
++
++    figure, axis = plt.subplots(figsize=(7, 6))
++    axis.scatter(diagnostics["actual"], diagnostics["selected_model"], s=18, alpha=0.65)
++    bounds = [
++        min(diagnostics["actual"].min(), diagnostics["selected_model"].min()),
++        max(diagnostics["actual"].max(), diagnostics["selected_model"].max()),
++    ]
++    axis.plot(bounds, bounds, linestyle="--", color="black", linewidth=1, label="Ideal")
++    axis.set(title=f"Locked-test actual vs predicted: {selected_model}", xlabel="Actual", ylabel="Predicted")
++    axis.legend()
++    figure.tight_layout()
++    figure.savefig(output / "actual_vs_predicted_scatter.png", dpi=150)
++    plt.close(figure)
++
++    figure, axis = plt.subplots(figsize=(8, 5))
++    axis.scatter(diagnostics["selected_model"], diagnostics["residual"], s=18, alpha=0.65)
++    axis.axhline(0, linestyle="--", color="black", linewidth=1)
++    axis.set(title=f"Locked-test residuals: {selected_model}", xlabel="Predicted", ylabel="Residual (actual - predicted)")
++    figure.tight_layout()
++    figure.savefig(output / "residual_vs_predicted.png", dpi=150)
++    plt.close(figure)
++
++    figure, axis = plt.subplots(figsize=(8, 5))
++    axis.hist(diagnostics["residual"], bins=30)
++    axis.axvline(0, linestyle="--", color="black", linewidth=1)
++    axis.set(title=f"Locked-test residual distribution: {selected_model}", xlabel="Residual (actual - predicted)", ylabel="Count")
++    figure.tight_layout()
++    figure.savefig(output / "residual_distribution.png", dpi=150)
++    plt.close(figure)
++
++    figure, axis = plt.subplots(figsize=(12, 5))
++    axis.plot(diagnostics["Date"], diagnostics["residual"], linewidth=1)
++    axis.axhline(0, linestyle="--", color="black", linewidth=1)
++    axis.set(title=f"Locked-test error over time: {selected_model}", xlabel="Date", ylabel="Error (actual - predicted)")
++    figure.tight_layout()
++    figure.savefig(output / "error_over_time.png", dpi=150)
++    plt.close(figure)
++
++
+ def run_phase7_optuna(
+     phase2_dir: Path = DEFAULT_PHASE2_DIR,
+     phase3_dir: Path = DEFAULT_PHASE3_DIR,
+@@ -197,6 +257,7 @@
+     joblib.dump(selected_pipeline, output / "selected_model.joblib")
+     joblib.dump(linear, output / "linear_baseline.joblib")
+     _save_plot(predictions, selected_model, output / "locked_test_actual_vs_predicted.png")
++    save_locked_test_diagnostics(predictions, selected_model, output)
+ 
+     report = {
+         "phase": "Phase 7", "experiment": "Test 3 chronological 70/15/15 with Optuna",
+diff --git a/tests/test_phase7_locked_test_optuna.py b/tests/test_phase7_locked_test_optuna.py
+index 32b3a9e11cfd1cfe6bd03a9d439b308b1924705f..4253416ecd0ffebe58303a16e60899a4d8e4d0af
+--- a/tests/test_phase7_locked_test_optuna.py
++++ b/tests/test_phase7_locked_test_optuna.py
+@@ -30,6 +30,9 @@
+         "config.json", "execution.log", "optuna_trials.csv", "validation_metrics.csv",
+         "locked_test_metrics.csv", "locked_test_predictions.csv", "selected_model.joblib",
+         "linear_baseline.joblib", "locked_test_actual_vs_predicted.png", "split_and_selection_report.json",
++        "actual_vs_predicted_scatter.png", "residual_vs_predicted.png",
++        "residual_distribution.png", "error_over_time.png", "highest_error_dates.csv",
++        "locked_test_diagnostics.csv",
+     }
+     assert required.issubset(path.name for path in output.iterdir())
+     assert all((output / name).stat().st_size > 0 for name in required)
+@@ -44,6 +47,17 @@
+         "naive_lag_1", "linear_regression", report["selected_model"]
+     }
+     assert len(pd.read_csv(output / "locked_test_predictions.csv")) == 27
++    predictions = pd.read_csv(output / "locked_test_predictions.csv")
++    diagnostics = pd.read_csv(output / "locked_test_diagnostics.csv")
++    expected_residual = predictions["actual"] - predictions["selected_model"]
++    np.testing.assert_allclose(diagnostics["residual"], expected_residual)
++    np.testing.assert_allclose(diagnostics["absolute_error"], expected_residual.abs())
++    highest_errors = pd.read_csv(output / "highest_error_dates.csv")
++    np.testing.assert_allclose(
++        highest_errors["residual"], highest_errors["actual"] - highest_errors["selected_model"]
++    )
++    np.testing.assert_allclose(highest_errors["absolute_error"], highest_errors["residual"].abs())
++    assert highest_errors["absolute_error"].is_monotonic_decreasing
+ 
+ 
+ def test_locked_test_changes_cannot_change_trials_selection_or_fitted_preprocessing(tmp_path: Path) -> None:
+
+apply patch
+patch: completed
+/home/asus/projects/water-forecast/experiments/phase7_locked_test_optuna.py
+diff --git a/experiments/phase7_locked_test_optuna.py b/experiments/phase7_locked_test_optuna.py
+index 83198219551bf0c2d5936d726c4c536ec02533d2..e951ec45c7ca50c4d231660ffefae8e5302152a1
+--- a/experiments/phase7_locked_test_optuna.py
++++ b/experiments/phase7_locked_test_optuna.py
+@@ -121,6 +121,75 @@
+     plt.close(figure)
+ 
+ 
++def save_locked_test_diagnostics(
++    predictions: pd.DataFrame,
++    selected_model: str,
++    output: Path,
++    highest_error_count: int = 20,
++) -> None:
++    """Create descriptive diagnostics from already-frozen test predictions only."""
++    required = {"Date", "actual", "selected_model"}
++    missing = required.difference(predictions.columns)
++    if missing:
++        raise ValueError(f"locked-test predictions are missing columns: {sorted(missing)}")
++    if highest_error_count < 1:
++        raise ValueError("highest_error_count must be positive")
++
++    diagnostics = predictions[["Date", "actual", "selected_model"]].copy()
++    diagnostics["residual"] = diagnostics["actual"] - diagnostics["selected_model"]
++    diagnostics["absolute_error"] = diagnostics["residual"].abs()
++    diagnostics.to_csv(output / "locked_test_diagnostics.csv", index=False, date_format="%Y-%m-%d")
++    diagnostics.nlargest(highest_error_count, "absolute_error").to_csv(
++        output / "highest_error_dates.csv", index=False, date_format="%Y-%m-%d"
++    )
++
++    figure, axis = plt.subplots(figsize=(7, 6))
++    axis.scatter(diagnostics["actual"], diagnostics["selected_model"], s=18, alpha=0.65)
++    bounds = [
++        min(diagnostics["actual"].min(), diagnostics["selected_model"].min()),
++        max(diagnostics["actual"].max(), diagnostics["selected_model"].max()),
++    ]
++    axis.plot(bounds, bounds, linestyle="--", color="black", linewidth=1, label="Ideal")
++    axis.set(title=f"Locked-test actual vs predicted: {selected_model}", xlabel="Actual", ylabel="Predicted")
++    axis.legend()
++    figure.tight_layout()
++    figure.savefig(output / "actual_vs_predicted_scatter.png", dpi=150)
++    plt.close(figure)
++
++    figure, axis = plt.subplots(figsize=(8, 5))
++    axis.scatter(diagnostics["selected_model"], diagnostics["residual"], s=18, alpha=0.65)
++    axis.axhline(0, linestyle="--", color="black", linewidth=1)
++    axis.set(title=f"Locked-test residuals: {selected_model}", xlabel="Predicted", ylabel="Residual (actual - predicted)")
++    figure.tight_layout()
++    figure.savefig(output / "residual_vs_predicted.png", dpi=150)
++    plt.close(figure)
++
++    figure, axis = plt.subplots(figsize=(8, 5))
++    residual_values = diagnostics["residual"].to_numpy(dtype=float)
++    residual_span = float(np.ptp(residual_values))
++    residual_scale = max(float(np.max(np.abs(residual_values))), 1.0)
++    if residual_span <= np.finfo(float).eps * residual_scale:
++        center = float(np.mean(residual_values))
++        half_width = max(abs(center) * 1e-6, 1.0)
++        histogram_bins: int | np.ndarray = np.array([center - half_width, center + half_width])
++    else:
++        histogram_bins = 30
++    axis.hist(residual_values, bins=histogram_bins)
++    axis.axvline(0, linestyle="--", color="black", linewidth=1)
++    axis.set(title=f"Locked-test residual distribution: {selected_model}", xlabel="Residual (actual - predicted)", ylabel="Count")
++    figure.tight_layout()
++    figure.savefig(output / "residual_distribution.png", dpi=150)
++    plt.close(figure)
++
++    figure, axis = plt.subplots(figsize=(12, 5))
++    axis.plot(diagnostics["Date"], diagnostics["residual"], linewidth=1)
++    axis.axhline(0, linestyle="--", color="black", linewidth=1)
++    axis.set(title=f"Locked-test error over time: {selected_model}", xlabel="Date", ylabel="Error (actual - predicted)")
++    figure.tight_layout()
++    figure.savefig(output / "error_over_time.png", dpi=150)
++    plt.close(figure)
++
++
+ def run_phase7_optuna(
+     phase2_dir: Path = DEFAULT_PHASE2_DIR,
+     phase3_dir: Path = DEFAULT_PHASE3_DIR,
+@@ -197,6 +266,7 @@
+     joblib.dump(selected_pipeline, output / "selected_model.joblib")
+     joblib.dump(linear, output / "linear_baseline.joblib")
+     _save_plot(predictions, selected_model, output / "locked_test_actual_vs_predicted.png")
++    save_locked_test_diagnostics(predictions, selected_model, output)
+ 
+     report = {
+         "phase": "Phase 7", "experiment": "Test 3 chronological 70/15/15 with Optuna",
+diff --git a/tests/test_phase7_locked_test_optuna.py b/tests/test_phase7_locked_test_optuna.py
+index 32b3a9e11cfd1cfe6bd03a9d439b308b1924705f..4253416ecd0ffebe58303a16e60899a4d8e4d0af
+--- a/tests/test_phase7_locked_test_optuna.py
++++ b/tests/test_phase7_locked_test_optuna.py
+@@ -30,6 +30,9 @@
+         "config.json", "execution.log", "optuna_trials.csv", "validation_metrics.csv",
+         "locked_test_metrics.csv", "locked_test_predictions.csv", "selected_model.joblib",
+         "linear_baseline.joblib", "locked_test_actual_vs_predicted.png", "split_and_selection_report.json",
++        "actual_vs_predicted_scatter.png", "residual_vs_predicted.png",
++        "residual_distribution.png", "error_over_time.png", "highest_error_dates.csv",
++        "locked_test_diagnostics.csv",
+     }
+     assert required.issubset(path.name for path in output.iterdir())
+     assert all((output / name).stat().st_size > 0 for name in required)
+@@ -44,6 +47,17 @@
+         "naive_lag_1", "linear_regression", report["selected_model"]
+     }
+     assert len(pd.read_csv(output / "locked_test_predictions.csv")) == 27
++    predictions = pd.read_csv(output / "locked_test_predictions.csv")
++    diagnostics = pd.read_csv(output / "locked_test_diagnostics.csv")
++    expected_residual = predictions["actual"] - predictions["selected_model"]
++    np.testing.assert_allclose(diagnostics["residual"], expected_residual)
++    np.testing.assert_allclose(diagnostics["absolute_error"], expected_residual.abs())
++    highest_errors = pd.read_csv(output / "highest_error_dates.csv")
++    np.testing.assert_allclose(
++        highest_errors["residual"], highest_errors["actual"] - highest_errors["selected_model"]
++    )
++    np.testing.assert_allclose(highest_errors["absolute_error"], highest_errors["residual"].abs())
++    assert highest_errors["absolute_error"].is_monotonic_decreasing
+ 
+ 
+ def test_locked_test_changes_cannot_change_trials_selection_or_fitted_preprocessing(tmp_path: Path) -> None:
+
+diff --git a/experiments/phase7_locked_test_optuna.py b/experiments/phase7_locked_test_optuna.py
+index 83198219551bf0c2d5936d726c4c536ec02533d2..e951ec45c7ca50c4d231660ffefae8e5302152a1
+--- a/experiments/phase7_locked_test_optuna.py
++++ b/experiments/phase7_locked_test_optuna.py
+@@ -121,6 +121,75 @@
+     plt.close(figure)
+ 
+ 
++def save_locked_test_diagnostics(
++    predictions: pd.DataFrame,
++    selected_model: str,
++    output: Path,
++    highest_error_count: int = 20,
++) -> None:
++    """Create descriptive diagnostics from already-frozen test predictions only."""
++    required = {"Date", "actual", "selected_model"}
++    missing = required.difference(predictions.columns)
++    if missing:
++        raise ValueError(f"locked-test predictions are missing columns: {sorted(missing)}")
++    if highest_error_count < 1:
++        raise ValueError("highest_error_count must be positive")
++
++    diagnostics = predictions[["Date", "actual", "selected_model"]].copy()
++    diagnostics["residual"] = diagnostics["actual"] - diagnostics["selected_model"]
++    diagnostics["absolute_error"] = diagnostics["residual"].abs()
++    diagnostics.to_csv(output / "locked_test_diagnostics.csv", index=False, date_format="%Y-%m-%d")
++    diagnostics.nlargest(highest_error_count, "absolute_error").to_csv(
++        output / "highest_error_dates.csv", index=False, date_format="%Y-%m-%d"
++    )
++
++    figure, axis = plt.subplots(figsize=(7, 6))
++    axis.scatter(diagnostics["actual"], diagnostics["selected_model"], s=18, alpha=0.65)
++    bounds = [
++        min(diagnostics["actual"].min(), diagnostics["selected_model"].min()),
++        max(diagnostics["actual"].max(), diagnostics["selected_model"].max()),
++    ]
++    axis.plot(bounds, bounds, linestyle="--", color="black", linewidth=1, label="Ideal")
++    axis.set(title=f"Locked-test actual vs predicted: {selected_model}", xlabel="Actual", ylabel="Predicted")
++    axis.legend()
++    figure.tight_layout()
++    figure.savefig(output / "actual_vs_predicted_scatter.png", dpi=150)
++    plt.close(figure)
++
++    figure, axis = plt.subplots(figsize=(8, 5))
++    axis.scatter(diagnostics["selected_model"], diagnostics["residual"], s=18, alpha=0.65)
++    axis.axhline(0, linestyle="--", color="black", linewidth=1)
++    axis.set(title=f"Locked-test residuals: {selected_model}", xlabel="Predicted", ylabel="Residual (actual - predicted)")
++    figure.tight_layout()
++    figure.savefig(output / "residual_vs_predicted.png", dpi=150)
++    plt.close(figure)
++
++    figure, axis = plt.subplots(figsize=(8, 5))
++    residual_values = diagnostics["residual"].to_numpy(dtype=float)
++    residual_span = float(np.ptp(residual_values))
++    residual_scale = max(float(np.max(np.abs(residual_values))), 1.0)
++    if residual_span <= np.finfo(float).eps * residual_scale:
++        center = float(np.mean(residual_values))
++        half_width = max(abs(center) * 1e-6, 1.0)
++        histogram_bins: int | np.ndarray = np.array([center - half_width, center + half_width])
++    else:
++        histogram_bins = 30
++    axis.hist(residual_values, bins=histogram_bins)
++    axis.axvline(0, linestyle="--", color="black", linewidth=1)
++    axis.set(title=f"Locked-test residual distribution: {selected_model}", xlabel="Residual (actual - predicted)", ylabel="Count")
++    figure.tight_layout()
++    figure.savefig(output / "residual_distribution.png", dpi=150)
++    plt.close(figure)
++
++    figure, axis = plt.subplots(figsize=(12, 5))
++    axis.plot(diagnostics["Date"], diagnostics["residual"], linewidth=1)
++    axis.axhline(0, linestyle="--", color="black", linewidth=1)
++    axis.set(title=f"Locked-test error over time: {selected_model}", xlabel="Date", ylabel="Error (actual - predicted)")
++    figure.tight_layout()
++    figure.savefig(output / "error_over_time.png", dpi=150)
++    plt.close(figure)
++
++
+ def run_phase7_optuna(
+     phase2_dir: Path = DEFAULT_PHASE2_DIR,
+     phase3_dir: Path = DEFAULT_PHASE3_DIR,
+@@ -197,6 +266,7 @@
+     joblib.dump(selected_pipeline, output / "selected_model.joblib")
+     joblib.dump(linear, output / "linear_baseline.joblib")
+     _save_plot(predictions, selected_model, output / "locked_test_actual_vs_predicted.png")
++    save_locked_test_diagnostics(predictions, selected_model, output)
+ 
+     report = {
+         "phase": "Phase 7", "experiment": "Test 3 chronological 70/15/15 with Optuna",
+diff --git a/tests/test_phase7_locked_test_optuna.py b/tests/test_phase7_locked_test_optuna.py
+index 32b3a9e11cfd1cfe6bd03a9d439b308b1924705f..4253416ecd0ffebe58303a16e60899a4d8e4d0af
+--- a/tests/test_phase7_locked_test_optuna.py
++++ b/tests/test_phase7_locked_test_optuna.py
+@@ -30,6 +30,9 @@
+         "config.json", "execution.log", "optuna_trials.csv", "validation_metrics.csv",
+         "locked_test_metrics.csv", "locked_test_predictions.csv", "selected_model.joblib",
+         "linear_baseline.joblib", "locked_test_actual_vs_predicted.png", "split_and_selection_report.json",
++        "actual_vs_predicted_scatter.png", "residual_vs_predicted.png",
++        "residual_distribution.png", "error_over_time.png", "highest_error_dates.csv",
++        "locked_test_diagnostics.csv",
+     }
+     assert required.issubset(path.name for path in output.iterdir())
+     assert all((output / name).stat().st_size > 0 for name in required)
+@@ -44,6 +47,17 @@
+         "naive_lag_1", "linear_regression", report["selected_model"]
+     }
+     assert len(pd.read_csv(output / "locked_test_predictions.csv")) == 27
++    predictions = pd.read_csv(output / "locked_test_predictions.csv")
++    diagnostics = pd.read_csv(output / "locked_test_diagnostics.csv")
++    expected_residual = predictions["actual"] - predictions["selected_model"]
++    np.testing.assert_allclose(diagnostics["residual"], expected_residual)
++    np.testing.assert_allclose(diagnostics["absolute_error"], expected_residual.abs())
++    highest_errors = pd.read_csv(output / "highest_error_dates.csv")
++    np.testing.assert_allclose(
++        highest_errors["residual"], highest_errors["actual"] - highest_errors["selected_model"]
++    )
++    np.testing.assert_allclose(highest_errors["absolute_error"], highest_errors["residual"].abs())
++    assert highest_errors["absolute_error"].is_monotonic_decreasing
+ 
+ 
+ def test_locked_test_changes_cannot_change_trials_selection_or_fitted_preprocessing(tmp_path: Path) -> None:
+
+exec
+/bin/bash -lc 'PYTHONPATH=. pytest -q tests/test_phase7_locked_test_optuna.py && git diff --check' in /home/asus/projects/water-forecast
+ succeeded in 4638ms:
+...                                                                      [100%]
+=============================== warnings summary ===============================
+tests/test_phase7_locked_test_optuna.py::test_locked_test_changes_cannot_change_trials_selection_or_fitted_preprocessing
+tests/test_phase7_locked_test_optuna.py::test_locked_test_changes_cannot_change_trials_selection_or_fitted_preprocessing
+tests/test_phase7_locked_test_optuna.py::test_locked_test_changes_cannot_change_trials_selection_or_fitted_preprocessing
+tests/test_phase7_locked_test_optuna.py::test_locked_test_changes_cannot_change_trials_selection_or_fitted_preprocessing
+tests/test_phase7_locked_test_optuna.py::test_locked_test_changes_cannot_change_trials_selection_or_fitted_preprocessing
+tests/test_phase7_locked_test_optuna.py::test_locked_test_changes_cannot_change_trials_selection_or_fitted_preprocessing
+tests/test_phase7_locked_test_optuna.py::test_locked_test_changes_cannot_change_trials_selection_or_fitted_preprocessing
+tests/test_phase7_locked_test_optuna.py::test_locked_test_changes_cannot_change_trials_selection_or_fitted_preprocessing
+  /home/asus/projects/water-forecast/.venv/lib/python3.12/site-packages/joblib/numpy_pickle.py:207: DeprecationWarning: Setting the shape on a NumPy array has been deprecated in NumPy 2.5.
+  As an alternative, you can create a new view using np.reshape (with copy=False if needed).
+    array.shape = self.shape
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+3 passed, 8 warnings in 4.15s
+
+diff --git a/experiments/phase7_locked_test_optuna.py b/experiments/phase7_locked_test_optuna.py
+index 83198219551bf0c2d5936d726c4c536ec02533d2..e951ec45c7ca50c4d231660ffefae8e5302152a1
+--- a/experiments/phase7_locked_test_optuna.py
++++ b/experiments/phase7_locked_test_optuna.py
+@@ -121,6 +121,75 @@
+     plt.close(figure)
+ 
+ 
++def save_locked_test_diagnostics(
++    predictions: pd.DataFrame,
++    selected_model: str,
++    output: Path,
++    highest_error_count: int = 20,
++) -> None:
++    """Create descriptive diagnostics from already-frozen test predictions only."""
++    required = {"Date", "actual", "selected_model"}
++    missing = required.difference(predictions.columns)
++    if missing:
++        raise ValueError(f"locked-test predictions are missing columns: {sorted(missing)}")
++    if highest_error_count < 1:
++        raise ValueError("highest_error_count must be positive")
++
++    diagnostics = predictions[["Date", "actual", "selected_model"]].copy()
++    diagnostics["residual"] = diagnostics["actual"] - diagnostics["selected_model"]
++    diagnostics["absolute_error"] = diagnostics["residual"].abs()
++    diagnostics.to_csv(output / "locked_test_diagnostics.csv", index=False, date_format="%Y-%m-%d")
++    diagnostics.nlargest(highest_error_count, "absolute_error").to_csv(
++        output / "highest_error_dates.csv", index=False, date_format="%Y-%m-%d"
++    )
++
++    figure, axis = plt.subplots(figsize=(7, 6))
++    axis.scatter(diagnostics["actual"], diagnostics["selected_model"], s=18, alpha=0.65)
++    bounds = [
++        min(diagnostics["actual"].min(), diagnostics["selected_model"].min()),
++        max(diagnostics["actual"].max(), diagnostics["selected_model"].max()),
++    ]
++    axis.plot(bounds, bounds, linestyle="--", color="black", linewidth=1, label="Ideal")
++    axis.set(title=f"Locked-test actual vs predicted: {selected_model}", xlabel="Actual", ylabel="Predicted")
++    axis.legend()
++    figure.tight_layout()
++    figure.savefig(output / "actual_vs_predicted_scatter.png", dpi=150)
++    plt.close(figure)
++
++    figure, axis = plt.subplots(figsize=(8, 5))
++    axis.scatter(diagnostics["selected_model"], diagnostics["residual"], s=18, alpha=0.65)
++    axis.axhline(0, linestyle="--", color="black", linewidth=1)
++    axis.set(title=f"Locked-test residuals: {selected_model}", xlabel="Predicted", ylabel="Residual (actual - predicted)")
++    figure.tight_layout()
++    figure.savefig(output / "residual_vs_predicted.png", dpi=150)
++    plt.close(figure)
++
++    figure, axis = plt.subplots(figsize=(8, 5))
++    residual_values = diagnostics["residual"].to_numpy(dtype=float)
++    residual_span = float(np.ptp(residual_values))
++    residual_scale = max(float(np.max(np.abs(residual_values))), 1.0)
++    if residual_span <= np.finfo(float).eps * residual_scale:
++        center = float(np.mean(residual_values))
++        half_width = max(abs(center) * 1e-6, 1.0)
++        histogram_bins: int | np.ndarray = np.array([center - half_width, center + half_width])
++    else:
++        histogram_bins = 30
++    axis.hist(residual_values, bins=histogram_bins)
++    axis.axvline(0, linestyle="--", color="black", linewidth=1)
++    axis.set(title=f"Locked-test residual distribution: {selected_model}", xlabel="Residual (actual - predicted)", ylabel="Count")
++    figure.tight_layout()
++    figure.savefig(output / "residual_distribution.png", dpi=150)
++    plt.close(figure)
++
++    figure, axis = plt.subplots(figsize=(12, 5))
++    axis.plot(diagnostics["Date"], diagnostics["residual"], linewidth=1)
++    axis.axhline(0, linestyle="--", color="black", linewidth=1)
++    axis.set(title=f"Locked-test error over time: {selected_model}", xlabel="Date", ylabel="Error (actual - predicted)")
++    figure.tight_layout()
++    figure.savefig(output / "error_over_time.png", dpi=150)
++    plt.close(figure)
++
++
+ def run_phase7_optuna(
+     phase2_dir: Path = DEFAULT_PHASE2_DIR,
+     phase3_dir: Path = DEFAULT_PHASE3_DIR,
+@@ -197,6 +266,7 @@
+     joblib.dump(selected_pipeline, output / "selected_model.joblib")
+     joblib.dump(linear, output / "linear_baseline.joblib")
+     _save_plot(predictions, selected_model, output / "locked_test_actual_vs_predicted.png")
++    save_locked_test_diagnostics(predictions, selected_model, output)
+ 
+     report = {
+         "phase": "Phase 7", "experiment": "Test 3 chronological 70/15/15 with Optuna",
+diff --git a/tests/test_phase7_locked_test_optuna.py b/tests/test_phase7_locked_test_optuna.py
+index 32b3a9e11cfd1cfe6bd03a9d439b308b1924705f..4253416ecd0ffebe58303a16e60899a4d8e4d0af
+--- a/tests/test_phase7_locked_test_optuna.py
++++ b/tests/test_phase7_locked_test_optuna.py
+@@ -30,6 +30,9 @@
+         "config.json", "execution.log", "optuna_trials.csv", "validation_metrics.csv",
+         "locked_test_metrics.csv", "locked_test_predictions.csv", "selected_model.joblib",
+         "linear_baseline.joblib", "locked_test_actual_vs_predicted.png", "split_and_selection_report.json",
++        "actual_vs_predicted_scatter.png", "residual_vs_predicted.png",
++        "residual_distribution.png", "error_over_time.png", "highest_error_dates.csv",
++        "locked_test_diagnostics.csv",
+     }
+     assert required.issubset(path.name for path in output.iterdir())
+     assert all((output / name).stat().st_size > 0 for name in required)
+@@ -44,6 +47,17 @@
+         "naive_lag_1", "linear_regression", report["selected_model"]
+     }
+     assert len(pd.read_csv(output / "locked_test_predictions.csv")) == 27
++    predictions = pd.read_csv(output / "locked_test_predictions.csv")
++    diagnostics = pd.read_csv(output / "locked_test_diagnostics.csv")
++    expected_residual = predictions["actual"] - predictions["selected_model"]
++    np.testing.assert_allclose(diagnostics["residual"], expected_residual)
++    np.testing.assert_allclose(diagnostics["absolute_error"], expected_residual.abs())
++    highest_errors = pd.read_csv(output / "highest_error_dates.csv")
++    np.testing.assert_allclose(
++        highest_errors["residual"], highest_errors["actual"] - highest_errors["selected_model"]
++    )
++    np.testing.assert_allclose(highest_errors["absolute_error"], highest_errors["residual"].abs())
++    assert highest_errors["absolute_error"].is_monotonic_decreasing
+ 
+ 
+ def test_locked_test_changes_cannot_change_trials_selection_or_fitted_preprocessing(tmp_path: Path) -> None:
+
+exec
+/bin/bash -lc "sha256sum artifacts/phase7/phase7_attempt_1_20260815T223000Z/locked_test_predictions.csv artifacts/phase7/phase7_attempt_1_20260815T223000Z/selected_model.joblib artifacts/phase7/phase7_attempt_1_20260815T223000Z/linear_baseline.joblib && PYTHONPATH=. python -c \"import json; from pathlib import Path; import pandas as pd; from experiments.phase7_locked_test_optuna import save_locked_test_diagnostics; p=Path('artifacts/phase7/phase7_attempt_1_20260815T223000Z'); predictions=pd.read_csv(p/'locked_test_predictions.csv', parse_dates=['Date']); model=json.loads((p/'split_and_selection_report.json').read_text())['selected_model']; save_locked_test_diagnostics(predictions, model, p)\" && sha256sum artifacts/phase7/phase7_attempt_1_20260815T223000Z/locked_test_predictions.csv artifacts/phase7/phase7_attempt_1_20260815T223000Z/selected_model.joblib artifacts/phase7/phase7_attempt_1_20260815T223000Z/linear_baseline.joblib && find artifacts/phase7/phase7_attempt_1_20260815T223000Z -maxdepth 1 -type f -printf '%f %s bytes\\n' | sort" in /home/asus/projects/water-forecast
+ succeeded in 1855ms:
+/home/asus/.config/matplotlib is not a writable directory
+Matplotlib created a temporary cache directory at /tmp/matplotlib-odoeysyh because there was an issue with the default path ({configdir}); it is highly recommended to set the MPLCONFIGDIR environment variable to a writable directory, in particular to speed up the import of Matplotlib and to better support multiprocessing.
+17941ef9f4367f82fa83abffbec637922139678a4e0370868924dbbb95a1e78e  artifacts/phase7/phase7_attempt_1_20260815T223000Z/locked_test_predictions.csv
+93d9946776975991a3917856210457b06aac70ebb678c3b065d18350e47bd03c  artifacts/phase7/phase7_attempt_1_20260815T223000Z/selected_model.joblib
+20eb486041522b9f93bdc20ae9a5ef03741ca7017e2f5976a171a4f1438ec2c6  artifacts/phase7/phase7_attempt_1_20260815T223000Z/linear_baseline.joblib
+actual_vs_predicted_scatter.png 83332 bytes
+config.json 812 bytes
+error_over_time.png 133345 bytes
+execution.log 249 bytes
+highest_error_dates.csv 1620 bytes
+linear_baseline.joblib 2769 bytes
+locked_test_actual_vs_predicted.png 112016 bytes
+locked_test_diagnostics.csv 44930 bytes
+locked_test_metrics.csv 284 bytes
+locked_test_predictions.csv 41306 bytes
+optuna_trials.csv 7653 bytes
+residual_distribution.png 33813 bytes
+residual_vs_predicted.png 79158 bytes
+selected_model.joblib 2547 bytes
+split_and_selection_report.json 1801 bytes
+validation_metrics.csv 744 bytes
+
+diff --git a/experiments/phase7_locked_test_optuna.py b/experiments/phase7_locked_test_optuna.py
+index 83198219551bf0c2d5936d726c4c536ec02533d2..e951ec45c7ca50c4d231660ffefae8e5302152a1
+--- a/experiments/phase7_locked_test_optuna.py
++++ b/experiments/phase7_locked_test_optuna.py
+@@ -121,6 +121,75 @@
+     plt.close(figure)
+ 
+ 
++def save_locked_test_diagnostics(
++    predictions: pd.DataFrame,
++    selected_model: str,
++    output: Path,
++    highest_error_count: int = 20,
++) -> None:
++    """Create descriptive diagnostics from already-frozen test predictions only."""
++    required = {"Date", "actual", "selected_model"}
++    missing = required.difference(predictions.columns)
++    if missing:
++        raise ValueError(f"locked-test predictions are missing columns: {sorted(missing)}")
++    if highest_error_count < 1:
++        raise ValueError("highest_error_count must be positive")
++
++    diagnostics = predictions[["Date", "actual", "selected_model"]].copy()
++    diagnostics["residual"] = diagnostics["actual"] - diagnostics["selected_model"]
++    diagnostics["absolute_error"] = diagnostics["residual"].abs()
++    diagnostics.to_csv(output / "locked_test_diagnostics.csv", index=False, date_format="%Y-%m-%d")
++    diagnostics.nlargest(highest_error_count, "absolute_error").to_csv(
++        output / "highest_error_dates.csv", index=False, date_format="%Y-%m-%d"
++    )
++
++    figure, axis = plt.subplots(figsize=(7, 6))
++    axis.scatter(diagnostics["actual"], diagnostics["selected_model"], s=18, alpha=0.65)
++    bounds = [
++        min(diagnostics["actual"].min(), diagnostics["selected_model"].min()),
++        max(diagnostics["actual"].max(), diagnostics["selected_model"].max()),
++    ]
++    axis.plot(bounds, bounds, linestyle="--", color="black", linewidth=1, label="Ideal")
++    axis.set(title=f"Locked-test actual vs predicted: {selected_model}", xlabel="Actual", ylabel="Predicted")
++    axis.legend()
++    figure.tight_layout()
++    figure.savefig(output / "actual_vs_predicted_scatter.png", dpi=150)
++    plt.close(figure)
++
++    figure, axis = plt.subplots(figsize=(8, 5))
++    axis.scatter(diagnostics["selected_model"], diagnostics["residual"], s=18, alpha=0.65)
++    axis.axhline(0, linestyle="--", color="black", linewidth=1)
++    axis.set(title=f"Locked-test residuals: {selected_model}", xlabel="Predicted", ylabel="Residual (actual - predicted)")
++    figure.tight_layout()
++    figure.savefig(output / "residual_vs_predicted.png", dpi=150)
++    plt.close(figure)
++
++    figure, axis = plt.subplots(figsize=(8, 5))
++    residual_values = diagnostics["residual"].to_numpy(dtype=float)
++    residual_span = float(np.ptp(residual_values))
++    residual_scale = max(float(np.max(np.abs(residual_values))), 1.0)
++    if residual_span <= np.finfo(float).eps * residual_scale:
++        center = float(np.mean(residual_values))
++        half_width = max(abs(center) * 1e-6, 1.0)
++        histogram_bins: int | np.ndarray = np.array([center - half_width, center + half_width])
++    else:
++        histogram_bins = 30
++    axis.hist(residual_values, bins=histogram_bins)
++    axis.axvline(0, linestyle="--", color="black", linewidth=1)
++    axis.set(title=f"Locked-test residual distribution: {selected_model}", xlabel="Residual (actual - predicted)", ylabel="Count")
++    figure.tight_layout()
++    figure.savefig(output / "residual_distribution.png", dpi=150)
++    plt.close(figure)
++
++    figure, axis = plt.subplots(figsize=(12, 5))
++    axis.plot(diagnostics["Date"], diagnostics["residual"], linewidth=1)
++    axis.axhline(0, linestyle="--", color="black", linewidth=1)
++    axis.set(title=f"Locked-test error over time: {selected_model}", xlabel="Date", ylabel="Error (actual - predicted)")
++    figure.tight_layout()
++    figure.savefig(output / "error_over_time.png", dpi=150)
++    plt.close(figure)
++
++
+ def run_phase7_optuna(
+     phase2_dir: Path = DEFAULT_PHASE2_DIR,
+     phase3_dir: Path = DEFAULT_PHASE3_DIR,
+@@ -197,6 +266,7 @@
+     joblib.dump(selected_pipeline, output / "selected_model.joblib")
+     joblib.dump(linear, output / "linear_baseline.joblib")
+     _save_plot(predictions, selected_model, output / "locked_test_actual_vs_predicted.png")
++    save_locked_test_diagnostics(predictions, selected_model, output)
+ 
+     report = {
+         "phase": "Phase 7", "experiment": "Test 3 chronological 70/15/15 with Optuna",
+diff --git a/tests/test_phase7_locked_test_optuna.py b/tests/test_phase7_locked_test_optuna.py
+index 32b3a9e11cfd1cfe6bd03a9d439b308b1924705f..4253416ecd0ffebe58303a16e60899a4d8e4d0af
+--- a/tests/test_phase7_locked_test_optuna.py
++++ b/tests/test_phase7_locked_test_optuna.py
+@@ -30,6 +30,9 @@
+         "config.json", "execution.log", "optuna_trials.csv", "validation_metrics.csv",
+         "locked_test_metrics.csv", "locked_test_predictions.csv", "selected_model.joblib",
+         "linear_baseline.joblib", "locked_test_actual_vs_predicted.png", "split_and_selection_report.json",
++        "actual_vs_predicted_scatter.png", "residual_vs_predicted.png",
++        "residual_distribution.png", "error_over_time.png", "highest_error_dates.csv",
++        "locked_test_diagnostics.csv",
+     }
+     assert required.issubset(path.name for path in output.iterdir())
+     assert all((output / name).stat().st_size > 0 for name in required)
+@@ -44,6 +47,17 @@
+         "naive_lag_1", "linear_regression", report["selected_model"]
+     }
+     assert len(pd.read_csv(output / "locked_test_predictions.csv")) == 27
++    predictions = pd.read_csv(output / "locked_test_predictions.csv")
++    diagnostics = pd.read_csv(output / "locked_test_diagnostics.csv")
++    expected_residual = predictions["actual"] - predictions["selected_model"]
++    np.testing.assert_allclose(diagnostics["residual"], expected_residual)
++    np.testing.assert_allclose(diagnostics["absolute_error"], expected_residual.abs())
++    highest_errors = pd.read_csv(output / "highest_error_dates.csv")
++    np.testing.assert_allclose(
++        highest_errors["residual"], highest_errors["actual"] - highest_errors["selected_model"]
++    )
++    np.testing.assert_allclose(highest_errors["absolute_error"], highest_errors["residual"].abs())
++    assert highest_errors["absolute_error"].is_monotonic_decreasing
+ 
+ 
+ def test_locked_test_changes_cannot_change_trials_selection_or_fitted_preprocessing(tmp_path: Path) -> None:
+
+codex
+Focused validation now passes all 3 tests. The repaired artifacts were generated successfully, and SHA-256 checks confirm the preserved predictions and both saved model files are byte-for-byte unchanged. I’m running the full suite next, then I’ll save the focused/full outputs and a concise integrity record inside the Phase 7 artifact directory.
+exec
+/bin/bash -lc 'PYTHONPATH=. pytest -q' in /home/asus/projects/water-forecast
+diff --git a/experiments/phase7_locked_test_optuna.py b/experiments/phase7_locked_test_optuna.py
+index 83198219551bf0c2d5936d726c4c536ec02533d2..e951ec45c7ca50c4d231660ffefae8e5302152a1
+--- a/experiments/phase7_locked_test_optuna.py
++++ b/experiments/phase7_locked_test_optuna.py
+@@ -121,6 +121,75 @@
+     plt.close(figure)
+ 
+ 
++def save_locked_test_diagnostics(
++    predictions: pd.DataFrame,
++    selected_model: str,
++    output: Path,
++    highest_error_count: int = 20,
++) -> None:
++    """Create descriptive diagnostics from already-frozen test predictions only."""
++    required = {"Date", "actual", "selected_model"}
++    missing = required.difference(predictions.columns)
++    if missing:
++        raise ValueError(f"locked-test predictions are missing columns: {sorted(missing)}")
++    if highest_error_count < 1:
++        raise ValueError("highest_error_count must be positive")
++
++    diagnostics = predictions[["Date", "actual", "selected_model"]].copy()
++    diagnostics["residual"] = diagnostics["actual"] - diagnostics["selected_model"]
++    diagnostics["absolute_error"] = diagnostics["residual"].abs()
++    diagnostics.to_csv(output / "locked_test_diagnostics.csv", index=False, date_format="%Y-%m-%d")
++    diagnostics.nlargest(highest_error_count, "absolute_error").to_csv(
++        output / "highest_error_dates.csv", index=False, date_format="%Y-%m-%d"
++    )
++
++    figure, axis = plt.subplots(figsize=(7, 6))
++    axis.scatter(diagnostics["actual"], diagnostics["selected_model"], s=18, alpha=0.65)
++    bounds = [
++        min(diagnostics["actual"].min(), diagnostics["selected_model"].min()),
++        max(diagnostics["actual"].max(), diagnostics["selected_model"].max()),
++    ]
++    axis.plot(bounds, bounds, linestyle="--", color="black", linewidth=1, label="Ideal")
++    axis.set(title=f"Locked-test actual vs predicted: {selected_model}", xlabel="Actual", ylabel="Predicted")
++    axis.legend()
++    figure.tight_layout()
++    figure.savefig(output / "actual_vs_predicted_scatter.png", dpi=150)
++    plt.close(figure)
++
++    figure, axis = plt.subplots(figsize=(8, 5))
++    axis.scatter(diagnostics["selected_model"], diagnostics["residual"], s=18, alpha=0.65)
++    axis.axhline(0, linestyle="--", color="black", linewidth=1)
++    axis.set(title=f"Locked-test residuals: {selected_model}", xlabel="Predicted", ylabel="Residual (actual - predicted)")
++    figure.tight_layout()
++    figure.savefig(output / "residual_vs_predicted.png", dpi=150)
++    plt.close(figure)
++
++    figure, axis = plt.subplots(figsize=(8, 5))
++    residual_values = diagnostics["residual"].to_numpy(dtype=float)
++    residual_span = float(np.ptp(residual_values))
++    residual_scale = max(float(np.max(np.abs(residual_values))), 1.0)
++    if residual_span <= np.finfo(float).eps * residual_scale:
++        center = float(np.mean(residual_values))
++        half_width = max(abs(center) * 1e-6, 1.0)
++        histogram_bins: int | np.ndarray = np.array([center - half_width, center + half_width])
++    else:
++        histogram_bins = 30
++    axis.hist(residual_values, bins=histogram_bins)
++    axis.axvline(0, linestyle="--", color="black", linewidth=1)
++    axis.set(title=f"Locked-test residual distribution: {selected_model}", xlabel="Residual (actual - predicted)", ylabel="Count")
++    figure.tight_layout()
++    figure.savefig(output / "residual_distribution.png", dpi=150)
++    plt.close(figure)
++
++    figure, axis = plt.subplots(figsize=(12, 5))
++    axis.plot(diagnostics["Date"], diagnostics["residual"], linewidth=1)
++    axis.axhline(0, linestyle="--", color="black", linewidth=1)
++    axis.set(title=f"Locked-test error over time: {selected_model}", xlabel="Date", ylabel="Error (actual - predicted)")
++    figure.tight_layout()
++    figure.savefig(output / "error_over_time.png", dpi=150)
++    plt.close(figure)
++
++
+ def run_phase7_optuna(
+     phase2_dir: Path = DEFAULT_PHASE2_DIR,
+     phase3_dir: Path = DEFAULT_PHASE3_DIR,
+@@ -197,6 +266,7 @@
+     joblib.dump(selected_pipeline, output / "selected_model.joblib")
+     joblib.dump(linear, output / "linear_baseline.joblib")
+     _save_plot(predictions, selected_model, output / "locked_test_actual_vs_predicted.png")
++    save_locked_test_diagnostics(predictions, selected_model, output)
+ 
+     report = {
+         "phase": "Phase 7", "experiment": "Test 3 chronological 70/15/15 with Optuna",
+diff --git a/tests/test_phase7_locked_test_optuna.py b/tests/test_phase7_locked_test_optuna.py
+index 32b3a9e11cfd1cfe6bd03a9d439b308b1924705f..4253416ecd0ffebe58303a16e60899a4d8e4d0af
+--- a/tests/test_phase7_locked_test_optuna.py
++++ b/tests/test_phase7_locked_test_optuna.py
+@@ -30,6 +30,9 @@
+         "config.json", "execution.log", "optuna_trials.csv", "validation_metrics.csv",
+         "locked_test_metrics.csv", "locked_test_predictions.csv", "selected_model.joblib",
+         "linear_baseline.joblib", "locked_test_actual_vs_predicted.png", "split_and_selection_report.json",
++        "actual_vs_predicted_scatter.png", "residual_vs_predicted.png",
++        "residual_distribution.png", "error_over_time.png", "highest_error_dates.csv",
++        "locked_test_diagnostics.csv",
+     }
+     assert required.issubset(path.name for path in output.iterdir())
+     assert all((output / name).stat().st_size > 0 for name in required)
+@@ -44,6 +47,17 @@
+         "naive_lag_1", "linear_regression", report["selected_model"]
+     }
+     assert len(pd.read_csv(output / "locked_test_predictions.csv")) == 27
++    predictions = pd.read_csv(output / "locked_test_predictions.csv")
++    diagnostics = pd.read_csv(output / "locked_test_diagnostics.csv")
++    expected_residual = predictions["actual"] - predictions["selected_model"]
++    np.testing.assert_allclose(diagnostics["residual"], expected_residual)
++    np.testing.assert_allclose(diagnostics["absolute_error"], expected_residual.abs())
++    highest_errors = pd.read_csv(output / "highest_error_dates.csv")
++    np.testing.assert_allclose(
++        highest_errors["residual"], highest_errors["actual"] - highest_errors["selected_model"]
++    )
++    np.testing.assert_allclose(highest_errors["absolute_error"], highest_errors["residual"].abs())
++    assert highest_errors["absolute_error"].is_monotonic_decreasing
+ 
+ 
+ def test_locked_test_changes_cannot_change_trials_selection_or_fitted_preprocessing(tmp_path: Path) -> None:
+
+ succeeded in 13622ms:
+........................................................................ [ 38%]
+........................................................................ [ 77%]
+...........................................                              [100%]
+=============================== warnings summary ===============================
+tests/test_phase0_baseline.py: 3 warnings
+tests/test_phase4_traditional_ml.py: 5 warnings
+tests/test_phase5_chronological_holdout.py: 15 warnings
+tests/test_phase6_time_series_cv.py: 10 warnings
+tests/test_phase7_locked_test_optuna.py: 8 warnings
+  /home/asus/projects/water-forecast/.venv/lib/python3.12/site-packages/joblib/numpy_pickle.py:207: DeprecationWarning: Setting the shape on a NumPy array has been deprecated in NumPy 2.5.
+  As an alternative, you can create a new view using np.reshape (with copy=False if needed).
+    array.shape = self.shape
+
+tests/test_phase6_time_series_cv.py::test_each_fold_preprocessing_ignores_its_validation_features
+  /home/asus/projects/water-forecast/.venv/lib/python3.12/site-packages/sklearn/linear_model/_coordinate_descent.py:840: ConvergenceWarning: Objective did not converge. You might want to increase the number of iterations, check the scale of the features or consider increasing regularisation. Duality gap: 2.694719e+03, tolerance: 5.488e-01
+    model = cd_fast.enet_coordinate_descent(
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+187 passed, 42 warnings in 12.60s
+
+diff --git a/experiments/phase7_locked_test_optuna.py b/experiments/phase7_locked_test_optuna.py
+index 83198219551bf0c2d5936d726c4c536ec02533d2..e951ec45c7ca50c4d231660ffefae8e5302152a1
+--- a/experiments/phase7_locked_test_optuna.py
++++ b/experiments/phase7_locked_test_optuna.py
+@@ -121,6 +121,75 @@
+     plt.close(figure)
+ 
+ 
++def save_locked_test_diagnostics(
++    predictions: pd.DataFrame,
++    selected_model: str,
++    output: Path,
++    highest_error_count: int = 20,
++) -> None:
++    """Create descriptive diagnostics from already-frozen test predictions only."""
++    required = {"Date", "actual", "selected_model"}
++    missing = required.difference(predictions.columns)
++    if missing:
++        raise ValueError(f"locked-test predictions are missing columns: {sorted(missing)}")
++    if highest_error_count < 1:
++        raise ValueError("highest_error_count must be positive")
++
++    diagnostics = predictions[["Date", "actual", "selected_model"]].copy()
++    diagnostics["residual"] = diagnostics["actual"] - diagnostics["selected_model"]
++    diagnostics["absolute_error"] = diagnostics["residual"].abs()
++    diagnostics.to_csv(output / "locked_test_diagnostics.csv", index=False, date_format="%Y-%m-%d")
++    diagnostics.nlargest(highest_error_count, "absolute_error").to_csv(
++        output / "highest_error_dates.csv", index=False, date_format="%Y-%m-%d"
++    )
++
++    figure, axis = plt.subplots(figsize=(7, 6))
++    axis.scatter(diagnostics["actual"], diagnostics["selected_model"], s=18, alpha=0.65)
++    bounds = [
++        min(diagnostics["actual"].min(), diagnostics["selected_model"].min()),
++        max(diagnostics["actual"].max(), diagnostics["selected_model"].max()),
++    ]
++    axis.plot(bounds, bounds, linestyle="--", color="black", linewidth=1, label="Ideal")
++    axis.set(title=f"Locked-test actual vs predicted: {selected_model}", xlabel="Actual", ylabel="Predicted")
++    axis.legend()
++    figure.tight_layout()
++    figure.savefig(output / "actual_vs_predicted_scatter.png", dpi=150)
++    plt.close(figure)
++
++    figure, axis = plt.subplots(figsize=(8, 5))
++    axis.scatter(diagnostics["selected_model"], diagnostics["residual"], s=18, alpha=0.65)
++    axis.axhline(0, linestyle="--", color="black", linewidth=1)
++    axis.set(title=f"Locked-test residuals: {selected_model}", xlabel="Predicted", ylabel="Residual (actual - predicted)")
++    figure.tight_layout()
++    figure.savefig(output / "residual_vs_predicted.png", dpi=150)
++    plt.close(figure)
++
++    figure, axis = plt.subplots(figsize=(8, 5))
++    residual_values = diagnostics["residual"].to_numpy(dtype=float)
++    residual_span = float(np.ptp(residual_values))
++    residual_scale = max(float(np.max(np.abs(residual_values))), 1.0)
++    if residual_span <= np.finfo(float).eps * residual_scale:
++        center = float(np.mean(residual_values))
++        half_width = max(abs(center) * 1e-6, 1.0)
++        histogram_bins: int | np.ndarray = np.array([center - half_width, center + half_width])
++    else:
++        histogram_bins = 30
++    axis.hist(residual_values, bins=histogram_bins)
++    axis.axvline(0, linestyle="--", color="black", linewidth=1)
++    axis.set(title=f"Locked-test residual distribution: {selected_model}", xlabel="Residual (actual - predicted)", ylabel="Count")
++    figure.tight_layout()
++    figure.savefig(output / "residual_distribution.png", dpi=150)
++    plt.close(figure)
++
++    figure, axis = plt.subplots(figsize=(12, 5))
++    axis.plot(diagnostics["Date"], diagnostics["residual"], linewidth=1)
++    axis.axhline(0, linestyle="--", color="black", linewidth=1)
++    axis.set(title=f"Locked-test error over time: {selected_model}", xlabel="Date", ylabel="Error (actual - predicted)")
++    figure.tight_layout()
++    figure.savefig(output / "error_over_time.png", dpi=150)
++    plt.close(figure)
++
++
+ def run_phase7_optuna(
+     phase2_dir: Path = DEFAULT_PHASE2_DIR,
+     phase3_dir: Path = DEFAULT_PHASE3_DIR,
+@@ -197,6 +266,7 @@
+     joblib.dump(selected_pipeline, output / "selected_model.joblib")
+     joblib.dump(linear, output / "linear_baseline.joblib")
+     _save_plot(predictions, selected_model, output / "locked_test_actual_vs_predicted.png")
++    save_locked_test_diagnostics(predictions, selected_model, output)
+ 
+     report = {
+         "phase": "Phase 7", "experiment": "Test 3 chronological 70/15/15 with Optuna",
+diff --git a/tests/test_phase7_locked_test_optuna.py b/tests/test_phase7_locked_test_optuna.py
+index 32b3a9e11cfd1cfe6bd03a9d439b308b1924705f..4253416ecd0ffebe58303a16e60899a4d8e4d0af
+--- a/tests/test_phase7_locked_test_optuna.py
++++ b/tests/test_phase7_locked_test_optuna.py
+@@ -30,6 +30,9 @@
+         "config.json", "execution.log", "optuna_trials.csv", "validation_metrics.csv",
+         "locked_test_metrics.csv", "locked_test_predictions.csv", "selected_model.joblib",
+         "linear_baseline.joblib", "locked_test_actual_vs_predicted.png", "split_and_selection_report.json",
++        "actual_vs_predicted_scatter.png", "residual_vs_predicted.png",
++        "residual_distribution.png", "error_over_time.png", "highest_error_dates.csv",
++        "locked_test_diagnostics.csv",
+     }
+     assert required.issubset(path.name for path in output.iterdir())
+     assert all((output / name).stat().st_size > 0 for name in required)
+@@ -44,6 +47,17 @@
+         "naive_lag_1", "linear_regression", report["selected_model"]
+     }
+     assert len(pd.read_csv(output / "locked_test_predictions.csv")) == 27
++    predictions = pd.read_csv(output / "locked_test_predictions.csv")
++    diagnostics = pd.read_csv(output / "locked_test_diagnostics.csv")
++    expected_residual = predictions["actual"] - predictions["selected_model"]
++    np.testing.assert_allclose(diagnostics["residual"], expected_residual)
++    np.testing.assert_allclose(diagnostics["absolute_error"], expected_residual.abs())
++    highest_errors = pd.read_csv(output / "highest_error_dates.csv")
++    np.testing.assert_allclose(
++        highest_errors["residual"], highest_errors["actual"] - highest_errors["selected_model"]
++    )
++    np.testing.assert_allclose(highest_errors["absolute_error"], highest_errors["residual"].abs())
++    assert highest_errors["absolute_error"].is_monotonic_decreasing
+ 
+ 
+ def test_locked_test_changes_cannot_change_trials_selection_or_fitted_preprocessing(tmp_path: Path) -> None:
+
+exec
+/bin/bash -lc "tail -80 STATUS.md && find artifacts/phase6 -maxdepth 2 -type f -iname '*test*' -o -iname '*evidence*' | sort | tail -20 && git diff -- experiments/phase7_locked_test_optuna.py tests/test_phase7_locked_test_optuna.py && git status --short" in /home/asus/projects/water-forecast
+ succeeded in 0ms:
+  supplemental metric. Focused tests and full discovery pass (124 tests).
+  Supervisor evidence is preserved at
+  `orchestration/state/phase_0_attempt_2_20260815T201523Z.txt`.
+- An independent read-only validator reproduced the Phase 0 split, scaler fit
+  scope, all predictions and metrics, loaded the saved model/scaler, inspected
+  the plot and artifacts, reran the full suite (124 passing), and returned exact
+  PASS. The validation report is preserved at
+  `orchestration/state/phase_0_attempt_2_validator_pass_20260815.txt`.
+- Independent Phase 1 validation returned exact PASS. The strict schema-version-2
+  checkpoint is preserved at `orchestration/state/checkpoints/phase_1_passed.json`.
+- Phase 2 Feature Agent attempt 1 implemented 40 deterministic past-only candidate
+  features, including shifted lag/rolling/EMA/change features, known-date calendar,
+  cyclical, Fourier, Ontario holiday features, and exact-calendar previous-week/year
+  values. Feature selection was explicitly deferred to Phase 3 and no validation or
+  test partition was accessed. Focused tests pass (3), full discovery passes (129),
+  and evidence is preserved under `artifacts/phase2/phase2_attempt_1_20260815T204500Z/`
+  and `orchestration/state/phase_2_attempt_1_20260815T203808Z.txt`.
+- Independent Phase 2 validation returned exact PASS. The strict schema-version-2
+  checkpoint is preserved at `orchestration/state/checkpoints/phase_2_passed.json`.
+- Phase 3 Feature Agent attempt 1 implemented deterministic training-only feature
+  selection over the first 70% (2,660 rows through 2017-07-20). Leakage screening,
+  training-only correlation analysis, random-forest model importance, permutation
+  importance on later in-training folds, stability across three expanding-window
+  splits, and domain sanity checks selected 20 of 40 candidates. No validation or
+  locked-test rows were loaded. Focused tests pass (4), full discovery passes (133),
+  and final evidence is preserved under
+  `artifacts/phase3/phase3_attempt_1_final_20260815T210000Z/` and
+  `orchestration/state/phase_3_attempt_1_20260815T210000Z.txt`.
+- Independent Phase 3 validation returned exact PASS. The strict schema-version-2
+  checkpoint is preserved at `orchestration/state/checkpoints/phase_3_passed.json`.
+- Phase 4 ML Agent attempt 1 implemented the ten approved traditional model
+  families with deterministic seeds and per-model sklearn pipelines. Median
+  imputation and RobustScaler fitting occur only on the earlier development-fit
+  portion of the already approved 70% training prefix. A chronological later
+  portion of that same prefix provides smoke comparison only; all reserved rows
+  remain unloaded, and formal evaluation remains deferred to Phases 5 and 6.
+  Naive lag-1 and linear-regression baselines are reported without a model-selection
+  or improvement claim. Focused tests pass (4), full discovery passes (137), and
+  evidence is preserved under
+  `artifacts/phase4/phase4_attempt_1_final_20260815T213000Z/` and
+  `orchestration/state/phase_4_attempt_1_20260815T213000Z.txt`.
+- Independent Phase 4 validation returned exact PASS and its local checkpoint
+  commit is `ac75111`. Phases 0 through 4 now form a clean validated commit chain.
+- Production-safe `--auto` orchestration is implemented without starting Phase 5.
+  It validates the consecutive checkpoint prefix, resumes at the first incomplete
+  phase, retains the existing exact pytest/validator/repair gates, reports live
+  progress, stops on permissions and unsafe Git changes, creates local PASS-only
+  phase commits, and performs final Phase 13 verification and JSON reporting.
+- The first independent auto-mode review returned FAIL. Its exact corrections
+  were applied: validator/test repair reports and remaining retry budgets now
+  survive restart, interrupted dirty state is phase-scope checked, Git paths use
+  narrow phase-specific scopes, and all candidate content is stream-scanned for
+  secrets including large/binary files. A second review identified missing common
+  credential formats and checkpoint scanning; both were added with regression
+  coverage. Independent read-only revalidation returned exact PASS with 175 tests
+  passing and `git diff --check` clean.
+- Phase 5 independently passed on attempt 2, but its local Git checkpoint was
+  blocked because nested attempt 1 artifacts were misclassified as unexpected.
+  Both failed/repaired attempt artifact sets remain preserved.
+- Phase ownership now accepts nested outputs from every attempt of only the
+  current phase, and restart recovery detects a structurally valid latest PASS
+  checkpoint missing its Git commit, safety-reviews and commits that phase delta,
+  then continues without rerunning the validated phase.
+- Phase 6 ML Agent attempt 1 implemented five-fold expanding-window cross-validation
+  with `TimeSeriesSplit`. The naive lag-1 baseline and all ten approved traditional
+  models are evaluated independently in every fold; preprocessing is fitted only on
+  each fold's training prefix. Fold metrics/predictions/models, aggregate mean and
+  sample-standard-deviation metrics, split evidence, diagnostics, configuration,
+  hashes, seeds, and logs are preserved under
+  `artifacts/phase6/phase6_attempt_1_20260815T233000Z/`. Focused tests pass (3),
+  full discovery passes (184), and no tuning or improvement claim was made.
+
+## Current
+Phases 0 through 5 are approved after exact independent validator PASS. Phase 6
+attempt 1 is implemented and tested but is not complete until independent validator
+PASS. Phase 5 attempt 1 and repaired attempt 2 artifacts remain preserved.
+
+## Next
+Independently validate Phase 6. Do not advance to Phase 7 unless the validator
+returns exact PASS.
+?? artifacts/phase7/
+?? experiments/phase7_locked_test_optuna.py
+?? tests/test_phase7_locked_test_optuna.py
+
+diff --git a/experiments/phase7_locked_test_optuna.py b/experiments/phase7_locked_test_optuna.py
+index 83198219551bf0c2d5936d726c4c536ec02533d2..e951ec45c7ca50c4d231660ffefae8e5302152a1
+--- a/experiments/phase7_locked_test_optuna.py
++++ b/experiments/phase7_locked_test_optuna.py
+@@ -121,6 +121,75 @@
+     plt.close(figure)
+ 
+ 
++def save_locked_test_diagnostics(
++    predictions: pd.DataFrame,
++    selected_model: str,
++    output: Path,
++    highest_error_count: int = 20,
++) -> None:
++    """Create descriptive diagnostics from already-frozen test predictions only."""
++    required = {"Date", "actual", "selected_model"}
++    missing = required.difference(predictions.columns)
++    if missing:
++        raise ValueError(f"locked-test predictions are missing columns: {sorted(missing)}")
++    if highest_error_count < 1:
++        raise ValueError("highest_error_count must be positive")
++
++    diagnostics = predictions[["Date", "actual", "selected_model"]].copy()
++    diagnostics["residual"] = diagnostics["actual"] - diagnostics["selected_model"]
++    diagnostics["absolute_error"] = diagnostics["residual"].abs()
++    diagnostics.to_csv(output / "locked_test_diagnostics.csv", index=False, date_format="%Y-%m-%d")
++    diagnostics.nlargest(highest_error_count, "absolute_error").to_csv(
++        output / "highest_error_dates.csv", index=False, date_format="%Y-%m-%d"
++    )
++
++    figure, axis = plt.subplots(figsize=(7, 6))
++    axis.scatter(diagnostics["actual"], diagnostics["selected_model"], s=18, alpha=0.65)
++    bounds = [
++        min(diagnostics["actual"].min(), diagnostics["selected_model"].min()),
++        max(diagnostics["actual"].max(), diagnostics["selected_model"].max()),
++    ]
++    axis.plot(bounds, bounds, linestyle="--", color="black", linewidth=1, label="Ideal")
++    axis.set(title=f"Locked-test actual vs predicted: {selected_model}", xlabel="Actual", ylabel="Predicted")
++    axis.legend()
++    figure.tight_layout()
++    figure.savefig(output / "actual_vs_predicted_scatter.png", dpi=150)
++    plt.close(figure)
++
++    figure, axis = plt.subplots(figsize=(8, 5))
++    axis.scatter(diagnostics["selected_model"], diagnostics["residual"], s=18, alpha=0.65)
++    axis.axhline(0, linestyle="--", color="black", linewidth=1)
++    axis.set(title=f"Locked-test residuals: {selected_model}", xlabel="Predicted", ylabel="Residual (actual - predicted)")
++    figure.tight_layout()
++    figure.savefig(output / "residual_vs_predicted.png", dpi=150)
++    plt.close(figure)
++
++    figure, axis = plt.subplots(figsize=(8, 5))
++    residual_values = diagnostics["residual"].to_numpy(dtype=float)
++    residual_span = float(np.ptp(residual_values))
++    residual_scale = max(float(np.max(np.abs(residual_values))), 1.0)
++    if residual_span <= np.finfo(float).eps * residual_scale:
++        center = float(np.mean(residual_values))
++        half_width = max(abs(center) * 1e-6, 1.0)
++        histogram_bins: int | np.ndarray = np.array([center - half_width, center + half_width])
++    else:
++        histogram_bins = 30
++    axis.hist(residual_values, bins=histogram_bins)
++    axis.axvline(0, linestyle="--", color="black", linewidth=1)
++    axis.set(title=f"Locked-test residual distribution: {selected_model}", xlabel="Residual (actual - predicted)", ylabel="Count")
++    figure.tight_layout()
++    figure.savefig(output / "residual_distribution.png", dpi=150)
++    plt.close(figure)
++
++    figure, axis = plt.subplots(figsize=(12, 5))
++    axis.plot(diagnostics["Date"], diagnostics["residual"], linewidth=1)
++    axis.axhline(0, linestyle="--", color="black", linewidth=1)
++    axis.set(title=f"Locked-test error over time: {selected_model}", xlabel="Date", ylabel="Error (actual - predicted)")
++    figure.tight_layout()
++    figure.savefig(output / "error_over_time.png", dpi=150)
++    plt.close(figure)
++
++
+ def run_phase7_optuna(
+     phase2_dir: Path = DEFAULT_PHASE2_DIR,
+     phase3_dir: Path = DEFAULT_PHASE3_DIR,
+@@ -197,6 +266,7 @@
+     joblib.dump(selected_pipeline, output / "selected_model.joblib")
+     joblib.dump(linear, output / "linear_baseline.joblib")
+     _save_plot(predictions, selected_model, output / "locked_test_actual_vs_predicted.png")
++    save_locked_test_diagnostics(predictions, selected_model, output)
+ 
+     report = {
+         "phase": "Phase 7", "experiment": "Test 3 chronological 70/15/15 with Optuna",
+diff --git a/tests/test_phase7_locked_test_optuna.py b/tests/test_phase7_locked_test_optuna.py
+index 32b3a9e11cfd1cfe6bd03a9d439b308b1924705f..4253416ecd0ffebe58303a16e60899a4d8e4d0af
+--- a/tests/test_phase7_locked_test_optuna.py
++++ b/tests/test_phase7_locked_test_optuna.py
+@@ -30,6 +30,9 @@
+         "config.json", "execution.log", "optuna_trials.csv", "validation_metrics.csv",
+         "locked_test_metrics.csv", "locked_test_predictions.csv", "selected_model.joblib",
+         "linear_baseline.joblib", "locked_test_actual_vs_predicted.png", "split_and_selection_report.json",
++        "actual_vs_predicted_scatter.png", "residual_vs_predicted.png",
++        "residual_distribution.png", "error_over_time.png", "highest_error_dates.csv",
++        "locked_test_diagnostics.csv",
+     }
+     assert required.issubset(path.name for path in output.iterdir())
+     assert all((output / name).stat().st_size > 0 for name in required)
+@@ -44,6 +47,17 @@
+         "naive_lag_1", "linear_regression", report["selected_model"]
+     }
+     assert len(pd.read_csv(output / "locked_test_predictions.csv")) == 27
++    predictions = pd.read_csv(output / "locked_test_predictions.csv")
++    diagnostics = pd.read_csv(output / "locked_test_diagnostics.csv")
++    expected_residual = predictions["actual"] - predictions["selected_model"]
++    np.testing.assert_allclose(diagnostics["residual"], expected_residual)
++    np.testing.assert_allclose(diagnostics["absolute_error"], expected_residual.abs())
++    highest_errors = pd.read_csv(output / "highest_error_dates.csv")
++    np.testing.assert_allclose(
++        highest_errors["residual"], highest_errors["actual"] - highest_errors["selected_model"]
++    )
++    np.testing.assert_allclose(highest_errors["absolute_error"], highest_errors["residual"].abs())
++    assert highest_errors["absolute_error"].is_monotonic_decreasing
+ 
+ 
+ def test_locked_test_changes_cannot_change_trials_selection_or_fitted_preprocessing(tmp_path: Path) -> None:
+
+exec
+/bin/bash -lc "PYTHONPATH=. python -c \"from pathlib import Path; import pandas as pd, numpy as np; p=Path('artifacts/phase7/phase7_attempt_1_20260815T223000Z'); x=pd.read_csv(p/'locked_test_predictions.csv'); d=pd.read_csv(p/'locked_test_diagnostics.csv'); h=pd.read_csv(p/'highest_error_dates.csv'); print('rows',len(d),'highest_rows',len(h)); print('residual_max_abs_delta',np.max(np.abs(d.residual-(x.actual-x.selected_model)))); print('absolute_error_max_abs_delta',np.max(np.abs(d.absolute_error-(x.actual-x.selected_model).abs()))); print('highest_sorted',h.absolute_error.is_monotonic_decreasing); print('top_date',h.Date.iloc[0]); print('top_absolute_error',h.absolute_error.iloc[0])\" && sha256sum artifacts/phase7/phase7_attempt_1_20260815T223000Z/actual_vs_predicted_scatter.png artifacts/phase7/phase7_attempt_1_20260815T223000Z/residual_vs_predicted.png artifacts/phase7/phase7_attempt_1_20260815T223000Z/residual_distribution.png artifacts/phase7/phase7_attempt_1_20260815T223000Z/error_over_time.png artifacts/phase7/phase7_attempt_1_20260815T223000Z/highest_error_dates.csv artifacts/phase7/phase7_attempt_1_20260815T223000Z/locked_test_diagnostics.csv" in /home/asus/projects/water-forecast
+ succeeded in 233ms:
+rows 570 highest_rows 20
+residual_max_abs_delta 1.1368683772161603e-13
+absolute_error_max_abs_delta 1.1368683772161603e-13
+highest_sorted True
+top_date 2020-06-25
+top_absolute_error 2628.4403148475976
+09ca23d2414a7aae8714467c378b1abd04fdd767b281b067f97226cffa1cbc84  artifacts/phase7/phase7_attempt_1_20260815T223000Z/actual_vs_predicted_scatter.png
+c088808160353e92f4aae5eda2360eb0098d1edb53ba6cc502a9467985c75200  artifacts/phase7/phase7_attempt_1_20260815T223000Z/residual_vs_predicted.png
+d1d8eaf7e7dcc49fca21c0e347e468480b524f638f9271e183647f7bc1a4fb86  artifacts/phase7/phase7_attempt_1_20260815T223000Z/residual_distribution.png
+a0119d952d7a41e235b9668ecef0f615a0ae65d4e1a187490afc124d78683fd4  artifacts/phase7/phase7_attempt_1_20260815T223000Z/error_over_time.png
+55458ac5e51deef826ee100eedcf9f9ca8c8389184ea537f65c48dd2b368ad56  artifacts/phase7/phase7_attempt_1_20260815T223000Z/highest_error_dates.csv
+52b3fc151fc4fb98f7cea8ab87473fff8af90c9b393c3bce8c9b58ac151376c3  artifacts/phase7/phase7_attempt_1_20260815T223000Z/locked_test_diagnostics.csv
+
+diff --git a/experiments/phase7_locked_test_optuna.py b/experiments/phase7_locked_test_optuna.py
+index 83198219551bf0c2d5936d726c4c536ec02533d2..e951ec45c7ca50c4d231660ffefae8e5302152a1
+--- a/experiments/phase7_locked_test_optuna.py
++++ b/experiments/phase7_locked_test_optuna.py
+@@ -121,6 +121,75 @@
+     plt.close(figure)
+ 
+ 
++def save_locked_test_diagnostics(
++    predictions: pd.DataFrame,
++    selected_model: str,
++    output: Path,
++    highest_error_count: int = 20,
++) -> None:
++    """Create descriptive diagnostics from already-frozen test predictions only."""
++    required = {"Date", "actual", "selected_model"}
++    missing = required.difference(predictions.columns)
++    if missing:
++        raise ValueError(f"locked-test predictions are missing columns: {sorted(missing)}")
++    if highest_error_count < 1:
++        raise ValueError("highest_error_count must be positive")
++
++    diagnostics = predictions[["Date", "actual", "selected_model"]].copy()
++    diagnostics["residual"] = diagnostics["actual"] - diagnostics["selected_model"]
++    diagnostics["absolute_error"] = diagnostics["residual"].abs()
++    diagnostics.to_csv(output / "locked_test_diagnostics.csv", index=False, date_format="%Y-%m-%d")
++    diagnostics.nlargest(highest_error_count, "absolute_error").to_csv(
++        output / "highest_error_dates.csv", index=False, date_format="%Y-%m-%d"
++    )
++
++    figure, axis = plt.subplots(figsize=(7, 6))
++    axis.scatter(diagnostics["actual"], diagnostics["selected_model"], s=18, alpha=0.65)
++    bounds = [
++        min(diagnostics["actual"].min(), diagnostics["selected_model"].min()),
++        max(diagnostics["actual"].max(), diagnostics["selected_model"].max()),
++    ]
++    axis.plot(bounds, bounds, linestyle="--", color="black", linewidth=1, label="Ideal")
++    axis.set(title=f"Locked-test actual vs predicted: {selected_model}", xlabel="Actual", ylabel="Predicted")
++    axis.legend()
++    figure.tight_layout()
++    figure.savefig(output / "actual_vs_predicted_scatter.png", dpi=150)
++    plt.close(figure)
++
++    figure, axis = plt.subplots(figsize=(8, 5))
++    axis.scatter(diagnostics["selected_model"], diagnostics["residual"], s=18, alpha=0.65)
++    axis.axhline(0, linestyle="--", color="black", linewidth=1)
++    axis.set(title=f"Locked-test residuals: {selected_model}", xlabel="Predicted", ylabel="Residual (actual - predicted)")
++    figure.tight_layout()
++    figure.savefig(output / "residual_vs_predicted.png", dpi=150)
++    plt.close(figure)
++
++    figure, axis = plt.subplots(figsize=(8, 5))
++    residual_values = diagnostics["residual"].to_numpy(dtype=float)
++    residual_span = float(np.ptp(residual_values))
++    residual_scale = max(float(np.max(np.abs(residual_values))), 1.0)
++    if residual_span <= np.finfo(float).eps * residual_scale:
++        center = float(np.mean(residual_values))
++        half_width = max(abs(center) * 1e-6, 1.0)
++        histogram_bins: int | np.ndarray = np.array([center - half_width, center + half_width])
++    else:
++        histogram_bins = 30
++    axis.hist(residual_values, bins=histogram_bins)
++    axis.axvline(0, linestyle="--", color="black", linewidth=1)
++    axis.set(title=f"Locked-test residual distribution: {selected_model}", xlabel="Residual (actual - predicted)", ylabel="Count")
++    figure.tight_layout()
++    figure.savefig(output / "residual_distribution.png", dpi=150)
++    plt.close(figure)
++
++    figure, axis = plt.subplots(figsize=(12, 5))
++    axis.plot(diagnostics["Date"], diagnostics["residual"], linewidth=1)
++    axis.axhline(0, linestyle="--", color="black", linewidth=1)
++    axis.set(title=f"Locked-test error over time: {selected_model}", xlabel="Date", ylabel="Error (actual - predicted)")
++    figure.tight_layout()
++    figure.savefig(output / "error_over_time.png", dpi=150)
++    plt.close(figure)
++
++
+ def run_phase7_optuna(
+     phase2_dir: Path = DEFAULT_PHASE2_DIR,
+     phase3_dir: Path = DEFAULT_PHASE3_DIR,
+@@ -197,6 +266,7 @@
+     joblib.dump(selected_pipeline, output / "selected_model.joblib")
+     joblib.dump(linear, output / "linear_baseline.joblib")
+     _save_plot(predictions, selected_model, output / "locked_test_actual_vs_predicted.png")
++    save_locked_test_diagnostics(predictions, selected_model, output)
+ 
+     report = {
+         "phase": "Phase 7", "experiment": "Test 3 chronological 70/15/15 with Optuna",
+diff --git a/tests/test_phase7_locked_test_optuna.py b/tests/test_phase7_locked_test_optuna.py
+index 32b3a9e11cfd1cfe6bd03a9d439b308b1924705f..4253416ecd0ffebe58303a16e60899a4d8e4d0af
+--- a/tests/test_phase7_locked_test_optuna.py
++++ b/tests/test_phase7_locked_test_optuna.py
+@@ -30,6 +30,9 @@
+         "config.json", "execution.log", "optuna_trials.csv", "validation_metrics.csv",
+         "locked_test_metrics.csv", "locked_test_predictions.csv", "selected_model.joblib",
+         "linear_baseline.joblib", "locked_test_actual_vs_predicted.png", "split_and_selection_report.json",
++        "actual_vs_predicted_scatter.png", "residual_vs_predicted.png",
++        "residual_distribution.png", "error_over_time.png", "highest_error_dates.csv",
++        "locked_test_diagnostics.csv",
+     }
+     assert required.issubset(path.name for path in output.iterdir())
+     assert all((output / name).stat().st_size > 0 for name in required)
+@@ -44,6 +47,17 @@
+         "naive_lag_1", "linear_regression", report["selected_model"]
+     }
+     assert len(pd.read_csv(output / "locked_test_predictions.csv")) == 27
++    predictions = pd.read_csv(output / "locked_test_predictions.csv")
++    diagnostics = pd.read_csv(output / "locked_test_diagnostics.csv")
++    expected_residual = predictions["actual"] - predictions["selected_model"]
++    np.testing.assert_allclose(diagnostics["residual"], expected_residual)
++    np.testing.assert_allclose(diagnostics["absolute_error"], expected_residual.abs())
++    highest_errors = pd.read_csv(output / "highest_error_dates.csv")
++    np.testing.assert_allclose(
++        highest_errors["residual"], highest_errors["actual"] - highest_errors["selected_model"]
++    )
++    np.testing.assert_allclose(highest_errors["absolute_error"], highest_errors["residual"].abs())
++    assert highest_errors["absolute_error"].is_monotonic_decreasing
+ 
+ 
+ def test_locked_test_changes_cannot_change_trials_selection_or_fitted_preprocessing(tmp_path: Path) -> None:
+
+apply patch
+patch: completed
+/home/asus/projects/water-forecast/STATUS.md
+/home/asus/projects/water-forecast/artifacts/phase7/phase7_attempt_1_20260815T223000Z/repair_attempt_2_integrity.txt
+/home/asus/projects/water-forecast/artifacts/phase7/phase7_attempt_1_20260815T223000Z/repair_attempt_2_test_evidence.txt
+diff --git a/STATUS.md b/STATUS.md
+index 36a171661b3c11546320d88e4519eccd6e7e24dd..40f27fe60e5822a3c20108b87d323993a5fe1ef0
+--- a/STATUS.md
++++ b/STATUS.md
+@@ -152,12 +152,20 @@
+   hashes, seeds, and logs are preserved under
+   `artifacts/phase6/phase6_attempt_1_20260815T233000Z/`. Focused tests pass (3),
+   full discovery passes (184), and no tuning or improvement claim was made.
++- Independent Phase 6 validation returned PASS. Phase 7 attempt 1 then completed
++  validation-only Optuna selection and one frozen locked-test evaluation. Repair
++  attempt 2 added the evaluation artifacts required by `EXPERIMENT_PLAN.md` from
++  the already-preserved predictions only: actual-vs-predicted scatter,
++  residual-vs-predicted, residual distribution, error-over-time, highest-error
++  dates, and row-level diagnostics. The prediction and model hashes are unchanged.
++  Focused tests pass (3), full discovery passes (187), and repair evidence is
++  preserved in the Phase 7 artifact directory.
+ 
+ ## Current
+-Phases 0 through 5 are approved after exact independent validator PASS. Phase 6
+-attempt 1 is implemented and tested but is not complete until independent validator
+-PASS. Phase 5 attempt 1 and repaired attempt 2 artifacts remain preserved.
++Phases 0 through 6 are approved after exact independent validator PASS. Phase 7
++repair attempt 2 is implemented and tested but is not complete until independent
++validator PASS. Earlier Phase 5 and Phase 7 artifacts remain preserved.
+ 
+ ## Next
+-Independently validate Phase 6. Do not advance to Phase 7 unless the validator
+-returns exact PASS.
++Independently revalidate repaired Phase 7. Do not advance to Phase 8 unless the
++validator returns exact PASS.
+diff --git a/artifacts/phase7/phase7_attempt_1_20260815T223000Z/repair_attempt_2_integrity.txt b/artifacts/phase7/phase7_attempt_1_20260815T223000Z/repair_attempt_2_integrity.txt
+new file mode 100644
+index 0000000000000000000000000000000000000000..dbc3bfa80ab5d0a1c37df0e60c271baef77c974e
+--- /dev/null
++++ b/artifacts/phase7/phase7_attempt_1_20260815T223000Z/repair_attempt_2_integrity.txt
+@@ -0,0 +1,27 @@
++Phase 7 repair attempt 2 artifact integrity evidence
++Date: 2026-08-15 UTC
++
++Diagnostics source: locked_test_predictions.csv (570 already-preserved rows)
++Selected model prediction column: selected_model (frozen selection: ridge)
++Residual definition: actual - selected_model
++Highest-error rows: 20, sorted by descending absolute_error
++
++Residual maximum absolute CSV round-trip delta: 1.1368683772161603e-13
++Absolute-error maximum absolute CSV round-trip delta: 1.1368683772161603e-13
++Highest-error ordering monotonic descending: true
++
++Unchanged source/model hashes before and after diagnostic generation:
++17941ef9f4367f82fa83abffbec637922139678a4e0370868924dbbb95a1e78e  locked_test_predictions.csv
++93d9946776975991a3917856210457b06aac70ebb678c3b065d18350e47bd03c  selected_model.joblib
++20eb486041522b9f93bdc20ae9a5ef03741ca7017e2f5976a171a4f1438ec2c6  linear_baseline.joblib
++
++Generated artifact hashes:
++09ca23d2414a7aae8714467c378b1abd04fdd767b281b067f97226cffa1cbc84  actual_vs_predicted_scatter.png
++c088808160353e92f4aae5eda2360eb0098d1edb53ba6cc502a9467985c75200  residual_vs_predicted.png
++d1d8eaf7e7dcc49fca21c0e347e468480b524f638f9271e183647f7bc1a4fb86  residual_distribution.png
++a0119d952d7a41e235b9668ecef0f615a0ae65d4e1a187490afc124d78683fd4  error_over_time.png
++55458ac5e51deef826ee100eedcf9f9ca8c8389184ea537f65c48dd2b368ad56  highest_error_dates.csv
++52b3fc151fc4fb98f7cea8ab87473fff8af90c9b393c3bce8c9b58ac151376c3  locked_test_diagnostics.csv
++
++No tuning, model selection, fitting, refitting, or additional locked-test model
++evaluation occurred during this repair.
+diff --git a/artifacts/phase7/phase7_attempt_1_20260815T223000Z/repair_attempt_2_test_evidence.txt b/artifacts/phase7/phase7_attempt_1_20260815T223000Z/repair_attempt_2_test_evidence.txt
+new file mode 100644
+index 0000000000000000000000000000000000000000..6b35f8d294035cd164abfcaa06b3301a3ae9c375
+--- /dev/null
++++ b/artifacts/phase7/phase7_attempt_1_20260815T223000Z/repair_attempt_2_test_evidence.txt
+@@ -0,0 +1,14 @@
++Phase 7 repair attempt 2 test evidence
++Date: 2026-08-15 UTC
++
++Focused command: PYTHONPATH=. pytest -q tests/test_phase7_locked_test_optuna.py
++Result: 3 passed, 8 warnings in 4.15s
++
++Full command: PYTHONPATH=. pytest -q
++Result: 187 passed, 42 warnings in 12.60s
++
++Repository whitespace validation: git diff --check
++Result: PASS (no output)
++
++The warnings were pre-existing joblib NumPy deprecation warnings and one Phase 6
++ElasticNet convergence warning. No test failed.
+diff --git a/experiments/phase7_locked_test_optuna.py b/experiments/phase7_locked_test_optuna.py
+index 83198219551bf0c2d5936d726c4c536ec02533d2..e951ec45c7ca50c4d231660ffefae8e5302152a1
+--- a/experiments/phase7_locked_test_optuna.py
++++ b/experiments/phase7_locked_test_optuna.py
+@@ -121,6 +121,75 @@
+     plt.close(figure)
+ 
+ 
++def save_locked_test_diagnostics(
++    predictions: pd.DataFrame,
++    selected_model: str,
++    output: Path,
++    highest_error_count: int = 20,
++) -> None:
++    """Create descriptive diagnostics from already-frozen test predictions only."""
++    required = {"Date", "actual", "selected_model"}
++    missing = required.difference(predictions.columns)
++    if missing:
++        raise ValueError(f"locked-test predictions are missing columns: {sorted(missing)}")
++    if highest_error_count < 1:
++        raise ValueError("highest_error_count must be positive")
++
++    diagnostics = predictions[["Date", "actual", "selected_model"]].copy()
++    diagnostics["residual"] = diagnostics["actual"] - diagnostics["selected_model"]
++    diagnostics["absolute_error"] = diagnostics["residual"].abs()
++    diagnostics.to_csv(output / "locked_test_diagnostics.csv", index=False, date_format="%Y-%m-%d")
++    diagnostics.nlargest(highest_error_count, "absolute_error").to_csv(
++        output / "highest_error_dates.csv", index=False, date_format="%Y-%m-%d"
++    )
++
++    figure, axis = plt.subplots(figsize=(7, 6))
++    axis.scatter(diagnostics["actual"], diagnostics["selected_model"], s=18, alpha=0.65)
++    bounds = [
++        min(diagnostics["actual"].min(), diagnostics["selected_model"].min()),
++        max(diagnostics["actual"].max(), diagnostics["selected_model"].max()),
++    ]
++    axis.plot(bounds, bounds, linestyle="--", color="black", linewidth=1, label="Ideal")
++    axis.set(title=f"Locked-test actual vs predicted: {selected_model}", xlabel="Actual", ylabel="Predicted")
++    axis.legend()
++    figure.tight_layout()
++    figure.savefig(output / "actual_vs_predicted_scatter.png", dpi=150)
++    plt.close(figure)
++
++    figure, axis = plt.subplots(figsize=(8, 5))
++    axis.scatter(diagnostics["selected_model"], diagnostics["residual"], s=18, alpha=0.65)
++    axis.axhline(0, linestyle="--", color="black", linewidth=1)
++    axis.set(title=f"Locked-test residuals: {selected_model}", xlabel="Predicted", ylabel="Residual (actual - predicted)")
++    figure.tight_layout()
++    figure.savefig(output / "residual_vs_predicted.png", dpi=150)
++    plt.close(figure)
++
++    figure, axis = plt.subplots(figsize=(8, 5))
++    residual_values = diagnostics["residual"].to_numpy(dtype=float)
++    residual_span = float(np.ptp(residual_values))
++    residual_scale = max(float(np.max(np.abs(residual_values))), 1.0)
++    if residual_span <= np.finfo(float).eps * residual_scale:
++        center = float(np.mean(residual_values))
++        half_width = max(abs(center) * 1e-6, 1.0)
++        histogram_bins: int | np.ndarray = np.array([center - half_width, center + half_width])
++    else:
++        histogram_bins = 30
++    axis.hist(residual_values, bins=histogram_bins)
++    axis.axvline(0, linestyle="--", color="black", linewidth=1)
++    axis.set(title=f"Locked-test residual distribution: {selected_model}", xlabel="Residual (actual - predicted)", ylabel="Count")
++    figure.tight_layout()
++    figure.savefig(output / "residual_distribution.png", dpi=150)
++    plt.close(figure)
++
++    figure, axis = plt.subplots(figsize=(12, 5))
++    axis.plot(diagnostics["Date"], diagnostics["residual"], linewidth=1)
++    axis.axhline(0, linestyle="--", color="black", linewidth=1)
++    axis.set(title=f"Locked-test error over time: {selected_model}", xlabel="Date", ylabel="Error (actual - predicted)")
++    figure.tight_layout()
++    figure.savefig(output / "error_over_time.png", dpi=150)
++    plt.close(figure)
++
++
+ def run_phase7_optuna(
+     phase2_dir: Path = DEFAULT_PHASE2_DIR,
+     phase3_dir: Path = DEFAULT_PHASE3_DIR,
+@@ -197,6 +266,7 @@
+     joblib.dump(selected_pipeline, output / "selected_model.joblib")
+     joblib.dump(linear, output / "linear_baseline.joblib")
+     _save_plot(predictions, selected_model, output / "locked_test_actual_vs_predicted.png")
++    save_locked_test_diagnostics(predictions, selected_model, output)
+ 
+     report = {
+         "phase": "Phase 7", "experiment": "Test 3 chronological 70/15/15 with Optuna",
+diff --git a/tests/test_phase7_locked_test_optuna.py b/tests/test_phase7_locked_test_optuna.py
+index 32b3a9e11cfd1cfe6bd03a9d439b308b1924705f..4253416ecd0ffebe58303a16e60899a4d8e4d0af
+--- a/tests/test_phase7_locked_test_optuna.py
++++ b/tests/test_phase7_locked_test_optuna.py
+@@ -30,6 +30,9 @@
+         "config.json", "execution.log", "optuna_trials.csv", "validation_metrics.csv",
+         "locked_test_metrics.csv", "locked_test_predictions.csv", "selected_model.joblib",
+         "linear_baseline.joblib", "locked_test_actual_vs_predicted.png", "split_and_selection_report.json",
++        "actual_vs_predicted_scatter.png", "residual_vs_predicted.png",
++        "residual_distribution.png", "error_over_time.png", "highest_error_dates.csv",
++        "locked_test_diagnostics.csv",
+     }
+     assert required.issubset(path.name for path in output.iterdir())
+     assert all((output / name).stat().st_size > 0 for name in required)
+@@ -44,6 +47,17 @@
+         "naive_lag_1", "linear_regression", report["selected_model"]
+     }
+     assert len(pd.read_csv(output / "locked_test_predictions.csv")) == 27
++    predictions = pd.read_csv(output / "locked_test_predictions.csv")
++    diagnostics = pd.read_csv(output / "locked_test_diagnostics.csv")
++    expected_residual = predictions["actual"] - predictions["selected_model"]
++    np.testing.assert_allclose(diagnostics["residual"], expected_residual)
++    np.testing.assert_allclose(diagnostics["absolute_error"], expected_residual.abs())
++    highest_errors = pd.read_csv(output / "highest_error_dates.csv")
++    np.testing.assert_allclose(
++        highest_errors["residual"], highest_errors["actual"] - highest_errors["selected_model"]
++    )
++    np.testing.assert_allclose(highest_errors["absolute_error"], highest_errors["residual"].abs())
++    assert highest_errors["absolute_error"].is_monotonic_decreasing
+ 
+ 
+ def test_locked_test_changes_cannot_change_trials_selection_or_fitted_preprocessing(tmp_path: Path) -> None:
+
+diff --git a/STATUS.md b/STATUS.md
+index 36a171661b3c11546320d88e4519eccd6e7e24dd..40f27fe60e5822a3c20108b87d323993a5fe1ef0
+--- a/STATUS.md
++++ b/STATUS.md
+@@ -152,12 +152,20 @@
+   hashes, seeds, and logs are preserved under
+   `artifacts/phase6/phase6_attempt_1_20260815T233000Z/`. Focused tests pass (3),
+   full discovery passes (184), and no tuning or improvement claim was made.
++- Independent Phase 6 validation returned PASS. Phase 7 attempt 1 then completed
++  validation-only Optuna selection and one frozen locked-test evaluation. Repair
++  attempt 2 added the evaluation artifacts required by `EXPERIMENT_PLAN.md` from
++  the already-preserved predictions only: actual-vs-predicted scatter,
++  residual-vs-predicted, residual distribution, error-over-time, highest-error
++  dates, and row-level diagnostics. The prediction and model hashes are unchanged.
++  Focused tests pass (3), full discovery passes (187), and repair evidence is
++  preserved in the Phase 7 artifact directory.
+ 
+ ## Current
+-Phases 0 through 5 are approved after exact independent validator PASS. Phase 6
+-attempt 1 is implemented and tested but is not complete until independent validator
+-PASS. Phase 5 attempt 1 and repaired attempt 2 artifacts remain preserved.
++Phases 0 through 6 are approved after exact independent validator PASS. Phase 7
++repair attempt 2 is implemented and tested but is not complete until independent
++validator PASS. Earlier Phase 5 and Phase 7 artifacts remain preserved.
+ 
+ ## Next
+-Independently validate Phase 6. Do not advance to Phase 7 unless the validator
+-returns exact PASS.
++Independently revalidate repaired Phase 7. Do not advance to Phase 8 unless the
++validator returns exact PASS.
+diff --git a/artifacts/phase7/phase7_attempt_1_20260815T223000Z/repair_attempt_2_integrity.txt b/artifacts/phase7/phase7_attempt_1_20260815T223000Z/repair_attempt_2_integrity.txt
+new file mode 100644
+index 0000000000000000000000000000000000000000..dbc3bfa80ab5d0a1c37df0e60c271baef77c974e
+--- /dev/null
++++ b/artifacts/phase7/phase7_attempt_1_20260815T223000Z/repair_attempt_2_integrity.txt
+@@ -0,0 +1,27 @@
++Phase 7 repair attempt 2 artifact integrity evidence
++Date: 2026-08-15 UTC
++
++Diagnostics source: locked_test_predictions.csv (570 already-preserved rows)
++Selected model prediction column: selected_model (frozen selection: ridge)
++Residual definition: actual - selected_model
++Highest-error rows: 20, sorted by descending absolute_error
++
++Residual maximum absolute CSV round-trip delta: 1.1368683772161603e-13
++Absolute-error maximum absolute CSV round-trip delta: 1.1368683772161603e-13
++Highest-error ordering monotonic descending: true
++
++Unchanged source/model hashes before and after diagnostic generation:
++17941ef9f4367f82fa83abffbec637922139678a4e0370868924dbbb95a1e78e  locked_test_predictions.csv
++93d9946776975991a3917856210457b06aac70ebb678c3b065d18350e47bd03c  selected_model.joblib
++20eb486041522b9f93bdc20ae9a5ef03741ca7017e2f5976a171a4f1438ec2c6  linear_baseline.joblib
++
++Generated artifact hashes:
++09ca23d2414a7aae8714467c378b1abd04fdd767b281b067f97226cffa1cbc84  actual_vs_predicted_scatter.png
++c088808160353e92f4aae5eda2360eb0098d1edb53ba6cc502a9467985c75200  residual_vs_predicted.png
++d1d8eaf7e7dcc49fca21c0e347e468480b524f638f9271e183647f7bc1a4fb86  residual_distribution.png
++a0119d952d7a41e235b9668ecef0f615a0ae65d4e1a187490afc124d78683fd4  error_over_time.png
++55458ac5e51deef826ee100eedcf9f9ca8c8389184ea537f65c48dd2b368ad56  highest_error_dates.csv
++52b3fc151fc4fb98f7cea8ab87473fff8af90c9b393c3bce8c9b58ac151376c3  locked_test_diagnostics.csv
++
++No tuning, model selection, fitting, refitting, or additional locked-test model
++evaluation occurred during this repair.
+diff --git a/artifacts/phase7/phase7_attempt_1_20260815T223000Z/repair_attempt_2_test_evidence.txt b/artifacts/phase7/phase7_attempt_1_20260815T223000Z/repair_attempt_2_test_evidence.txt
+new file mode 100644
+index 0000000000000000000000000000000000000000..6b35f8d294035cd164abfcaa06b3301a3ae9c375
+--- /dev/null
++++ b/artifacts/phase7/phase7_attempt_1_20260815T223000Z/repair_attempt_2_test_evidence.txt
+@@ -0,0 +1,14 @@
++Phase 7 repair attempt 2 test evidence
++Date: 2026-08-15 UTC
++
++Focused command: PYTHONPATH=. pytest -q tests/test_phase7_locked_test_optuna.py
++Result: 3 passed, 8 warnings in 4.15s
++
++Full command: PYTHONPATH=. pytest -q
++Result: 187 passed, 42 warnings in 12.60s
++
++Repository whitespace validation: git diff --check
++Result: PASS (no output)
++
++The warnings were pre-existing joblib NumPy deprecation warnings and one Phase 6
++ElasticNet convergence warning. No test failed.
+diff --git a/experiments/phase7_locked_test_optuna.py b/experiments/phase7_locked_test_optuna.py
+index 83198219551bf0c2d5936d726c4c536ec02533d2..e951ec45c7ca50c4d231660ffefae8e5302152a1
+--- a/experiments/phase7_locked_test_optuna.py
++++ b/experiments/phase7_locked_test_optuna.py
+@@ -121,6 +121,75 @@
+     plt.close(figure)
+ 
+ 
++def save_locked_test_diagnostics(
++    predictions: pd.DataFrame,
++    selected_model: str,
++    output: Path,
++    highest_error_count: int = 20,
++) -> None:
++    """Create descriptive diagnostics from already-frozen test predictions only."""
++    required = {"Date", "actual", "selected_model"}
++    missing = required.difference(predictions.columns)
++    if missing:
++        raise ValueError(f"locked-test predictions are missing columns: {sorted(missing)}")
++    if highest_error_count < 1:
++        raise ValueError("highest_error_count must be positive")
++
++    diagnostics = predictions[["Date", "actual", "selected_model"]].copy()
++    diagnostics["residual"] = diagnostics["actual"] - diagnostics["selected_model"]
++    diagnostics["absolute_error"] = diagnostics["residual"].abs()
++    diagnostics.to_csv(output / "locked_test_diagnostics.csv", index=False, date_format="%Y-%m-%d")
++    diagnostics.nlargest(highest_error_count, "absolute_error").to_csv(
++        output / "highest_error_dates.csv", index=False, date_format="%Y-%m-%d"
++    )
++
++    figure, axis = plt.subplots(figsize=(7, 6))
++    axis.scatter(diagnostics["actual"], diagnostics["selected_model"], s=18, alpha=0.65)
++    bounds = [
++        min(diagnostics["actual"].min(), diagnostics["selected_model"].min()),
++        max(diagnostics["actual"].max(), diagnostics["selected_model"].max()),
++    ]
++    axis.plot(bounds, bounds, linestyle="--", color="black", linewidth=1, label="Ideal")
++    axis.set(title=f"Locked-test actual vs predicted: {selected_model}", xlabel="Actual", ylabel="Predicted")
++    axis.legend()
++    figure.tight_layout()
++    figure.savefig(output / "actual_vs_predicted_scatter.png", dpi=150)
++    plt.close(figure)
++
++    figure, axis = plt.subplots(figsize=(8, 5))
++    axis.scatter(diagnostics["selected_model"], diagnostics["residual"], s=18, alpha=0.65)
++    axis.axhline(0, linestyle="--", color="black", linewidth=1)
++    axis.set(title=f"Locked-test residuals: {selected_model}", xlabel="Predicted", ylabel="Residual (actual - predicted)")
++    figure.tight_layout()
++    figure.savefig(output / "residual_vs_predicted.png", dpi=150)
++    plt.close(figure)
++
++    figure, axis = plt.subplots(figsize=(8, 5))
++    residual_values = diagnostics["residual"].to_numpy(dtype=float)
++    residual_span = float(np.ptp(residual_values))
++    residual_scale = max(float(np.max(np.abs(residual_values))), 1.0)
++    if residual_span <= np.finfo(float).eps * residual_scale:
++        center = float(np.mean(residual_values))
++        half_width = max(abs(center) * 1e-6, 1.0)
++        histogram_bins: int | np.ndarray = np.array([center - half_width, center + half_width])
++    else:
++        histogram_bins = 30
++    axis.hist(residual_values, bins=histogram_bins)
++    axis.axvline(0, linestyle="--", color="black", linewidth=1)
++    axis.set(title=f"Locked-test residual distribution: {selected_model}", xlabel="Residual (actual - predicted)", ylabel="Count")
++    figure.tight_layout()
++    figure.savefig(output / "residual_distribution.png", dpi=150)
++    plt.close(figure)
++
++    figure, axis = plt.subplots(figsize=(12, 5))
++    axis.plot(diagnostics["Date"], diagnostics["residual"], linewidth=1)
++    axis.axhline(0, linestyle="--", color="black", linewidth=1)
++    axis.set(title=f"Locked-test error over time: {selected_model}", xlabel="Date", ylabel="Error (actual - predicted)")
++    figure.tight_layout()
++    figure.savefig(output / "error_over_time.png", dpi=150)
++    plt.close(figure)
++
++
+ def run_phase7_optuna(
+     phase2_dir: Path = DEFAULT_PHASE2_DIR,
+     phase3_dir: Path = DEFAULT_PHASE3_DIR,
+@@ -197,6 +266,7 @@
+     joblib.dump(selected_pipeline, output / "selected_model.joblib")
+     joblib.dump(linear, output / "linear_baseline.joblib")
+     _save_plot(predictions, selected_model, output / "locked_test_actual_vs_predicted.png")
++    save_locked_test_diagnostics(predictions, selected_model, output)
+ 
+     report = {
+         "phase": "Phase 7", "experiment": "Test 3 chronological 70/15/15 with Optuna",
+diff --git a/tests/test_phase7_locked_test_optuna.py b/tests/test_phase7_locked_test_optuna.py
+index 32b3a9e11cfd1cfe6bd03a9d439b308b1924705f..4253416ecd0ffebe58303a16e60899a4d8e4d0af
+--- a/tests/test_phase7_locked_test_optuna.py
++++ b/tests/test_phase7_locked_test_optuna.py
+@@ -30,6 +30,9 @@
+         "config.json", "execution.log", "optuna_trials.csv", "validation_metrics.csv",
+         "locked_test_metrics.csv", "locked_test_predictions.csv", "selected_model.joblib",
+         "linear_baseline.joblib", "locked_test_actual_vs_predicted.png", "split_and_selection_report.json",
++        "actual_vs_predicted_scatter.png", "residual_vs_predicted.png",
++        "residual_distribution.png", "error_over_time.png", "highest_error_dates.csv",
++        "locked_test_diagnostics.csv",
+     }
+     assert required.issubset(path.name for path in output.iterdir())
+     assert all((output / name).stat().st_size > 0 for name in required)
+@@ -44,6 +47,17 @@
+         "naive_lag_1", "linear_regression", report["selected_model"]
+     }
+     assert len(pd.read_csv(output / "locked_test_predictions.csv")) == 27
++    predictions = pd.read_csv(output / "locked_test_predictions.csv")
++    diagnostics = pd.read_csv(output / "locked_test_diagnostics.csv")
++    expected_residual = predictions["actual"] - predictions["selected_model"]
++    np.testing.assert_allclose(diagnostics["residual"], expected_residual)
++    np.testing.assert_allclose(diagnostics["absolute_error"], expected_residual.abs())
++    highest_errors = pd.read_csv(output / "highest_error_dates.csv")
++    np.testing.assert_allclose(
++        highest_errors["residual"], highest_errors["actual"] - highest_errors["selected_model"]
++    )
++    np.testing.assert_allclose(highest_errors["absolute_error"], highest_errors["residual"].abs())
++    assert highest_errors["absolute_error"].is_monotonic_decreasing
+ 
+ 
+ def test_locked_test_changes_cannot_change_trials_selection_or_fitted_preprocessing(tmp_path: Path) -> None:
+
+codex
+Full discovery passes: 187 tests. I’ve preserved the exact test results and integrity hashes alongside the repaired run, and updated project status to mark Phase 7 as awaiting independent revalidation—not complete. I’m doing the final scope/diff and artifact-presence review now.
+exec
+/bin/bash -lc "git diff --check && git status --short && find artifacts/phase7/phase7_attempt_1_20260815T223000Z -maxdepth 1 -type f -size 0 -print && sed -n '1,8p' artifacts/phase7/phase7_attempt_1_20260815T223000Z/highest_error_dates.csv && tail -24 STATUS.md" in /home/asus/projects/water-forecast
+ succeeded in 0ms:
+ M STATUS.md
+?? artifacts/phase7/
+?? experiments/phase7_locked_test_optuna.py
+?? tests/test_phase7_locked_test_optuna.py
+Date,actual,selected_model,residual,absolute_error
+2020-06-25,131057.1014,128428.6610851524,2628.4403148475976,2628.4403148475976
+2019-10-30,105484.2778,103001.62746881606,2482.6503311839333,2482.6503311839333
+2020-08-27,118444.7436,120738.83557564468,-2294.091975644682,2294.091975644682
+2019-11-08,106806.4989,104913.72265966152,1892.776240338484,1892.776240338484
+2020-06-04,117347.0183,115629.03859840236,1717.9797015976364,1717.9797015976364
+2019-10-03,106524.0207,108042.77029821972,-1518.7495982197288,1518.7495982197288
+2019-07-03,117178.7424,118669.46496083456,-1490.7225608345616,1490.7225608345616
+  with `TimeSeriesSplit`. The naive lag-1 baseline and all ten approved traditional
+  models are evaluated independently in every fold; preprocessing is fitted only on
+  each fold's training prefix. Fold metrics/predictions/models, aggregate mean and
+  sample-standard-deviation metrics, split evidence, diagnostics, configuration,
+  hashes, seeds, and logs are preserved under
+  `artifacts/phase6/phase6_attempt_1_20260815T233000Z/`. Focused tests pass (3),
+  full discovery passes (184), and no tuning or improvement claim was made.
+- Independent Phase 6 validation returned PASS. Phase 7 attempt 1 then completed
+  validation-only Optuna selection and one frozen locked-test evaluation. Repair
+  attempt 2 added the evaluation artifacts required by `EXPERIMENT_PLAN.md` from
+  the already-preserved predictions only: actual-vs-predicted scatter,
+  residual-vs-predicted, residual distribution, error-over-time, highest-error
+  dates, and row-level diagnostics. The prediction and model hashes are unchanged.
+  Focused tests pass (3), full discovery passes (187), and repair evidence is
+  preserved in the Phase 7 artifact directory.
+
+## Current
+Phases 0 through 6 are approved after exact independent validator PASS. Phase 7
+repair attempt 2 is implemented and tested but is not complete until independent
+validator PASS. Earlier Phase 5 and Phase 7 artifacts remain preserved.
+
+## Next
+Independently revalidate repaired Phase 7. Do not advance to Phase 8 unless the
+validator returns exact PASS.
+
+diff --git a/STATUS.md b/STATUS.md
+index 36a171661b3c11546320d88e4519eccd6e7e24dd..40f27fe60e5822a3c20108b87d323993a5fe1ef0
+--- a/STATUS.md
++++ b/STATUS.md
+@@ -152,12 +152,20 @@
+   hashes, seeds, and logs are preserved under
+   `artifacts/phase6/phase6_attempt_1_20260815T233000Z/`. Focused tests pass (3),
+   full discovery passes (184), and no tuning or improvement claim was made.
++- Independent Phase 6 validation returned PASS. Phase 7 attempt 1 then completed
++  validation-only Optuna selection and one frozen locked-test evaluation. Repair
++  attempt 2 added the evaluation artifacts required by `EXPERIMENT_PLAN.md` from
++  the already-preserved predictions only: actual-vs-predicted scatter,
++  residual-vs-predicted, residual distribution, error-over-time, highest-error
++  dates, and row-level diagnostics. The prediction and model hashes are unchanged.
++  Focused tests pass (3), full discovery passes (187), and repair evidence is
++  preserved in the Phase 7 artifact directory.
+ 
+ ## Current
+-Phases 0 through 5 are approved after exact independent validator PASS. Phase 6
+-attempt 1 is implemented and tested but is not complete until independent validator
+-PASS. Phase 5 attempt 1 and repaired attempt 2 artifacts remain preserved.
++Phases 0 through 6 are approved after exact independent validator PASS. Phase 7
++repair attempt 2 is implemented and tested but is not complete until independent
++validator PASS. Earlier Phase 5 and Phase 7 artifacts remain preserved.
+ 
+ ## Next
+-Independently validate Phase 6. Do not advance to Phase 7 unless the validator
+-returns exact PASS.
++Independently revalidate repaired Phase 7. Do not advance to Phase 8 unless the
++validator returns exact PASS.
+diff --git a/artifacts/phase7/phase7_attempt_1_20260815T223000Z/repair_attempt_2_integrity.txt b/artifacts/phase7/phase7_attempt_1_20260815T223000Z/repair_attempt_2_integrity.txt
+new file mode 100644
+index 0000000000000000000000000000000000000000..dbc3bfa80ab5d0a1c37df0e60c271baef77c974e
+--- /dev/null
++++ b/artifacts/phase7/phase7_attempt_1_20260815T223000Z/repair_attempt_2_integrity.txt
+@@ -0,0 +1,27 @@
++Phase 7 repair attempt 2 artifact integrity evidence
++Date: 2026-08-15 UTC
++
++Diagnostics source: locked_test_predictions.csv (570 already-preserved rows)
++Selected model prediction column: selected_model (frozen selection: ridge)
++Residual definition: actual - selected_model
++Highest-error rows: 20, sorted by descending absolute_error
++
++Residual maximum absolute CSV round-trip delta: 1.1368683772161603e-13
++Absolute-error maximum absolute CSV round-trip delta: 1.1368683772161603e-13
++Highest-error ordering monotonic descending: true
++
++Unchanged source/model hashes before and after diagnostic generation:
++17941ef9f4367f82fa83abffbec637922139678a4e0370868924dbbb95a1e78e  locked_test_predictions.csv
++93d9946776975991a3917856210457b06aac70ebb678c3b065d18350e47bd03c  selected_model.joblib
++20eb486041522b9f93bdc20ae9a5ef03741ca7017e2f5976a171a4f1438ec2c6  linear_baseline.joblib
++
++Generated artifact hashes:
++09ca23d2414a7aae8714467c378b1abd04fdd767b281b067f97226cffa1cbc84  actual_vs_predicted_scatter.png
++c088808160353e92f4aae5eda2360eb0098d1edb53ba6cc502a9467985c75200  residual_vs_predicted.png
++d1d8eaf7e7dcc49fca21c0e347e468480b524f638f9271e183647f7bc1a4fb86  residual_distribution.png
++a0119d952d7a41e235b9668ecef0f615a0ae65d4e1a187490afc124d78683fd4  error_over_time.png
++55458ac5e51deef826ee100eedcf9f9ca8c8389184ea537f65c48dd2b368ad56  highest_error_dates.csv
++52b3fc151fc4fb98f7cea8ab87473fff8af90c9b393c3bce8c9b58ac151376c3  locked_test_diagnostics.csv
++
++No tuning, model selection, fitting, refitting, or additional locked-test model
++evaluation occurred during this repair.
+diff --git a/artifacts/phase7/phase7_attempt_1_20260815T223000Z/repair_attempt_2_test_evidence.txt b/artifacts/phase7/phase7_attempt_1_20260815T223000Z/repair_attempt_2_test_evidence.txt
+new file mode 100644
+index 0000000000000000000000000000000000000000..6b35f8d294035cd164abfcaa06b3301a3ae9c375
+--- /dev/null
++++ b/artifacts/phase7/phase7_attempt_1_20260815T223000Z/repair_attempt_2_test_evidence.txt
+@@ -0,0 +1,14 @@
++Phase 7 repair attempt 2 test evidence
++Date: 2026-08-15 UTC
++
++Focused command: PYTHONPATH=. pytest -q tests/test_phase7_locked_test_optuna.py
++Result: 3 passed, 8 warnings in 4.15s
++
++Full command: PYTHONPATH=. pytest -q
++Result: 187 passed, 42 warnings in 12.60s
++
++Repository whitespace validation: git diff --check
++Result: PASS (no output)
++
++The warnings were pre-existing joblib NumPy deprecation warnings and one Phase 6
++ElasticNet convergence warning. No test failed.
+diff --git a/experiments/phase7_locked_test_optuna.py b/experiments/phase7_locked_test_optuna.py
+index 83198219551bf0c2d5936d726c4c536ec02533d2..e951ec45c7ca50c4d231660ffefae8e5302152a1
+--- a/experiments/phase7_locked_test_optuna.py
++++ b/experiments/phase7_locked_test_optuna.py
+@@ -121,6 +121,75 @@
+     plt.close(figure)
+ 
+ 
++def save_locked_test_diagnostics(
++    predictions: pd.DataFrame,
++    selected_model: str,
++    output: Path,
++    highest_error_count: int = 20,
++) -> None:
++    """Create descriptive diagnostics from already-frozen test predictions only."""
++    required = {"Date", "actual", "selected_model"}
++    missing = required.difference(predictions.columns)
++    if missing:
++        raise ValueError(f"locked-test predictions are missing columns: {sorted(missing)}")
++    if highest_error_count < 1:
++        raise ValueError("highest_error_count must be positive")
++
++    diagnostics = predictions[["Date", "actual", "selected_model"]].copy()
++    diagnostics["residual"] = diagnostics["actual"] - diagnostics["selected_model"]
++    diagnostics["absolute_error"] = diagnostics["residual"].abs()
++    diagnostics.to_csv(output / "locked_test_diagnostics.csv", index=False, date_format="%Y-%m-%d")
++    diagnostics.nlargest(highest_error_count, "absolute_error").to_csv(
++        output / "highest_error_dates.csv", index=False, date_format="%Y-%m-%d"
++    )
++
++    figure, axis = plt.subplots(figsize=(7, 6))
++    axis.scatter(diagnostics["actual"], diagnostics["selected_model"], s=18, alpha=0.65)
++    bounds = [
++        min(diagnostics["actual"].min(), diagnostics["selected_model"].min()),
++        max(diagnostics["actual"].max(), diagnostics["selected_model"].max()),
++    ]
++    axis.plot(bounds, bounds, linestyle="--", color="black", linewidth=1, label="Ideal")
++    axis.set(title=f"Locked-test actual vs predicted: {selected_model}", xlabel="Actual", ylabel="Predicted")
++    axis.legend()
++    figure.tight_layout()
++    figure.savefig(output / "actual_vs_predicted_scatter.png", dpi=150)
++    plt.close(figure)
++
++    figure, axis = plt.subplots(figsize=(8, 5))
++    axis.scatter(diagnostics["selected_model"], diagnostics["residual"], s=18, alpha=0.65)
++    axis.axhline(0, linestyle="--", color="black", linewidth=1)
++    axis.set(title=f"Locked-test residuals: {selected_model}", xlabel="Predicted", ylabel="Residual (actual - predicted)")
++    figure.tight_layout()
++    figure.savefig(output / "residual_vs_predicted.png", dpi=150)
++    plt.close(figure)
++
++    figure, axis = plt.subplots(figsize=(8, 5))
++    residual_values = diagnostics["residual"].to_numpy(dtype=float)
++    residual_span = float(np.ptp(residual_values))
++    residual_scale = max(float(np.max(np.abs(residual_values))), 1.0)
++    if residual_span <= np.finfo(float).eps * residual_scale:
++        center = float(np.mean(residual_values))
++        half_width = max(abs(center) * 1e-6, 1.0)
++        histogram_bins: int | np.ndarray = np.array([center - half_width, center + half_width])
++    else:
++        histogram_bins = 30
++    axis.hist(residual_values, bins=histogram_bins)
++    axis.axvline(0, linestyle="--", color="black", linewidth=1)
++    axis.set(title=f"Locked-test residual distribution: {selected_model}", xlabel="Residual (actual - predicted)", ylabel="Count")
++    figure.tight_layout()
++    figure.savefig(output / "residual_distribution.png", dpi=150)
++    plt.close(figure)
++
++    figure, axis = plt.subplots(figsize=(12, 5))
++    axis.plot(diagnostics["Date"], diagnostics["residual"], linewidth=1)
++    axis.axhline(0, linestyle="--", color="black", linewidth=1)
++    axis.set(title=f"Locked-test error over time: {selected_model}", xlabel="Date", ylabel="Error (actual - predicted)")
++    figure.tight_layout()
++    figure.savefig(output / "error_over_time.png", dpi=150)
++    plt.close(figure)
++
++
+ def run_phase7_optuna(
+     phase2_dir: Path = DEFAULT_PHASE2_DIR,
+     phase3_dir: Path = DEFAULT_PHASE3_DIR,
+@@ -197,6 +266,7 @@
+     joblib.dump(selected_pipeline, output / "selected_model.joblib")
+     joblib.dump(linear, output / "linear_baseline.joblib")
+     _save_plot(predictions, selected_model, output / "locked_test_actual_vs_predicted.png")
++    save_locked_test_diagnostics(predictions, selected_model, output)
+ 
+     report = {
+         "phase": "Phase 7", "experiment": "Test 3 chronological 70/15/15 with Optuna",
+diff --git a/tests/test_phase7_locked_test_optuna.py b/tests/test_phase7_locked_test_optuna.py
+index 32b3a9e11cfd1cfe6bd03a9d439b308b1924705f..4253416ecd0ffebe58303a16e60899a4d8e4d0af
+--- a/tests/test_phase7_locked_test_optuna.py
++++ b/tests/test_phase7_locked_test_optuna.py
+@@ -30,6 +30,9 @@
+         "config.json", "execution.log", "optuna_trials.csv", "validation_metrics.csv",
+         "locked_test_metrics.csv", "locked_test_predictions.csv", "selected_model.joblib",
+         "linear_baseline.joblib", "locked_test_actual_vs_predicted.png", "split_and_selection_report.json",
++        "actual_vs_predicted_scatter.png", "residual_vs_predicted.png",
++        "residual_distribution.png", "error_over_time.png", "highest_error_dates.csv",
++        "locked_test_diagnostics.csv",
+     }
+     assert required.issubset(path.name for path in output.iterdir())
+     assert all((output / name).stat().st_size > 0 for name in required)
+@@ -44,6 +47,17 @@
+         "naive_lag_1", "linear_regression", report["selected_model"]
+     }
+     assert len(pd.read_csv(output / "locked_test_predictions.csv")) == 27
++    predictions = pd.read_csv(output / "locked_test_predictions.csv")
++    diagnostics = pd.read_csv(output / "locked_test_diagnostics.csv")
++    expected_residual = predictions["actual"] - predictions["selected_model"]
++    np.testing.assert_allclose(diagnostics["residual"], expected_residual)
++    np.testing.assert_allclose(diagnostics["absolute_error"], expected_residual.abs())
++    highest_errors = pd.read_csv(output / "highest_error_dates.csv")
++    np.testing.assert_allclose(
++        highest_errors["residual"], highest_errors["actual"] - highest_errors["selected_model"]
++    )
++    np.testing.assert_allclose(highest_errors["absolute_error"], highest_errors["residual"].abs())
++    assert highest_errors["absolute_error"].is_monotonic_decreasing
+ 
+ 
+ def test_locked_test_changes_cannot_change_trials_selection_or_fitted_preprocessing(tmp_path: Path) -> None:
+
+codex
+Phase 7 repair attempt 2 is ready for independent revalidation.
+
+Changes:
+
+- Added reproducible generation of:
+  - Actual-vs-predicted scatter
+  - Residual-vs-predicted plot
+  - Residual distribution
+  - Error-over-time plot
+  - Highest-error dates table
+  - Row-level locked-test diagnostics
+- Added tests confirming artifacts are non-empty and:
+  - `residual = actual - selected_model`
+  - `absolute_error = abs(residual)`
+  - Highest-error rows are descending by absolute error
+- Generated artifacts solely from the preserved 570 locked-test predictions.
+- Confirmed prediction and saved-model hashes remained unchanged.
+- Updated `STATUS.md` to await validator PASS.
+
+Evidence:
+
+- Focused: `3 passed`
+- Full suite: `187 passed`
+- `git diff --check`: passed
+- No empty Phase 7 artifacts
+- Test and integrity evidence saved under [Phase 7 artifacts](/home/asus/projects/water-forecast/artifacts/phase7/phase7_attempt_1_20260815T223000Z)
+- Implementation: [phase7_locked_test_optuna.py](/home/asus/projects/water-forecast/experiments/phase7_locked_test_optuna.py)
+- Tests: [test_phase7_locked_test_optuna.py](/home/asus/projects/water-forecast/tests/test_phase7_locked_test_optuna.py)
+
+No tuning, selection, fitting, refitting, or additional locked-test model evaluation occurred.
+diff --git a/STATUS.md b/STATUS.md
+index 36a171661b3c11546320d88e4519eccd6e7e24dd..40f27fe60e5822a3c20108b87d323993a5fe1ef0
+--- a/STATUS.md
++++ b/STATUS.md
+@@ -152,12 +152,20 @@
+   hashes, seeds, and logs are preserved under
+   `artifacts/phase6/phase6_attempt_1_20260815T233000Z/`. Focused tests pass (3),
+   full discovery passes (184), and no tuning or improvement claim was made.
++- Independent Phase 6 validation returned PASS. Phase 7 attempt 1 then completed
++  validation-only Optuna selection and one frozen locked-test evaluation. Repair
++  attempt 2 added the evaluation artifacts required by `EXPERIMENT_PLAN.md` from
++  the already-preserved predictions only: actual-vs-predicted scatter,
++  residual-vs-predicted, residual distribution, error-over-time, highest-error
++  dates, and row-level diagnostics. The prediction and model hashes are unchanged.
++  Focused tests pass (3), full discovery passes (187), and repair evidence is
++  preserved in the Phase 7 artifact directory.
+ 
+ ## Current
+-Phases 0 through 5 are approved after exact independent validator PASS. Phase 6
+-attempt 1 is implemented and tested but is not complete until independent validator
+-PASS. Phase 5 attempt 1 and repaired attempt 2 artifacts remain preserved.
++Phases 0 through 6 are approved after exact independent validator PASS. Phase 7
++repair attempt 2 is implemented and tested but is not complete until independent
++validator PASS. Earlier Phase 5 and Phase 7 artifacts remain preserved.
+ 
+ ## Next
+-Independently validate Phase 6. Do not advance to Phase 7 unless the validator
+-returns exact PASS.
++Independently revalidate repaired Phase 7. Do not advance to Phase 8 unless the
++validator returns exact PASS.
+diff --git a/artifacts/phase7/phase7_attempt_1_20260815T223000Z/repair_attempt_2_integrity.txt b/artifacts/phase7/phase7_attempt_1_20260815T223000Z/repair_attempt_2_integrity.txt
+new file mode 100644
+index 0000000000000000000000000000000000000000..dbc3bfa80ab5d0a1c37df0e60c271baef77c974e
+--- /dev/null
++++ b/artifacts/phase7/phase7_attempt_1_20260815T223000Z/repair_attempt_2_integrity.txt
+@@ -0,0 +1,27 @@
++Phase 7 repair attempt 2 artifact integrity evidence
++Date: 2026-08-15 UTC
++
++Diagnostics source: locked_test_predictions.csv (570 already-preserved rows)
++Selected model prediction column: selected_model (frozen selection: ridge)
++Residual definition: actual - selected_model
++Highest-error rows: 20, sorted by descending absolute_error
++
++Residual maximum absolute CSV round-trip delta: 1.1368683772161603e-13
++Absolute-error maximum absolute CSV round-trip delta: 1.1368683772161603e-13
++Highest-error ordering monotonic descending: true
++
++Unchanged source/model hashes before and after diagnostic generation:
++17941ef9f4367f82fa83abffbec637922139678a4e0370868924dbbb95a1e78e  locked_test_predictions.csv
++93d9946776975991a3917856210457b06aac70ebb678c3b065d18350e47bd03c  selected_model.joblib
++20eb486041522b9f93bdc20ae9a5ef03741ca7017e2f5976a171a4f1438ec2c6  linear_baseline.joblib
++
++Generated artifact hashes:
++09ca23d2414a7aae8714467c378b1abd04fdd767b281b067f97226cffa1cbc84  actual_vs_predicted_scatter.png
++c088808160353e92f4aae5eda2360eb0098d1edb53ba6cc502a9467985c75200  residual_vs_predicted.png
++d1d8eaf7e7dcc49fca21c0e347e468480b524f638f9271e183647f7bc1a4fb86  residual_distribution.png
++a0119d952d7a41e235b9668ecef0f615a0ae65d4e1a187490afc124d78683fd4  error_over_time.png
++55458ac5e51deef826ee100eedcf9f9ca8c8389184ea537f65c48dd2b368ad56  highest_error_dates.csv
++52b3fc151fc4fb98f7cea8ab87473fff8af90c9b393c3bce8c9b58ac151376c3  locked_test_diagnostics.csv
++
++No tuning, model selection, fitting, refitting, or additional locked-test model
++evaluation occurred during this repair.
+diff --git a/artifacts/phase7/phase7_attempt_1_20260815T223000Z/repair_attempt_2_test_evidence.txt b/artifacts/phase7/phase7_attempt_1_20260815T223000Z/repair_attempt_2_test_evidence.txt
+new file mode 100644
+index 0000000000000000000000000000000000000000..6b35f8d294035cd164abfcaa06b3301a3ae9c375
+--- /dev/null
++++ b/artifacts/phase7/phase7_attempt_1_20260815T223000Z/repair_attempt_2_test_evidence.txt
+@@ -0,0 +1,14 @@
++Phase 7 repair attempt 2 test evidence
++Date: 2026-08-15 UTC
++
++Focused command: PYTHONPATH=. pytest -q tests/test_phase7_locked_test_optuna.py
++Result: 3 passed, 8 warnings in 4.15s
++
++Full command: PYTHONPATH=. pytest -q
++Result: 187 passed, 42 warnings in 12.60s
++
++Repository whitespace validation: git diff --check
++Result: PASS (no output)
++
++The warnings were pre-existing joblib NumPy deprecation warnings and one Phase 6
++ElasticNet convergence warning. No test failed.
+diff --git a/experiments/phase7_locked_test_optuna.py b/experiments/phase7_locked_test_optuna.py
+index 83198219551bf0c2d5936d726c4c536ec02533d2..e951ec45c7ca50c4d231660ffefae8e5302152a1
+--- a/experiments/phase7_locked_test_optuna.py
++++ b/experiments/phase7_locked_test_optuna.py
+@@ -121,6 +121,75 @@
+     plt.close(figure)
+ 
+ 
++def save_locked_test_diagnostics(
++    predictions: pd.DataFrame,
++    selected_model: str,
++    output: Path,
++    highest_error_count: int = 20,
++) -> None:
++    """Create descriptive diagnostics from already-frozen test predictions only."""
++    required = {"Date", "actual", "selected_model"}
++    missing = required.difference(predictions.columns)
++    if missing:
++        raise ValueError(f"locked-test predictions are missing columns: {sorted(missing)}")
++    if highest_error_count < 1:
++        raise ValueError("highest_error_count must be positive")
++
++    diagnostics = predictions[["Date", "actual", "selected_model"]].copy()
++    diagnostics["residual"] = diagnostics["actual"] - diagnostics["selected_model"]
++    diagnostics["absolute_error"] = diagnostics["residual"].abs()
++    diagnostics.to_csv(output / "locked_test_diagnostics.csv", index=False, date_format="%Y-%m-%d")
++    diagnostics.nlargest(highest_error_count, "absolute_error").to_csv(
++        output / "highest_error_dates.csv", index=False, date_format="%Y-%m-%d"
++    )
++
++    figure, axis = plt.subplots(figsize=(7, 6))
++    axis.scatter(diagnostics["actual"], diagnostics["selected_model"], s=18, alpha=0.65)
++    bounds = [
++        min(diagnostics["actual"].min(), diagnostics["selected_model"].min()),
++        max(diagnostics["actual"].max(), diagnostics["selected_model"].max()),
++    ]
++    axis.plot(bounds, bounds, linestyle="--", color="black", linewidth=1, label="Ideal")
++    axis.set(title=f"Locked-test actual vs predicted: {selected_model}", xlabel="Actual", ylabel="Predicted")
++    axis.legend()
++    figure.tight_layout()
++    figure.savefig(output / "actual_vs_predicted_scatter.png", dpi=150)
++    plt.close(figure)
++
++    figure, axis = plt.subplots(figsize=(8, 5))
++    axis.scatter(diagnostics["selected_model"], diagnostics["residual"], s=18, alpha=0.65)
++    axis.axhline(0, linestyle="--", color="black", linewidth=1)
++    axis.set(title=f"Locked-test residuals: {selected_model}", xlabel="Predicted", ylabel="Residual (actual - predicted)")
++    figure.tight_layout()
++    figure.savefig(output / "residual_vs_predicted.png", dpi=150)
++    plt.close(figure)
++
++    figure, axis = plt.subplots(figsize=(8, 5))
++    residual_values = diagnostics["residual"].to_numpy(dtype=float)
++    residual_span = float(np.ptp(residual_values))
++    residual_scale = max(float(np.max(np.abs(residual_values))), 1.0)
++    if residual_span <= np.finfo(float).eps * residual_scale:
++        center = float(np.mean(residual_values))
++        half_width = max(abs(center) * 1e-6, 1.0)
++        histogram_bins: int | np.ndarray = np.array([center - half_width, center + half_width])
++    else:
++        histogram_bins = 30
++    axis.hist(residual_values, bins=histogram_bins)
++    axis.axvline(0, linestyle="--", color="black", linewidth=1)
++    axis.set(title=f"Locked-test residual distribution: {selected_model}", xlabel="Residual (actual - predicted)", ylabel="Count")
++    figure.tight_layout()
++    figure.savefig(output / "residual_distribution.png", dpi=150)
++    plt.close(figure)
++
++    figure, axis = plt.subplots(figsize=(12, 5))
++    axis.plot(diagnostics["Date"], diagnostics["residual"], linewidth=1)
++    axis.axhline(0, linestyle="--", color="black", linewidth=1)
++    axis.set(title=f"Locked-test error over time: {selected_model}", xlabel="Date", ylabel="Error (actual - predicted)")
++    figure.tight_layout()
++    figure.savefig(output / "error_over_time.png", dpi=150)
++    plt.close(figure)
++
++
+ def run_phase7_optuna(
+     phase2_dir: Path = DEFAULT_PHASE2_DIR,
+     phase3_dir: Path = DEFAULT_PHASE3_DIR,
+@@ -197,6 +266,7 @@
+     joblib.dump(selected_pipeline, output / "selected_model.joblib")
+     joblib.dump(linear, output / "linear_baseline.joblib")
+     _save_plot(predictions, selected_model, output / "locked_test_actual_vs_predicted.png")
++    save_locked_test_diagnostics(predictions, selected_model, output)
+ 
+     report = {
+         "phase": "Phase 7", "experiment": "Test 3 chronological 70/15/15 with Optuna",
+diff --git a/tests/test_phase7_locked_test_optuna.py b/tests/test_phase7_locked_test_optuna.py
+index 32b3a9e11cfd1cfe6bd03a9d439b308b1924705f..4253416ecd0ffebe58303a16e60899a4d8e4d0af
+--- a/tests/test_phase7_locked_test_optuna.py
++++ b/tests/test_phase7_locked_test_optuna.py
+@@ -30,6 +30,9 @@
+         "config.json", "execution.log", "optuna_trials.csv", "validation_metrics.csv",
+         "locked_test_metrics.csv", "locked_test_predictions.csv", "selected_model.joblib",
+         "linear_baseline.joblib", "locked_test_actual_vs_predicted.png", "split_and_selection_report.json",
++        "actual_vs_predicted_scatter.png", "residual_vs_predicted.png",
++        "residual_distribution.png", "error_over_time.png", "highest_error_dates.csv",
++        "locked_test_diagnostics.csv",
+     }
+     assert required.issubset(path.name for path in output.iterdir())
+     assert all((output / name).stat().st_size > 0 for name in required)
+@@ -44,6 +47,17 @@
+         "naive_lag_1", "linear_regression", report["selected_model"]
+     }
+     assert len(pd.read_csv(output / "locked_test_predictions.csv")) == 27
++    predictions = pd.read_csv(output / "locked_test_predictions.csv")
++    diagnostics = pd.read_csv(output / "locked_test_diagnostics.csv")
++    expected_residual = predictions["actual"] - predictions["selected_model"]
++    np.testing.assert_allclose(diagnostics["residual"], expected_residual)
++    np.testing.assert_allclose(diagnostics["absolute_error"], expected_residual.abs())
++    highest_errors = pd.read_csv(output / "highest_error_dates.csv")
++    np.testing.assert_allclose(
++        highest_errors["residual"], highest_errors["actual"] - highest_errors["selected_model"]
++    )
++    np.testing.assert_allclose(highest_errors["absolute_error"], highest_errors["residual"].abs())
++    assert highest_errors["absolute_error"].is_monotonic_decreasing
+ 
+ 
+ def test_locked_test_changes_cannot_change_trials_selection_or_fitted_preprocessing(tmp_path: Path) -> None:
+
+tokens used
+49,275

@@ -1,0 +1,149 @@
+2026-08-16 10:55:21,847 [INFO] DELHI ML PIPELINE: Starting Phase 0-13
+2026-08-16 10:55:21,847 [INFO] Dataset: /home/asus/projects/water-forecast/data/cities/delhi/canonical/water_demand.csv
+2026-08-16 10:55:21,847 [INFO] Artifacts: /home/asus/projects/water-forecast/artifacts/cities/delhi
+2026-08-16 10:55:21,847 [INFO] Checkpoints: /home/asus/projects/water-forecast/orchestration/state/cities/delhi/checkpoints
+2026-08-16 10:55:23,423 [INFO] ============================================================
+2026-08-16 10:55:23,423 [INFO] PHASE 0: Baseline Reproduction
+2026-08-16 10:55:23,423 [INFO] ============================================================
+2026-08-16 10:55:23,612 [INFO] Phase 0 artifacts: /home/asus/projects/water-forecast/artifacts/cities/delhi/phase0/delhi_baseline
+2026-08-16 10:55:23,613 [INFO] Checkpoint written: /home/asus/projects/water-forecast/orchestration/state/cities/delhi/checkpoints/phase_0_passed.json
+2026-08-16 10:55:23,614 [INFO] ============================================================
+2026-08-16 10:55:23,614 [INFO] PHASE 1: Data Analysis and EDA
+2026-08-16 10:55:23,614 [INFO] ============================================================
+2026-08-16 10:55:23,971 [INFO] Phase 1 artifacts: /home/asus/projects/water-forecast/artifacts/cities/delhi/phase1/delhi_eda
+2026-08-16 10:55:23,971 [INFO] Checkpoint written: /home/asus/projects/water-forecast/orchestration/state/cities/delhi/checkpoints/phase_1_passed.json
+2026-08-16 10:55:23,988 [INFO] ============================================================
+2026-08-16 10:55:23,988 [INFO] PHASE 2: Feature Engineering (India Calendar)
+2026-08-16 10:55:23,988 [INFO] ============================================================
+2026-08-16 10:55:24,175 [INFO] Phase 2 artifacts: /home/asus/projects/water-forecast/artifacts/cities/delhi/phase2/delhi_features
+2026-08-16 10:55:24,175 [INFO] Checkpoint written: /home/asus/projects/water-forecast/orchestration/state/cities/delhi/checkpoints/phase_2_passed.json
+2026-08-16 10:55:24,228 [INFO] ============================================================
+2026-08-16 10:55:24,229 [INFO] PHASE 3: Feature Selection
+2026-08-16 10:55:24,229 [INFO] ============================================================
+2026-08-16 10:55:30,445 [INFO] Phase 3 artifacts: /home/asus/projects/water-forecast/artifacts/cities/delhi/phase3/delhi_selection
+2026-08-16 10:55:30,445 [INFO] Checkpoint written: /home/asus/projects/water-forecast/orchestration/state/cities/delhi/checkpoints/phase_3_passed.json
+2026-08-16 10:55:30,451 [INFO] ============================================================
+2026-08-16 10:55:30,451 [INFO] PHASE 4: Traditional ML Models
+2026-08-16 10:55:30,451 [INFO] ============================================================
+2026-08-16 10:55:31,872 [INFO] Phase 4 artifacts: /home/asus/projects/water-forecast/artifacts/cities/delhi/phase4/delhi_ml
+2026-08-16 10:55:31,872 [INFO] Checkpoint written: /home/asus/projects/water-forecast/orchestration/state/cities/delhi/checkpoints/phase_4_passed.json
+2026-08-16 10:55:31,874 [INFO] ============================================================
+2026-08-16 10:55:31,874 [INFO] PHASE 5: Chronological Holdout
+2026-08-16 10:55:31,874 [INFO] ============================================================
+2026-08-16 10:55:34,202 [INFO] Phase 5 artifacts: /home/asus/projects/water-forecast/artifacts/cities/delhi/phase5/delhi_holdout
+2026-08-16 10:55:34,203 [INFO] Checkpoint written: /home/asus/projects/water-forecast/orchestration/state/cities/delhi/checkpoints/phase_5_passed.json
+2026-08-16 10:55:34,204 [INFO] ============================================================
+2026-08-16 10:55:34,204 [INFO] PHASE 6: Time-Aware Cross-Validation
+2026-08-16 10:55:34,204 [INFO] ============================================================
+2026-08-16 10:55:40,550 [INFO] Phase 6 artifacts: /home/asus/projects/water-forecast/artifacts/cities/delhi/phase6/delhi_cv
+2026-08-16 10:55:40,550 [INFO] Checkpoint written: /home/asus/projects/water-forecast/orchestration/state/cities/delhi/checkpoints/phase_6_passed.json
+2026-08-16 10:55:40,597 [INFO] ============================================================
+2026-08-16 10:55:40,597 [INFO] PHASE 7: Locked-Test Optuna Tuning
+2026-08-16 10:55:40,597 [INFO] ============================================================
+2026-08-16 10:55:50,064 [INFO] Phase 7 artifacts: /home/asus/projects/water-forecast/artifacts/cities/delhi/phase7/delhi_optuna
+2026-08-16 10:55:50,064 [INFO] Checkpoint written: /home/asus/projects/water-forecast/orchestration/state/cities/delhi/checkpoints/phase_7_passed.json
+2026-08-16 10:55:50,067 [INFO] ============================================================
+2026-08-16 10:55:50,067 [INFO] PHASE 8: Time-Series CV + Optuna
+2026-08-16 10:55:50,067 [INFO] ============================================================
+2026-08-16 10:59:49,383 [INFO] Phase 8 artifacts: /home/asus/projects/water-forecast/artifacts/cities/delhi/phase8/delhi_cvoptuna
+2026-08-16 10:59:49,384 [INFO] Checkpoint written: /home/asus/projects/water-forecast/orchestration/state/cities/delhi/checkpoints/phase_8_passed.json
+2026-08-16 10:59:49,512 [INFO] ============================================================
+2026-08-16 10:59:49,512 [INFO] PHASE 9: Time-Series Baselines
+2026-08-16 10:59:49,512 [INFO] ============================================================
+2026-08-16 10:59:49,893 [ERROR] Importing plotly failed. Interactive plots will not work.
+2026-08-16 10:59:49,951 [INFO] Chain [1] start processing
+2026-08-16 10:59:49,981 [INFO] Chain [1] done processing
+2026-08-16 11:00:08,398 [INFO] Phase 9 artifacts: /home/asus/projects/water-forecast/artifacts/cities/delhi/phase9/delhi_timeseries
+2026-08-16 11:00:08,398 [INFO] Checkpoint written: /home/asus/projects/water-forecast/orchestration/state/cities/delhi/checkpoints/phase_9_passed.json
+2026-08-16 11:00:08,400 [INFO] ============================================================
+2026-08-16 11:00:08,400 [INFO] PHASE 10: PatchTST Modern Forecasting
+2026-08-16 11:00:08,400 [INFO] ============================================================
+2026-08-16 11:00:22,886 [INFO] Phase 10 artifacts: /home/asus/projects/water-forecast/artifacts/cities/delhi/phase10/delhi_patchtst
+2026-08-16 11:00:22,886 [INFO] Checkpoint written: /home/asus/projects/water-forecast/orchestration/state/cities/delhi/checkpoints/phase_10_passed.json
+2026-08-16 11:00:22,886 [INFO] ============================================================
+2026-08-16 11:00:22,886 [INFO] PHASE 11: Dashboard (checkpoint only)
+2026-08-16 11:00:22,887 [INFO] ============================================================
+2026-08-16 11:00:22,887 [INFO] Checkpoint written: /home/asus/projects/water-forecast/orchestration/state/cities/delhi/checkpoints/phase_11_passed.json
+2026-08-16 11:00:24,481 [INFO] Using config path: /home/asus/.config/crewai/settings.json
+2026-08-16 11:00:24,655 [INFO] ============================================================
+2026-08-16 11:00:24,655 [INFO] PHASE 12: Full Validation Audit
+2026-08-16 11:00:24,656 [INFO] ============================================================
+2026-08-16 11:00:24,658 [ERROR] Phase 12 FAILED: EvaluationSpec.__init__() got an unexpected keyword argument 'phase'
+2026-08-16 11:00:24,659 [INFO] ============================================================
+2026-08-16 11:00:24,659 [INFO] PHASE 13: Documentation and Final Artifacts
+2026-08-16 11:00:24,659 [INFO] ============================================================
+2026-08-16 11:00:24,660 [ERROR] Phase 13 FAILED: missing prerequisite checkpoint: /home/asus/projects/water-forecast/orchestration/state/cities/delhi/checkpoints/phase_12_passed.json
+2026-08-16 11:00:24,660 [INFO] ============================================================
+2026-08-16 11:00:24,660 [INFO] DELHI ML PIPELINE: Summary
+2026-08-16 11:00:24,660 [INFO] ============================================================
+2026-08-16 11:00:24,660 [INFO]   Phase 0: PASS
+2026-08-16 11:00:24,661 [INFO]   Phase 1: PASS
+2026-08-16 11:00:24,661 [INFO]   Phase 2: PASS
+2026-08-16 11:00:24,661 [INFO]   Phase 3: PASS
+2026-08-16 11:00:24,661 [INFO]   Phase 4: PASS
+2026-08-16 11:00:24,661 [INFO]   Phase 5: PASS
+2026-08-16 11:00:24,661 [INFO]   Phase 6: PASS
+2026-08-16 11:00:24,661 [INFO]   Phase 7: PASS
+2026-08-16 11:00:24,661 [INFO]   Phase 8: PASS
+2026-08-16 11:00:24,661 [INFO]   Phase 9: PASS
+2026-08-16 11:00:24,661 [INFO]   Phase 10: PASS
+2026-08-16 11:00:24,661 [INFO]   Phase 11: PASS
+2026-08-16 11:00:24,661 [INFO]   Phase 12: FAIL: EvaluationSpec.__init__() got an unexpected keyword argument 'phase'
+2026-08-16 11:00:24,661 [INFO]   Phase 13: FAIL: missing prerequisite checkpoint: /home/asus/projects/water-forecast/orchestration/state/cities/delhi/checkpoints/phase_12_passed.json
+2026-08-16 11:00:24,661 [ERROR] Completed with 2 failures
+2026-08-16 11:02:06,157 [INFO] Using config path: /home/asus/.config/crewai/settings.json
+2026-08-16 11:02:06,299 [INFO] ============================================================
+2026-08-16 11:02:06,299 [INFO] PHASE 12: Full Validation Audit
+2026-08-16 11:02:06,299 [INFO] ============================================================
+2026-08-16 11:02:06,310 [INFO] ============================================================
+2026-08-16 11:02:06,310 [INFO] PHASE 13: Documentation and Final Artifacts
+2026-08-16 11:02:06,310 [INFO] ============================================================
+2026-08-16 11:07:17,368 [INFO] ============================================================
+2026-08-16 11:07:17,368 [INFO] PHASE 12: Delhi Validation Audit
+2026-08-16 11:07:17,369 [INFO] ============================================================
+2026-08-16 11:07:17,371 [INFO] Dataset SHA256: cb0863a5089598b1cb88cab1a0670b00be9100f2b1625a929f7eb38d05ed5e1f
+2026-08-16 11:07:17,371 [INFO] Rows: 944
+2026-08-16 11:07:17,371 [INFO] Date range: 2018-04-01 to 2022-02-27
+2026-08-16 11:07:17,371 [INFO] Consumption range: 717.00 to 1000.00 MGD
+2026-08-16 11:07:17,384 [INFO] 
+============================================================
+2026-08-16 11:07:17,384 [INFO] VALIDATION SUMMARY
+2026-08-16 11:07:17,384 [INFO] ============================================================
+2026-08-16 11:07:17,384 [INFO]   phase5: FAIL - Missing columns
+2026-08-16 11:07:17,384 [INFO]   phase6: PASS - {'model': 'naive_lag_1', 'mae_mean': 13.200866242038217, 'mae_std': 3.33286566950064, 'mse_mean': 656.4000899363057, 'mse_std': 215.91050314616012, 'rmse_mean': 25.32987974811565, 'rmse_std': 4.300767646930329, 'r2_mean': 0.0883334934776253, 'r2_std': 0.477556641568835}
+2026-08-16 11:07:17,384 [INFO]   phase7: PASS - {'model': 'naive_lag_1', 'mae': 18.020915492957755, 'mse': 1029.6966105633803, 'rmse': 32.08888609103439, 'r2': 0.4299263691002223}
+2026-08-16 11:07:17,384 [INFO]   phase8: PASS - {'model': 'naive_lag_1', 'mae_mean': 13.200866242038217, 'mae_std': 3.33286566950064, 'mse_mean': 656.4000899363057, 'mse_std': 215.91050314616012, 'rmse_mean': 25.32987974811565, 'rmse_std': 4.300767646930329, 'r2_mean': 0.0883334934776253, 'r2_std': 0.477556641568835}
+2026-08-16 11:07:17,384 [INFO]   phase9: PASS - {'model': 'naive_last', 'mae': 25.51513227513227, 'mse': 2158.1990931216915, 'rmse': 46.45642144119251, 'r2': -0.2790949056617562}
+2026-08-16 11:07:17,384 [INFO]   phase10: PASS - {'model': 'naive_lag1', 'mae': 16.28035460992908, 'mse': 752.7459198581563, 'rmse': 27.436215479875436, 'r2': 0.5276659134827268}
+2026-08-16 11:07:17,386 [INFO] Checkpoint written: /home/asus/projects/water-forecast/orchestration/state/cities/delhi/checkpoints/phase_12_passed.json
+2026-08-16 11:07:17,386 [INFO] 
+Phase 12 artifacts: /home/asus/projects/water-forecast/reports/cities/delhi/phase12_validation
+2026-08-16 11:07:42,084 [INFO] ============================================================
+2026-08-16 11:07:42,084 [INFO] PHASE 12: Delhi Validation Audit
+2026-08-16 11:07:42,084 [INFO] ============================================================
+2026-08-16 11:07:42,086 [INFO] Dataset SHA256: cb0863a5089598b1cb88cab1a0670b00be9100f2b1625a929f7eb38d05ed5e1f
+2026-08-16 11:07:42,086 [INFO] Rows: 944
+2026-08-16 11:07:42,087 [INFO] Date range: 2018-04-01 to 2022-02-27
+2026-08-16 11:07:42,087 [INFO] Consumption range: 717.00 to 1000.00 MGD
+2026-08-16 11:07:42,097 [INFO] 
+============================================================
+2026-08-16 11:07:42,097 [INFO] VALIDATION SUMMARY
+2026-08-16 11:07:42,097 [INFO] ============================================================
+2026-08-16 11:07:42,097 [INFO]   phase5: PASS - {'model': 'naive_lag_1', 'mae': 16.938412698412705, 'mse': 910.9400582010584, 'rmse': 30.181783549039285, 'r2': 0.4601152453813499}
+2026-08-16 11:07:42,097 [INFO]   phase6: PASS - {'model': 'naive_lag_1', 'mae_mean': 13.200866242038217, 'mae_std': 3.33286566950064, 'mse_mean': 656.4000899363057, 'mse_std': 215.91050314616012, 'rmse_mean': 25.32987974811565, 'rmse_std': 4.300767646930329, 'r2_mean': 0.0883334934776253, 'r2_std': 0.477556641568835}
+2026-08-16 11:07:42,097 [INFO]   phase7: PASS - {'model': 'naive_lag_1', 'mae': 18.020915492957755, 'mse': 1029.6966105633803, 'rmse': 32.08888609103439, 'r2': 0.4299263691002223}
+2026-08-16 11:07:42,097 [INFO]   phase8: PASS - {'model': 'naive_lag_1', 'mae_mean': 13.200866242038217, 'mae_std': 3.33286566950064, 'mse_mean': 656.4000899363057, 'mse_std': 215.91050314616012, 'rmse_mean': 25.32987974811565, 'rmse_std': 4.300767646930329, 'r2_mean': 0.0883334934776253, 'r2_std': 0.477556641568835}
+2026-08-16 11:07:42,097 [INFO]   phase9: PASS - {'model': 'naive_last', 'mae': 25.51513227513227, 'mse': 2158.1990931216915, 'rmse': 46.45642144119251, 'r2': -0.2790949056617562}
+2026-08-16 11:07:42,097 [INFO]   phase10: PASS - {'model': 'naive_lag1', 'mae': 16.28035460992908, 'mse': 752.7459198581563, 'rmse': 27.436215479875436, 'r2': 0.5276659134827268}
+2026-08-16 11:07:42,098 [INFO] Checkpoint written: /home/asus/projects/water-forecast/orchestration/state/cities/delhi/checkpoints/phase_12_passed.json
+2026-08-16 11:07:42,098 [INFO] 
+Phase 12 artifacts: /home/asus/projects/water-forecast/reports/cities/delhi/phase12_validation
+2026-08-16 11:07:56,445 [INFO] Using config path: /home/asus/.config/crewai/settings.json
+2026-08-16 11:07:56,600 [INFO] ============================================================
+2026-08-16 11:07:56,600 [INFO] PHASE 12: Full Validation Audit
+2026-08-16 11:07:56,600 [INFO] ============================================================
+2026-08-16 11:07:56,607 [INFO] ============================================================
+2026-08-16 11:07:56,607 [INFO] PHASE 13: Documentation and Final Artifacts
+2026-08-16 11:07:56,607 [INFO] ============================================================
+2026-08-16 11:07:56,608 [INFO] Phase 13 artifacts: {'phase': 'Phase 13', 'scope': 'documentation and final artifact index', 'validator_invoked': False, 'prerequisite_checkpoints': [{'path': 'orchestration/state/cities/delhi/checkpoints/phase_0_passed.json', 'phase': 'Phase 0', 'sha256': '680deeeecf9556748823ce0fca83f4184b51b4288eadfb164a821ca5e187bf42'}, {'path': 'orchestration/state/cities/delhi/checkpoints/phase_1_passed.json', 'phase': 'Phase 1', 'sha256': '86c63faa6eb559227587cda019b3b0e85a49329481ca726c578d19fb09e43a34'}, {'path': 'orchestration/state/cities/delhi/checkpoints/phase_2_passed.json', 'phase': 'Phase 2', 'sha256': '0e990e28b8b068e38428e6d01aa8de800c8d65e2ba920f76cefc7a653d57a17b'}, {'path': 'orchestration/state/cities/delhi/checkpoints/phase_3_passed.json', 'phase': 'Phase 3', 'sha256': '50222e4d8d43f0935e7aed58559fb666cb830b032a780d199f78d2d85a939c78'}, {'path': 'orchestration/state/cities/delhi/checkpoints/phase_4_passed.json', 'phase': 'Phase 4', 'sha256': 'c47ebf543f50b32ca5150d5f9e25d1b66f3c03990b51a722d41195369e16d920'}, {'path': 'orchestration/state/cities/delhi/checkpoints/phase_5_passed.json', 'phase': 'Phase 5', 'sha256': '4f3ea286c518312ce07fd1403ac8e9cece3e30f57d8e2cb120215a3a60300375'}, {'path': 'orchestration/state/cities/delhi/checkpoints/phase_6_passed.json', 'phase': 'Phase 6', 'sha256': '983115ba2f3ab84d2941539235af745579cf5b046a75dc8e04741ea31c462b00'}, {'path': 'orchestration/state/cities/delhi/checkpoints/phase_7_passed.json', 'phase': 'Phase 7', 'sha256': '0ccb943aebde4a84caa18b74d957e0969be9bbbc8580cd9e554e181ad989b0db'}, {'path': 'orchestration/state/cities/delhi/checkpoints/phase_8_passed.json', 'phase': 'Phase 8', 'sha256': '138fb389afadc425ea5b2a583de1f6c7403d3446e69859935d8825b1c065b61f'}, {'path': 'orchestration/state/cities/delhi/checkpoints/phase_9_passed.json', 'phase': 'Phase 9', 'sha256': '441973466b1dafa3e048bcd6aa9a65c84077bac18fa2f125efb944c88ac822ff'}, {'path': 'orchestration/state/cities/delhi/checkpoints/phase_10_passed.json', 'phase': 'Phase 10', 'sha256': 'f917a78daa613a223af27b8d45425d7f1cc43df33bcd9ccd91b267861e5b167a'}, {'path': 'orchestration/state/cities/delhi/checkpoints/phase_11_passed.json', 'phase': 'Phase 11', 'sha256': '3ba29c06bdad9e9de8a47a4d5b067c84bf88315b946aaef9a66a1ad93dd18a48'}, {'path': 'orchestration/state/cities/delhi/checkpoints/phase_12_passed.json', 'phase': 'Phase 12', 'sha256': '72627d13ce858f1950b2a57f1ea401fcac69f80ecadb3f2d358b2fcae21d647c'}], 'files': [], 'notes': ['Only independently approved Phase 0-12 checkpoints are prerequisites.', 'Phase 13 remains pending independent validation.', 'Historical failed and superseded attempts remain preserved for audit history.']}
+2026-08-16 11:07:56,609 [INFO] Checkpoint written: /home/asus/projects/water-forecast/orchestration/state/cities/delhi/checkpoints/phase_13_passed.json

@@ -1,0 +1,25 @@
+Phase 5 attempt 2 is repaired and ready for independent revalidation.
+
+Changes:
+
+- Added actual-versus-predicted scatter plot.
+- Added dated residual and absolute-error plot.
+- Added `highest_error_dates.csv` with date, model, actual, prediction, residual, and absolute error.
+- Added tests for artifact existence, non-empty content, schema, ranking, and prediction-derived values.
+- Preserved all approved methodology. Attempt 1 and attempt 2 predictions and metrics have identical SHA-256 hashes.
+
+Evidence:
+
+- Focused tests: `3 passed`
+- Full suite: `178 passed`
+- `git diff --check`: passed
+- Chronological split remains 3,040/760, with boundary 2018-08-04 / 2018-08-05.
+- Highest-error replay delta: approximately `1.48e-11`, attributable to CSV serialization.
+
+Artifacts: [Phase 5 attempt 2](/home/asus/projects/water-forecast/artifacts/phase5/phase5_attempt_2_20260815T230000Z)
+
+Evidence report: [phase_5_attempt_2_ml_agent_evidence_20260815.txt](/home/asus/projects/water-forecast/orchestration/state/phase_5_attempt_2_ml_agent_evidence_20260815.txt)
+
+Implementation: [phase5_chronological_holdout.py](/home/asus/projects/water-forecast/experiments/phase5_chronological_holdout.py)
+
+Tests: [test_phase5_chronological_holdout.py](/home/asus/projects/water-forecast/tests/test_phase5_chronological_holdout.py)

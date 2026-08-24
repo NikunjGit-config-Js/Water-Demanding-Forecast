@@ -1,0 +1,22 @@
+Phase 8 repair attempt 2 is complete and independently validated: **PASS**.
+
+Key changes:
+
+- Added nested chronological Optuna tuning within every outer fold.
+- Refit feature selection independently on each inner training prefix.
+- Used fold-local selected features, hyperparameters, and model winners.
+- Added multi-trial future-data isolation testing.
+- Regenerated 300 trials, metrics, predictions, models, plots, reports, logs, and hashes.
+- Preserved earlier invalid runs for audit, clearly marked invalid.
+- Full suite: **190 passed**.
+- Verified **40/40 artifact hashes** and independently recomputed saved metrics.
+- `git diff --check`: clean.
+
+Evidence:
+
+- [Final artifacts](/home/asus/projects/water-forecast/artifacts/phase8/phase8_attempt_2_final_20260816T003000Z)
+- [ML Agent evidence](/home/asus/projects/water-forecast/orchestration/state/phase_8_attempt_2_ml_agent_evidence_20260815.txt)
+- [Validator PASS](/home/asus/projects/water-forecast/orchestration/state/phase_8_attempt_2_validator_pass_20260816.txt)
+- [STATUS.md](/home/asus/projects/water-forecast/STATUS.md)
+
+Phase 8 is approved; Phase 9 was not started.

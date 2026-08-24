@@ -1,0 +1,27 @@
+Implemented Phase 3 as the Feature Agent. It remains awaiting independent validation; no later phase was started.
+
+Key outcomes:
+
+- Selected 20 of 40 candidate features using only the first 70% chronological training prefix: 2,660 rows through 2017-07-20.
+- Loaded zero validation or locked-test rows.
+- Added leakage screening, correlation/redundancy analysis, random-forest importance, permutation importance, expanding-window stability analysis, and domain sanity checks.
+- Fit imputation values separately on earlier training rows within each fold.
+- Recorded random seed `42`, configurations, split boundaries, rankings, and hashes.
+- Fixed a redundancy-representative audit issue found during self-review.
+
+Files:
+
+- [phase3_feature_selection.py](/home/asus/projects/water-forecast/experiments/phase3_feature_selection.py)
+- [test_phase3_feature_selection.py](/home/asus/projects/water-forecast/tests/test_phase3_feature_selection.py)
+- [STATUS.md](/home/asus/projects/water-forecast/STATUS.md)
+- [Final Phase 3 artifacts](/home/asus/projects/water-forecast/artifacts/phase3/phase3_attempt_1_final_20260815T210000Z)
+- [Execution evidence](/home/asus/projects/water-forecast/orchestration/state/phase_3_attempt_1_20260815T210000Z.txt)
+
+Checks passed:
+
+- Focused tests: `4 passed`
+- Full suite: `133 passed`
+- Compilation check passed
+- Artifact integrity checks passed
+- `git diff --check` passed
+- Phase 2 features and original dataset hashes remain unchanged.

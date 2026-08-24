@@ -1,0 +1,15 @@
+PASS
+
+Independent Validator summary:
+- Nested outer/inner chronology is correct.
+- Each inner feature selection and Optuna evaluation is restricted to its current
+  outer-fold training prefix.
+- Fold-local best parameters and winner drive each outer-fold prediction.
+- All 40 recorded artifact hashes match.
+- Saved model metrics independently recompute.
+- 300 trials, 15 fold/model selections, 25 fold metrics, and 3,165 predictions
+  are internally consistent; selected-feature reports match.
+- Full suite: 190 passed, 60 warnings in 281.77 seconds.
+- git diff --check: PASS.
+
+Final decision: PASS

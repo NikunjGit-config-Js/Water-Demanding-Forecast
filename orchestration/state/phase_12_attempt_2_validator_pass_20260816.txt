@@ -1,0 +1,16 @@
+PASS
+
+Phase 12 repair attempt 2 satisfies every required correction.
+
+- Canonical dataset SHA-256 is checked against the approved digest.
+- Phase 5--7 prediction, metric, and protocol hashes match their validated commits.
+- Phase 8--10 manifests are anchored to validated commits and their predictions, metrics, and protocols are verified.
+- Dates, row counts, boundaries, canonical actuals, folds, expanding training prefixes, and adjacency are enforced.
+- Phase 8 selected_model is checked against each preserved fold-specific winner.
+- The prior protocol-tampering exploit is rejected.
+- Focused suite: 16 passed.
+- Full suite: successful, consistent with 220 passed.
+- Regenerated report: AUDIT_CHECKS_PASSED.
+- git diff --check: passed.
+
+Validation was read-only and did not modify repository state.

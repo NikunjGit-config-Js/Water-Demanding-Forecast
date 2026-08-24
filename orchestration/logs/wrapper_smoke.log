@@ -1,0 +1,351 @@
+COMMAND:
+/home/asus/.local/bin/codex exec -C /home/asus/projects/water-forecast -s read-only --output-last-message /home/asus/projects/water-forecast/orchestration/state/wrapper_smoke.txt [PROMPT]
+
+STDOUT:
+CODEX_WRAPPER_READY
+PROJECT_RULES_LOADED: YES
+WORKSPACE: water-forecast
+
+
+STDERR:
+OpenAI Codex v0.147.0
+--------
+workdir: /home/asus/projects/water-forecast
+model: gpt-5.6-sol
+provider: openai
+approval: never
+sandbox: read-only
+reasoning effort: none
+reasoning summaries: none
+session id: 01a00684-b668-7ea0-bbd8-8ae3d63ebb72
+--------
+user
+Read AGENTS.md and PROJECT_SPEC.md.
+
+Do not modify project files.
+
+Return exactly:
+
+CODEX_WRAPPER_READY
+PROJECT_RULES_LOADED: YES
+WORKSPACE: water-forecast
+exec
+/bin/bash -lc "sed -n '1,240p' AGENTS.md && sed -n '1,320p' PROJECT_SPEC.md" in /home/asus/projects/water-forecast
+ succeeded in 0ms:
+# AGENTS.md
+
+## Mission
+Build and validate the improved water-demand forecasting project autonomously while maintaining methodological correctness.
+
+## Mandatory Workflow
+
+For every major phase:
+
+UNDERSTAND
+→ PLAN
+→ IMPLEMENT
+→ TEST
+→ REVIEW
+→ FIX IF REQUIRED
+→ RE-TEST
+→ SAVE EVIDENCE
+→ UPDATE STATUS
+→ CONTINUE
+
+A phase is NOT complete because an implementation agent says it is complete.
+
+The validator must approve it.
+
+## Non-Negotiable ML Rules
+
+1. Never leak future information into training.
+2. Never fit preprocessing on validation/test data.
+3. Never perform feature selection using the locked test set.
+4. Never use shuffled KFold for final time-series evaluation.
+5. Lag features must only access past observations.
+6. Rolling features must not include future observations.
+7. Test 3 locked test data must remain untouched until final evaluation.
+8. Optuna objective must use validation/CV performance only.
+9. Record random seeds.
+10. Preserve experiment outputs.
+11. Compare against simple baselines before claiming improvement.
+12. Do not fabricate data, metrics, features, experiments or results.
+
+## Repository Safety
+
+Do not destroy or overwrite the original project unnecessarily.
+
+Prefer:
+- new modules
+- new experiment scripts
+- new artifact directories
+- small justified modifications
+
+Inspect git diff after every major phase.
+
+## Coding Standards
+
+Code must:
+- be readable
+- avoid unnecessary complexity
+- use reusable functions
+- contain meaningful names
+- handle errors
+- expose configuration rather than hard-code experiment values
+- be testable
+
+## GPU
+
+GPU should be used when supported and useful.
+
+Do not force GPU usage for algorithms that do not benefit from it.
+
+For TensorFlow use safe GPU memory behavior suitable for a laptop GPU.
+
+## Agent Roles
+
+Supervisor:
+understands the project, plans phases, assigns work and decides routing.
+
+Data Agent:
+data validation, preprocessing, EDA and data-quality work.
+
+Feature Agent:
+time-aware feature engineering and feature selection.
+
+ML Agent:
+traditional ML experiments and Optuna.
+
+Time-Series Agent:
+ARIMA/SARIMAX/Prophet/neural forecasting.
+
+Transformer Agent:
+PatchTST/Hugging Face forecasting experiments.
+
+UI Agent:
+Streamlit interface.
+
+Validator:
+independent methodological and software review.
+
+Validator must output:
+PASS
+or
+FAIL
+
+FAIL must include exact required corrections.
+
+## Completion Rule
+
+No phase advances until validation returns PASS.
+
+# Water Demand Forecasting — Improved Agentic ML Project
+
+## Goal
+Improve the original water-forecast repository into a modern, validated, reproducible water-demand forecasting system while preserving the original project as a baseline.
+
+## Primary Dataset
+Initially use the supplied London, Canada preprocessed dataset:
+- Date
+- Consumption
+
+Current sample:
+- 3800 rows
+- 2009-07-01 to 2020-09-02
+- No missing values
+- No duplicates
+
+Do not claim customer/weather/demographic features exist unless they are actually acquired.
+
+## Optional Future Dataset Extension
+Only after the London pipeline is complete:
+- Delhi
+- Gurgaon
+- Bengaluru
+- Hyderabad
+- Mumbai
+- Pune
+
+Potential Selenium/web-data ingestion must NOT start without explicit user approval.
+
+## Pipeline
+
+### Phase 0
+Repository audit and original baseline reproduction.
+
+### Phase 1
+Data validation and EDA:
+- shape/dtypes
+- missing values
+- duplicates
+- descriptive statistics
+- target distribution
+- time-series plot
+- univariate analysis
+- box plots
+- outlier inspection
+- correlation analysis where multiple numeric features exist
+- seasonality/trend inspection
+
+### Phase 2
+Physics/domain/time-aware feature engineering:
+- lag 1
+- lag 7
+- lag 14
+- lag 30
+- lag 365
+- rolling mean 7/30
+- rolling median 7/30
+- rolling std 7/30
+- rolling min/max
+- exponential moving averages
+- day-over-day change
+- 7-day growth
+- rolling slope
+- day of week
+- month
+- weekend
+- season
+- holiday/festival where valid
+- cyclical sin/cos features
+- Fourier weekly/yearly terms
+- same weekday previous week
+- same period previous year
+
+Weather/demographic interactions may only be added if such data is actually available.
+
+All lag/rolling features must use past data only.
+
+### Phase 3
+Feature selection:
+- leakage screening
+- correlation/redundancy analysis
+- model importance
+- permutation importance
+- stability across time splits
+- domain sanity checks
+
+Feature selection must be learned from training data only.
+
+### Phase 4
+Traditional ML:
+- Linear Regression
+- Ridge
+- Lasso
+- Decision Tree Regressor
+- KNN Regressor
+- SVR
+- Random Forest Regressor
+- Bagging Regressor
+- AdaBoost / Gradient Boosting
+- Voting Regressor
+
+Do not add unnecessary models without justification.
+
+### Phase 5 — Test 1
+Chronological 80/20 split.
+
+NO random train_test_split for time-series evaluation.
+
+### Phase 6 — Test 2
+Time-aware 5-fold cross-validation using TimeSeriesSplit or equivalent expanding-window validation.
+
+### Phase 7 — Test 3
+Chronological:
+- 70% train
+- 15% validation
+- 15% locked test
+
+Optuna tunes on train/validation only.
+Locked test must not influence tuning.
+
+### Phase 8 — Test 4
+Time-series cross-validation + Optuna.
+
+### Phase 9
+Original time-series models:
+- ARIMA
+- SARIMAX
+- Prophet
+- LSTM
+- GRU
+- 1D CNN
+
+Use these as comparative baselines where practical.
+
+### Phase 10
+Modern forecasting:
+- PatchTST first candidate
+- optionally Hugging Face TimeSeriesTransformer
+
+Transformer must demonstrate value; do not assume it is automatically superior.
+
+### Phase 11
+Streamlit dashboard:
+- simple low-eye-strain UI
+- model selection
+- forecast horizon
+- actual vs predicted plots
+- metrics
+- residual plots
+- downloadable predictions/results
+
+### Phase 12
+Full validation.
+
+### Phase 13
+Documentation, README, interview explanation and final artifacts.
+
+## Metrics
+Primary regression metrics:
+- MAE
+- MSE
+- RMSE
+- R2
+
+Adjusted R2 may be reported when meaningful.
+
+## Scaling
+Use RobustScaler where scaling benefits the model:
+- Linear/Ridge/Lasso
+- KNN
+- SVR
+- neural models when appropriate
+
+Fit scaler ONLY on training data.
+
+Tree-based models generally do not require scaling.
+
+## GPU Policy
+Use GPU by default where supported:
+- TensorFlow
+- LSTM
+- GRU
+- CNN
+- Transformer
+
+Traditional sklearn models may remain CPU-based.
+
+Current verified environment:
+- TensorFlow 2.20
+- NVIDIA GPU available through WSL
+
+## Artifact Policy
+Every experiment must preserve:
+- configuration
+- split information
+- features
+- metrics
+- predictions
+- plots
+- model when appropriate
+- random seeds
+- logs
+
+
+codex
+CODEX_WRAPPER_READY
+PROJECT_RULES_LOADED: YES
+WORKSPACE: water-forecast
+tokens used
+5,258

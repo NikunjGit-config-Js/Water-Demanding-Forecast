@@ -1,0 +1,6 @@
+2026-08-15 20:14:40,906Z INFO Starting deterministic Phase 0 baseline reproduction
+2026-08-15 20:14:40,906Z INFO Dataset: /home/asus/projects/water-forecast/data/preprocessed/all/preprocessed_data.csv
+2026-08-15 20:14:41,095Z INFO Historical metrics: {"MAE": 4906.92098711926, "MAPE": 0.041361037066790236, "MSE": 56101823.72967102, "RMSE": 7490.115067852497}
+2026-08-15 20:14:41,095Z INFO Supplemental R2: 0.480749109793401
+2026-08-15 20:14:41,095Z INFO Saved fitted model and training-only scaler
+2026-08-15 20:14:41,095Z INFO Completed Phase 0 reproduction with 380 test predictions

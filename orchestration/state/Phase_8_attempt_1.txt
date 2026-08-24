@@ -1,0 +1,27 @@
+Implemented Phase 8 as the ML Agent. Phase remains awaiting independent validation.
+
+Key outcomes:
+
+- Added five-fold expanding-window `TimeSeriesSplit` with Optuna optimization.
+- Tuned Ridge, Random Forest, and Gradient Boosting using validation-fold mean MAE only.
+- Fit preprocessing independently on each training fold.
+- Preserved naive lag-1 and linear-regression baselines.
+- No locked-test use, full-data refit, or improvement claim.
+- Naive lag-1 remained best: MAE `230.28`; selected tuned model Ridge: MAE `422.41`.
+
+Checks:
+
+- Focused tests: 3 passed.
+- Full suite: 190 passed.
+- Artifact recomputation and saved-pipeline checks: passed.
+- `git diff --check`: passed.
+
+Files:
+
+- [Phase 8 runner](/home/asus/projects/water-forecast/experiments/phase8_cv_optuna.py)
+- [Phase 8 tests](/home/asus/projects/water-forecast/tests/test_phase8_cv_optuna.py)
+- [Experiment artifacts](/home/asus/projects/water-forecast/artifacts/phase8/phase8_attempt_1_20260815T230000Z)
+- [Implementation evidence](/home/asus/projects/water-forecast/orchestration/state/phase_8_attempt_1_ml_agent_evidence_20260815.txt)
+- [Updated status](/home/asus/projects/water-forecast/STATUS.md)
+
+No validator was invoked and Phase 9 was not started.

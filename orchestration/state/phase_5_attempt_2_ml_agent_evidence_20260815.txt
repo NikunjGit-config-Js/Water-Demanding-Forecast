@@ -1,0 +1,42 @@
+Phase 5 attempt 2 repair evidence
+=================================
+
+Scope
+-----
+- Added the three evaluation artifacts required by EXPERIMENT_PLAN.md.
+- Retained the approved chronological holdout, selected features, model registry,
+  preprocessing scope, configuration, and random seed.
+- Diagnostic model: linear_regression (lowest-MAE non-naive model, descriptive only).
+- No tuning, cross-validation, improvement claim, or locked Test 3 access occurred.
+
+Preserved artifact directory
+----------------------------
+artifacts/phase5/phase5_attempt_2_20260815T230000Z
+
+New required outputs
+--------------------
+- actual_vs_predicted_scatter.png: 80,744 bytes
+- error_over_time.png: 168,541 bytes
+- highest_error_dates.csv: 1,998 bytes; 20 ranked rows
+
+Direct verification
+-------------------
+- Chronological split: 3,040 training / 760 holdout rows.
+- Boundary: training ends 2018-08-04; holdout starts 2018-08-05.
+- highest_error_dates.csv contains date, model, actual, prediction, residual,
+  and absolute_error.
+- Maximum residual/absolute-error replay delta from predictions.csv:
+  1.4779288903810084e-11 (CSV floating-point serialization only).
+- git diff --check: PASS.
+
+Tests
+-----
+- PYTHONPATH=. pytest -q tests/test_phase5_chronological_holdout.py
+  Result: 3 passed, 15 warnings in 3.08s.
+- PYTHONPATH=. pytest -q
+  Result: 178 passed, 23 warnings in 7.33s.
+- Warnings are pre-existing joblib/NumPy deprecation warnings.
+
+Status
+------
+IMPLEMENTED AND TESTED; awaiting independent validator revalidation.

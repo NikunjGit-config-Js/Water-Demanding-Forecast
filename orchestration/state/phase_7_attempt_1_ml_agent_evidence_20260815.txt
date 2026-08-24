@@ -1,0 +1,62 @@
+Phase 7 ML Agent — Attempt 1 Evidence
+Date: 2026-08-15 UTC
+
+Scope
+- Implemented approved Test 3 only: chronological 70% train, 15% validation,
+  15% locked test.
+- Used Phase 3's training-only selected features without changing feature
+  selection or approved methodology.
+- Did not invoke the validator, advance phases, push, scrape, acquire data, or
+  perform any permission-gated action.
+
+Implementation
+- Added experiments/phase7_locked_test_optuna.py.
+- Added tests/test_phase7_locked_test_optuna.py.
+- Installed Optuna 4.9.0 into the existing local .venv as an ordinary project
+  dependency allowed by PERMISSIONS.md; no historical dependency manifest was
+  changed.
+- Optuna tunes Ridge, Random Forest, and Gradient Boosting independently using
+  validation MAE. TPESampler seeds are deterministic and n_jobs=1.
+- Naive lag-1 and Linear Regression are prespecified simple baselines. They are
+  compared on validation before the tuned-family selection is frozen.
+- Each candidate Pipeline fits its median imputer and, for Ridge, RobustScaler
+  on the 2,660-row training partition only. Validation is predict-only.
+- The best tuned family is frozen before the 570-row locked test is accessed.
+  The selected already-fitted Pipeline and prespecified baselines are evaluated
+  once; there is no post-test refit, tuning, selection, or improvement claim.
+
+Preserved experiment
+- artifacts/phase7/phase7_attempt_1_20260815T223000Z/
+- 3,800 total rows: train 2,660 through 2017-07-20; validation 570 from
+  2017-07-21 through 2019-02-10; locked test 570 from 2019-02-11 through
+  2020-09-02.
+- 60 complete trials (20 per tuned family), parameters, validation metrics,
+  locked-test metrics/predictions, selected and baseline models, plot, config,
+  hashes, seed, environment, split/selection report, and log are preserved.
+- Validation MAE: naive lag-1 215.432519; linear regression 267.825693;
+  Ridge 267.877197; Gradient Boosting 282.744056; Random Forest 284.571092.
+- Ridge was the best eligible tuned family and therefore frozen for final
+  evaluation. Locked-test MAE was 259.689168 for Ridge, 259.645474 for Linear
+  Regression, and 225.354151 for naive lag-1. No improvement is claimed.
+
+Checks
+- `.venv/bin/python -m pytest -q tests/test_phase7_locked_test_optuna.py`
+  -> 3 passed (8 third-party joblib/NumPy deprecation warnings).
+- `python -m pytest -q`
+  -> 187 passed (42 warnings: existing joblib/NumPy deprecations and one
+  Phase 6 Lasso convergence warning).
+- Adversarial test changed every locked-test selected feature and target, then
+  confirmed identical Optuna trials, selected family, imputer statistics, and
+  scaler statistics.
+- Independent artifact replay in the implementation environment reproduced all
+  12 saved locked-test metric values from 570 predictions and verified all 60
+  trial states are COMPLETE.
+- Python bytecode compilation passed for the Phase 7 runner and tests.
+- `git diff --check` passed.
+- Final Git status contains only Phase 7-owned untracked paths: the runner,
+  tests, artifacts, and this evidence report. No deletions or unrelated edits.
+
+Implementation review outcome
+- Phase 7 implementation and evidence checks pass the ML Agent's review.
+- Per AGENTS.md, this is not a phase-completion verdict; independent validation
+  remains the supervisor's separate next gate and was not invoked here.

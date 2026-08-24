@@ -1,0 +1,22 @@
+Phase 12 repair attempt 2 is complete and independently validated: `PASS`.
+
+Implemented:
+
+- Approved canonical dataset SHA-256 enforcement
+- Commit-anchored Phase 5–7 prediction, metric, and protocol hashes
+- Commit-anchored Phase 8–10 manifests and artifact verification
+- Strict dates, boundaries, row counts, canonical actuals, and chronological CV checks
+- Phase 8 fold-specific winner validation
+- Negative tests covering dataset, artifact, manifest, protocol, date, actual, fold, and coordinated tampering
+
+Evidence:
+
+- Focused tests: `16 passed`
+- Full suite: `220 passed, 85 warnings`
+- Final audit: `AUDIT_CHECKS_PASSED`
+- `git diff --check`: passed
+- Independent validator: exact `PASS`
+- Report: [full_validation_report.json](/home/asus/projects/water-forecast/artifacts/phase12/phase12_attempt_2_20260816T050000Z/full_validation_report.json)
+- Status: [STATUS.md](/home/asus/projects/water-forecast/STATUS.md)
+
+No permission-gated action or methodology change was required. Phase 13 was not started.

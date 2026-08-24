@@ -1,0 +1,25 @@
+Implemented Phase 5 attempt 1 as the ML Agent.
+
+- Added the chronological 80/20 holdout runner: [phase5_chronological_holdout.py](/home/asus/projects/water-forecast/experiments/phase5_chronological_holdout.py)
+- Added leakage and preprocessing-isolation tests: [test_phase5_chronological_holdout.py](/home/asus/projects/water-forecast/tests/test_phase5_chronological_holdout.py)
+- Preserved experiment artifacts under [phase5_attempt_1_20260815T220000Z](/home/asus/projects/water-forecast/artifacts/phase5/phase5_attempt_1_20260815T220000Z)
+- Preserved execution evidence in `orchestration/state/phase_5_attempt_1_20260815T220000Z.txt` (ignored state directory).
+
+Results:
+
+- Training: 3,040 chronological rows
+- Holdout: 760 rows
+- Naïve lag-1 MAE: 223.74
+- Linear regression RMSE: 384.63
+- No tuning or improvement claim was made.
+- Preprocessing was fitted exclusively on training rows.
+
+Checks:
+
+- Focused tests: 3 passed
+- Full suite: 178 passed
+- Independent metric recalculation: passed for all 11 comparators
+- Python compilation: passed
+- `git diff --check`: passed
+
+No validator was invoked, no phase was advanced, and no permission-gated action was performed.

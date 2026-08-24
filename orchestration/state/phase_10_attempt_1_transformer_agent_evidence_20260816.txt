@@ -1,0 +1,44 @@
+Phase 10 Transformer Agent — Attempt 1 implementation evidence
+Recorded UTC: 2026-08-15
+
+IMPLEMENTATION
+- Added experiments/phase10_patchtst.py: a fixed TensorFlow PatchTST-style
+  univariate candidate with non-overlapping seven-day patches, learned positional
+  embeddings, two transformer encoder blocks, and a one-step forecast head.
+- Added tests/test_phase10_patchtst.py with past-only window, locked-test read
+  boundary, split, seed, and patch-geometry checks.
+- Final artifacts: artifacts/phase10/phase10_attempt_1_final_20260816T021000Z/.
+- The earlier artifacts/phase10/phase10_attempt_1_20260816T020000Z/ run is
+  preserved as superseded evidence; its methodology and metrics match, but it
+  predates the added training-history and diagnostic outputs.
+
+METHODOLOGY
+- The input loader reads exactly rows [0, 3230) with pandas nrows=3230.
+- Rows [0, 2660) are training; [2660, 3230) are causal rolling one-step
+  validation; locked rows [3230, 3800) are never read.
+- RobustScaler is fit on the 2,660 training targets only.
+- Early stopping observes validation loss only. No hyperparameter search,
+  candidate selection, feature selection, or locked-test evaluation occurs.
+- Seed 42 is recorded. Keras shuffle is disabled.
+- GPU was requested through the approved TensorFlow configuration, but CUDA
+  initialization failed in this environment; the successful CPU execution is
+  accurately recorded.
+
+RESULTS (VALIDATION ONLY)
+- naive_lag1: MAE 215.432519; RMSE 402.506050; R2 0.997640995.
+- PatchTST: MAE 2123.664370; RMSE 2659.368984; R2 0.897022761.
+- PatchTST did not beat the simple baseline. No superiority claim is made.
+
+CHECKS
+- Focused pytest: 3 passed.
+- Full pytest: 196 passed, 60 warnings, in 269.37 seconds.
+- Python compilation and git diff --check passed.
+- Independently recomputed both saved metric rows within CSV precision.
+- Verified all 13 recorded artifact SHA-256 hashes.
+- Verified the saved scaler against an independent training-prefix-only fit.
+- Reloaded patchtst.keras and reproduced all 570 saved validation predictions.
+- Verified the saved 19-epoch training history and finite predictions.
+
+STATUS
+- Phase 10 is implemented and locally reviewed, awaiting independent validation.
+- No phase advancement or validator invocation was performed.

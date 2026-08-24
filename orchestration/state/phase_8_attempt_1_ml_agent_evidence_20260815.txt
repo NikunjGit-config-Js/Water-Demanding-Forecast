@@ -1,0 +1,59 @@
+Phase 8 ML Agent implementation evidence — attempt 1
+Date: 2026-08-15 UTC
+
+Scope
+- Implemented Test 4: five-fold expanding-window TimeSeriesSplit plus Optuna.
+- Tuned only Ridge, Random Forest, and Gradient Boosting, consistent with the
+  existing validation-only Optuna candidate set.
+- Compared naive lag-1 and linear-regression baselines before any improvement
+  claim; no improvement claim was made.
+- Did not invoke the validator, advance to Phase 9, push, scrape, acquire data,
+  alter approved methodology, access paid services, or perform destructive work.
+
+Methodology evidence
+- Optuna objective: mean validation MAE across five chronological expanding folds.
+- Trials per model: 20; TPESampler seeds: 42, 43, and 44.
+- Preprocessing is instantiated and fitted separately on each fold training prefix.
+- Validation folds are prediction-only; shuffled folds are not used.
+- No external holdout or locked-test partition is loaded or used.
+- No full-data refit is performed.
+- Phase 3's approved training-only selected feature artifact and its hashes are
+  checked by the existing loader.
+
+Preserved artifact directory
+artifacts/phase8/phase8_attempt_1_20260815T230000Z/
+
+Results (mean ± sample standard deviation across folds)
+- naive_lag_1 MAE: 230.284394 ± 11.793201
+- ridge MAE: 422.413596 ± 198.974921
+- linear_regression MAE: 442.714596 ± 268.314232
+- random_forest MAE: 513.680311 ± 351.489706
+- gradient_boosting MAE: 540.319267 ± 360.223494
+- Validation-only Optuna model selection: ridge.
+- The naive lag-1 baseline is better than every tuned model by mean MAE; no model
+  improvement is claimed.
+
+Checks
+- python -m pytest -q tests/test_phase8_cv_optuna.py: 3 passed.
+- python -m pytest -q: 190 passed, 50 warnings.
+- Independent aggregate MAE mean/std recomputation from fold_metrics.csv: PASS.
+- Saved Ridge fold pipelines contain imputer, scaler, and model steps: PASS.
+- All fold training end dates precede validation start dates: PASS.
+- git diff --check: PASS before status/evidence update.
+
+Key SHA-256 evidence
+- config.json: 8a7efbcb0921e25d4bc7c8a43af3b487e645ce28a3ff44fa7e4d6e8c8f9842f3
+- cv_selection_report.json: d20ad7e8c9b3309c9381c9051ddf099158729e378aba04d416cee8ee2adbf93e
+- optuna_trials.csv: ab94d655c9d916b8492865893a00fa66625f0faf61395eb4367ab52001b35fa1
+- fold_metrics.csv: ea89f0b020fd15b0dded4285add9dad19c783c9170abd76cd13fd5009e7fce10
+- metrics_summary.csv: 60ad33cde794286e9c68bef131d2b57307643b6225f75d67cbbf279584ff6627
+- predictions.csv: 0bd91c72a40c8f9bd64ec82a044e64c85ddd94678d3c40a04faa361ddb78f2b4
+
+Files added or updated
+- experiments/phase8_cv_optuna.py
+- tests/test_phase8_cv_optuna.py
+- artifacts/phase8/phase8_attempt_1_20260815T230000Z/
+- orchestration/state/phase_8_attempt_1_ml_agent_evidence_20260815.txt
+- STATUS.md
+
+Phase 8 remains awaiting independent validator review.

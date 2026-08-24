@@ -1,0 +1,26 @@
+Implemented Phase 9 as the Time-Series Agent.
+
+Key outcomes:
+
+- Added [phase9_time_series_baselines.py](/home/asus/projects/water-forecast/experiments/phase9_time_series_baselines.py)
+- Added [test_phase9_time_series_baselines.py](/home/asus/projects/water-forecast/tests/test_phase9_time_series_baselines.py)
+- Evaluated ARIMA, SARIMAX, Prophet, LSTM, GRU, and 1D CNN
+- Included last-value and recursive weekly-naive baselines
+- Used chronological 80/20 fixed-origin recursive evaluation
+- Prevented holdout targets from influencing fitting, scaling, early stopping, or recursive forecasts
+- TensorFlow attempted GPU initialization but safely completed on CPU after CUDA was unavailable
+- Preserved models, predictions, metrics, configuration, hashes, logs, and diagnostic plots under [Phase 9 artifacts](/home/asus/projects/water-forecast/artifacts/phase9/phase9_attempt_1_final_20260816T012000Z)
+- Preserved the interrupted initial run separately and marked it invalid
+
+Best descriptive result was Prophet: MAE `3670.84`, RMSE `4488.96`, R² `0.71848`. No improvement or selection claim was made.
+
+Verification:
+
+- Focused tests: `3 passed`
+- Full suite: `193 passed`
+- 19 artifact hashes verified with zero mismatches
+- 760 prediction rows verified finite
+- Saved metrics independently recomputed
+- `git diff --check` clean
+
+No validator was invoked, no phase was advanced, and no permission-gated action was taken.

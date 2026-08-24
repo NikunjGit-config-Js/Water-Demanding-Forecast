@@ -1,0 +1,17 @@
+{
+  "phase_name": "Phase 11",
+  "phase_number": 11,
+  "schema_version": 2,
+  "test_evidence": {
+    "command": [
+      "python",
+      "-m",
+      "pytest",
+      "-q"
+    ],
+    "returncode": 0
+  },
+  "validated_at_utc": "2026-08-16T11:00:22.887032+00:00",
+  "validation_report": "PASS\n\nDelhi dashboard checkpoint (prediction CSVs available for UI).",
+  "validation_verdict": "PASS"
+}

@@ -1,0 +1,2666 @@
+COMMAND:
+/home/asus/.local/bin/codex exec -C /home/asus/projects/water-forecast --approve-for-me --output-last-message /home/asus/projects/water-forecast/orchestration/state/Phase_5_attempt_2.txt [PROMPT]
+
+STDOUT:
+Phase 5 attempt 2 is repaired and ready for independent revalidation.
+
+Changes:
+
+- Added actual-versus-predicted scatter plot.
+- Added dated residual and absolute-error plot.
+- Added `highest_error_dates.csv` with date, model, actual, prediction, residual, and absolute error.
+- Added tests for artifact existence, non-empty content, schema, ranking, and prediction-derived values.
+- Preserved all approved methodology. Attempt 1 and attempt 2 predictions and metrics have identical SHA-256 hashes.
+
+Evidence:
+
+- Focused tests: `3 passed`
+- Full suite: `178 passed`
+- `git diff --check`: passed
+- Chronological split remains 3,040/760, with boundary 2018-08-04 / 2018-08-05.
+- Highest-error replay delta: approximately `1.48e-11`, attributable to CSV serialization.
+
+Artifacts: [Phase 5 attempt 2](/home/asus/projects/water-forecast/artifacts/phase5/phase5_attempt_2_20260815T230000Z)
+
+Evidence report: [phase_5_attempt_2_ml_agent_evidence_20260815.txt](/home/asus/projects/water-forecast/orchestration/state/phase_5_attempt_2_ml_agent_evidence_20260815.txt)
+
+Implementation: [phase5_chronological_holdout.py](/home/asus/projects/water-forecast/experiments/phase5_chronological_holdout.py)
+
+Tests: [test_phase5_chronological_holdout.py](/home/asus/projects/water-forecast/tests/test_phase5_chronological_holdout.py)
+
+
+STDERR:
+OpenAI Codex v0.147.0
+--------
+workdir: /home/asus/projects/water-forecast
+model: gpt-5.6-sol
+provider: openai
+approval: on-request
+sandbox: workspace-write [workdir, /tmp, $TMPDIR]
+reasoning effort: none
+reasoning summaries: none
+session id: 01a00761-2b2c-71f0-9a2e-ea72cf9d8f1c
+--------
+user
+Repair phase "Phase 5" as the ml_agent.
+Attempt 2 of 3.
+The independent validator returned this exact report:
+
+FAIL
+
+Phase 5 methodology is sound:
+
+- Verified chronological 3,040/760 split with boundary dates 2018-08-04 and 2018-08-05.
+- Selected features originate from the Phase 3 training-only selection.
+- Lag/rolling features are past-only.
+- Pipelines fit imputation and scaling only on training rows.
+- Replayed the saved linear model and reproduced predictions exactly.
+- Independently recalculated all 11 comparators; maximum metric delta was `1.86e-09`.
+- Upstream hashes, models, predictions, configuration, seed, logs, and existing plots are present.
+- No tuning, CV, or locked Test 3 access occurred.
+- `git diff --check` passed; changes are additive and phase-scoped.
+
+However, `EXPERIMENT_PLAN.md` requires evaluation artifacts that this run does not generate:
+
+- Actual-versus-predicted scatter plot
+- Error-over-time plot
+- Highest-error dates artifact
+
+The current artifacts contain an over-time actual/predicted plot and residual scatter/distribution only. Derivability from `predictions.csv` does not satisfy the requirement to generate and preserve these outputs.
+
+The full suite could not be rerun because the read-only validator environment provides no writable temporary directory. This does not cause the verdict; direct non-writing checks succeeded.
+
+REQUIRED_CORRECTIONS:
+
+1. Add generation of:
+   - actual-versus-predicted scatter plot;
+   - dated absolute/error-over-time plot;
+   - a structured highest-error-dates CSV containing date, actual, prediction, residual, and absolute error for a clearly identified model.
+2. Add tests asserting these artifacts exist, are non-empty, and their highest-error values are correctly derived from saved predictions.
+3. Regenerate the Phase 5 artifacts in a new preserved attempt directory.
+4. Rerun focused and full tests and submit the new evidence for independent revalidation.
+
+Apply every REQUIRED_CORRECTION without changing unrelated code or approved
+methodology. Re-run relevant tests and report the changes and evidence.
+If a correction requires user approval under PERMISSIONS.md, make no such
+change and return PERMISSION_REQUIRED followed by the exact approval needed.
+
+
+SPECIALIST PROFILE:
+role: ML Agent
+goal: Implement traditional ML and validation-only optimization experiments.
+responsibilities:
+- Compare simple baselines before claiming improvement.
+- Fit preprocessing only on training data.
+- Use chronological holdouts and time-aware cross-validation.
+codex
+I’ll repair only the missing Phase 5 artifact generation and its tests, preserve the approved split/model methodology, regenerate into a new attempt directory, then run focused and full test suites and inspect the diff.
+exec
+/bin/bash -lc "pwd && rg -n \"Phase 5|EXPERIMENT_PLAN|highest.error|predictions.csv|residual\" -S . --glob '"'!artifacts/**'"' --glob '"'!outputs/**'"' && rg --files | sort | sed -n '1,240p'" in /home/asus/projects/water-forecast
+ succeeded in 0ms:
+/home/asus/projects/water-forecast
+./orchestration/state/phase_0_attempt_2_20260815T201523Z.txt:11:  config.json, split_manifest.json, metrics.json, predictions.csv,
+./orchestration/state/phase_0_attempt_2_20260815T201523Z.txt:20:- predictions.csv contains all 380 dated test actuals, recursive forecasts,
+./orchestration/state/phase_0_attempt_2_20260815T201523Z.txt:79:- predictions.csv:
+./SUCCESS_CRITERIA.md:17:13. Actual-vs-predicted and residual artifacts exist.
+./orchestration/state/phase_0_attempt_1_20260815T200921Z.txt:10:- EXPERIMENT_PLAN.md
+./orchestration/state/phase_0_attempt_1_20260815T200921Z.txt:58:  residuals_mean = 4.011104838588299e-13
+./orchestration/state/phase_0_attempt_1_20260815T200921Z.txt:59:  residuals_std = 508.19427016521934
+./orchestration/README.md:22:python -m orchestration.main --phase "Phase 5" --max-attempts 3
+./README.md:86:   predictions (depending on the model type), training residuals, and
+./README.md:95:the residuals and test error. The bottom left image plots the residuals
+./README.md:97:estimator plots for the residuals and test error.")
+./orchestration/agents/validator.py:77:   - EXPERIMENT_PLAN.md
+./STATUS.md:3:Current Phase: Phase 5 ready; automatic execution mode awaiting independent validation
+./STATUS.md:127:- Production-safe `--auto` orchestration is implemented without starting Phase 5.
+./STATUS.md:143:worktree was clean before the orchestration auto-mode implementation. Phase 5 has
+./STATUS.md:149:Phase 5. Preserve all approved Phase 0 through 4 evidence and the source dataset.
+./orchestration/auto.py:53:        "EXPERIMENT_PLAN.md",
+./tests/test_auto.py:255:    args = build_parser().parse_args(["--phase", "Phase 5", "--max-attempts", "2"])
+./tests/test_auto.py:256:    assert args.phase == ["Phase 5"]
+./tests/test_phase5_chronological_holdout.py:47:    required = {"config.json", "execution.log", "holdout_report.json", "metrics.csv", "predictions.csv", "actual_vs_predicted.png", "residual_diagnostics.png"}
+./tests/test_phase0_baseline.py:34:        "predictions.csv",
+./tests/test_phase0_baseline.py:46:    predictions = pd.read_csv(output / "predictions.csv")
+./EXPERIMENT_PLAN.md:64:- residual vs predicted
+./EXPERIMENT_PLAN.md:65:- residual distribution
+./EXPERIMENT_PLAN.md:67:- highest-error dates
+./EXPERIMENT_PLAN.md:70:Large residuals may be called prediction-error/anomaly candidates.
+./PROJECT_SPEC.md:104:### Phase 5 — Test 1
+./PROJECT_SPEC.md:149:- residual plots
+./experiments/phase4_traditional_ml.py:293:    prediction_table.to_csv(output_dir / "predictions.csv", index=False, date_format="%Y-%m-%d")
+./experiments/phase4_traditional_ml.py:299:        "formal_evaluation_deferred_to": ["Phase 5 chronological 80/20", "Phase 6 time-aware CV"],
+./experiments/phase4_traditional_ml.py:355:                "predictions.csv",
+./src/train.py:172:        metrics = ['residuals_mean', 'residuals_std', 'error_mean', 'error_std', 'MAE', 'MAPE', 'MSE', 'RMSE']
+./src/visualization/visualize.py:81:    # Plot residuals
+./src/visualization/visualize.py:82:    forecast_df[["residuals", "error"]].plot(ax=ax3, color=["green", "red"], title="Residuals", grid=True)
+./src/visualization/visualize.py:85:    # Plot residuals distribution
+./src/visualization/visualize.py:86:    forecast_df[["residuals", "error"]].plot(ax=ax4, color=["green", "red"], kind='kde',
+./src/visualization/visualize.py:89:    print("Training --> Residuals mean:", np.round(metrics['residuals_mean']), " | std:", np.round(metrics['residuals_std']))
+./experiments/phase5_chronological_holdout.py:1:"""Run the formal Phase 5 chronological 80/20 traditional-ML holdout."""
+./experiments/phase5_chronological_holdout.py:121:    axis.set(title="Phase 5 chronological 80/20 holdout", xlabel="Date", ylabel="Consumption")
+./experiments/phase5_chronological_holdout.py:127:    residual = predictions["actual"] - predictions[best_name]
+./experiments/phase5_chronological_holdout.py:129:    axes[0].scatter(predictions[best_name], residual, s=10, alpha=0.6)
+./experiments/phase5_chronological_holdout.py:132:    axes[1].hist(residual, bins=30)
+./experiments/phase5_chronological_holdout.py:135:    figure.savefig(output / "residual_diagnostics.png", dpi=150)
+./experiments/phase5_chronological_holdout.py:177:    predictions.to_csv(output / "predictions.csv", index=False, date_format="%Y-%m-%d")
+./experiments/phase5_chronological_holdout.py:181:        "phase": "Phase 5",
+./experiments/phase5_chronological_holdout.py:205:        "phase": "Phase 5", "experiment_id": experiment_id,
+./experiments/phase5_chronological_holdout.py:214:        f"Phase 5 chronological 80/20 holdout completed.\nTraining rows: {len(train)}; holdout rows: {len(test)}.\n"
+./experiments/phase0_baseline.py:210:    predictions.to_csv(output_dir / "predictions.csv", index=False)
+./src/models/model.py:64:        metrics. Optionally visualize the ground truth, residuals and forecasts.
+./src/models/model.py:73:            forecast_df["residuals"] = forecast_df["gt"] - forecast_df["model"]
+./src/models/model.py:79:            metrics['residuals_mean'] = forecast_df["residuals"].mean()
+./src/models/model.py:80:            metrics['residuals_std'] = forecast_df["residuals"].std()
+./src/models/model.py:90:            forecast_df["conf_int_low"] = forecast_df["forecast"] - STD_DEVS * metrics['residuals_std']
+./src/models/model.py:91:            forecast_df["conf_int_up"] = forecast_df["forecast"] + STD_DEVS * metrics['residuals_std']
+./src/models/model.py:98:            forecast_df = forecast_df[["gt", "model", "residuals", "conf_int_low", "conf_int_up",
+AGENTS.md
+DECISIONS.md
+EXPERIMENT_PLAN.md
+LICENSE
+PERMISSIONS.md
+PROJECT_SPEC.md
+README.md
+STATUS.md
+SUCCESS_CRITERIA.md
+VALIDATION_RULES.md
+Water_Forecasting (1).pdf
+artifacts/phase0/phase0_attempt_2_20260815/actual_vs_predicted.png
+artifacts/phase0/phase0_attempt_2_20260815/config.json
+artifacts/phase0/phase0_attempt_2_20260815/linear_regression.joblib
+artifacts/phase0/phase0_attempt_2_20260815/metrics.json
+artifacts/phase0/phase0_attempt_2_20260815/predictions.csv
+artifacts/phase0/phase0_attempt_2_20260815/split_manifest.json
+artifacts/phase0/phase0_attempt_2_20260815/standard_scaler.joblib
+artifacts/phase1/phase1_attempt_1_20260815/calendar_seasonality.png
+artifacts/phase1/phase1_attempt_1_20260815/calendar_summary.csv
+artifacts/phase1/phase1_attempt_1_20260815/config.json
+artifacts/phase1/phase1_attempt_1_20260815/data_quality_report.json
+artifacts/phase1/phase1_attempt_1_20260815/descriptive_statistics.csv
+artifacts/phase1/phase1_attempt_1_20260815/suspicious_observations.csv
+artifacts/phase1/phase1_attempt_1_20260815/target_distribution_boxplot.png
+artifacts/phase1/phase1_attempt_1_20260815/time_series_trend.png
+artifacts/phase1/phase1_attempt_1_final_20260815T203000Z/calendar_seasonality.png
+artifacts/phase1/phase1_attempt_1_final_20260815T203000Z/calendar_summary.csv
+artifacts/phase1/phase1_attempt_1_final_20260815T203000Z/config.json
+artifacts/phase1/phase1_attempt_1_final_20260815T203000Z/data_quality_report.json
+artifacts/phase1/phase1_attempt_1_final_20260815T203000Z/descriptive_statistics.csv
+artifacts/phase1/phase1_attempt_1_final_20260815T203000Z/suspicious_observations.csv
+artifacts/phase1/phase1_attempt_1_final_20260815T203000Z/target_distribution_boxplot.png
+artifacts/phase1/phase1_attempt_1_final_20260815T203000Z/time_series_trend.png
+artifacts/phase2/phase2_attempt_1_20260815T204500Z/config.json
+artifacts/phase2/phase2_attempt_1_20260815T204500Z/feature_manifest.json
+artifacts/phase2/phase2_attempt_1_20260815T204500Z/features.csv
+artifacts/phase3/phase3_attempt_1_20260815T210000Z/config.json
+artifacts/phase3/phase3_attempt_1_20260815T210000Z/feature_ranking.csv
+artifacts/phase3/phase3_attempt_1_20260815T210000Z/selection_report.json
+artifacts/phase3/phase3_attempt_1_final_20260815T210000Z/config.json
+artifacts/phase3/phase3_attempt_1_final_20260815T210000Z/feature_ranking.csv
+artifacts/phase3/phase3_attempt_1_final_20260815T210000Z/selection_report.json
+artifacts/phase4/phase4_attempt_1_20260815T213000Z/config.json
+artifacts/phase4/phase4_attempt_1_20260815T213000Z/metrics.csv
+artifacts/phase4/phase4_attempt_1_20260815T213000Z/model_report.json
+artifacts/phase4/phase4_attempt_1_20260815T213000Z/models/bagging.joblib
+artifacts/phase4/phase4_attempt_1_20260815T213000Z/models/decision_tree.joblib
+artifacts/phase4/phase4_attempt_1_20260815T213000Z/models/gradient_boosting.joblib
+artifacts/phase4/phase4_attempt_1_20260815T213000Z/models/knn.joblib
+artifacts/phase4/phase4_attempt_1_20260815T213000Z/models/lasso.joblib
+artifacts/phase4/phase4_attempt_1_20260815T213000Z/models/linear_regression.joblib
+artifacts/phase4/phase4_attempt_1_20260815T213000Z/models/random_forest.joblib
+artifacts/phase4/phase4_attempt_1_20260815T213000Z/models/ridge.joblib
+artifacts/phase4/phase4_attempt_1_20260815T213000Z/models/svr.joblib
+artifacts/phase4/phase4_attempt_1_20260815T213000Z/models/voting.joblib
+artifacts/phase4/phase4_attempt_1_20260815T213000Z/predictions.csv
+artifacts/phase4/phase4_attempt_1_final_20260815T213000Z/baseline_actual_vs_predicted.png
+artifacts/phase4/phase4_attempt_1_final_20260815T213000Z/config.json
+artifacts/phase4/phase4_attempt_1_final_20260815T213000Z/metrics.csv
+artifacts/phase4/phase4_attempt_1_final_20260815T213000Z/model_report.json
+artifacts/phase4/phase4_attempt_1_final_20260815T213000Z/models/bagging.joblib
+artifacts/phase4/phase4_attempt_1_final_20260815T213000Z/models/decision_tree.joblib
+artifacts/phase4/phase4_attempt_1_final_20260815T213000Z/models/gradient_boosting.joblib
+artifacts/phase4/phase4_attempt_1_final_20260815T213000Z/models/knn.joblib
+artifacts/phase4/phase4_attempt_1_final_20260815T213000Z/models/lasso.joblib
+artifacts/phase4/phase4_attempt_1_final_20260815T213000Z/models/linear_regression.joblib
+artifacts/phase4/phase4_attempt_1_final_20260815T213000Z/models/random_forest.joblib
+artifacts/phase4/phase4_attempt_1_final_20260815T213000Z/models/ridge.joblib
+artifacts/phase4/phase4_attempt_1_final_20260815T213000Z/models/svr.joblib
+artifacts/phase4/phase4_attempt_1_final_20260815T213000Z/models/voting.joblib
+artifacts/phase4/phase4_attempt_1_final_20260815T213000Z/predictions.csv
+artifacts/phase5/phase5_attempt_1_20260815T220000Z/actual_vs_predicted.png
+artifacts/phase5/phase5_attempt_1_20260815T220000Z/config.json
+artifacts/phase5/phase5_attempt_1_20260815T220000Z/holdout_report.json
+artifacts/phase5/phase5_attempt_1_20260815T220000Z/metrics.csv
+artifacts/phase5/phase5_attempt_1_20260815T220000Z/models/bagging.joblib
+artifacts/phase5/phase5_attempt_1_20260815T220000Z/models/decision_tree.joblib
+artifacts/phase5/phase5_attempt_1_20260815T220000Z/models/gradient_boosting.joblib
+artifacts/phase5/phase5_attempt_1_20260815T220000Z/models/knn.joblib
+artifacts/phase5/phase5_attempt_1_20260815T220000Z/models/lasso.joblib
+artifacts/phase5/phase5_attempt_1_20260815T220000Z/models/linear_regression.joblib
+artifacts/phase5/phase5_attempt_1_20260815T220000Z/models/random_forest.joblib
+artifacts/phase5/phase5_attempt_1_20260815T220000Z/models/ridge.joblib
+artifacts/phase5/phase5_attempt_1_20260815T220000Z/models/svr.joblib
+artifacts/phase5/phase5_attempt_1_20260815T220000Z/models/voting.joblib
+artifacts/phase5/phase5_attempt_1_20260815T220000Z/predictions.csv
+artifacts/phase5/phase5_attempt_1_20260815T220000Z/residual_diagnostics.png
+azure/preprocess_step/preprocess_step.py
+azure/train_pipeline.ipynb
+azure/train_step/train_step.py
+config.yml
+data/preprocessed/preprocessed_example.csv
+data/raw/.gitkeep
+data/raw/info/data_dictionary.xlsx
+data/raw/info/sample_raw_data.csv
+data/raw/intermediate/.gitkeep
+data/raw/quarterly/.gitkeep
+data/serializations/.gitkeep
+experiments/phase0_baseline.py
+experiments/phase1_data_eda.py
+experiments/phase2_features.py
+experiments/phase3_feature_selection.py
+experiments/phase4_traditional_ml.py
+experiments/phase5_chronological_holdout.py
+img/data_visualizations/.gitkeep
+img/experiment_visualizations/.gitkeep
+img/forecast_visualizations/.gitkeep
+img/interpretability_visualizations/.gitkeep
+img/readme/Prophet_components.png
+img/readme/Prophet_forecast_example.png
+img/readme/hparam_visualization.png
+img/readme/london_logo.png
+img/readme/silhouette_plot_example.png
+img/readme/test_set_forecast_visualization.png
+orchestration/README.md
+orchestration/__init__.py
+orchestration/agents/__init__.py
+orchestration/agents/validator.py
+orchestration/auto.py
+orchestration/config/agents.yaml
+orchestration/config/tasks.yaml
+orchestration/flow.py
+orchestration/main.py
+orchestration/requirements.txt
+orchestration/state/orchestration_fail_corrections_test_evidence.txt
+orchestration/state/phase_0_attempt_1_20260815T200921Z.txt
+orchestration/state/phase_0_attempt_2_20260815T201523Z.txt
+orchestration/state/phase_0_attempt_2_validator_pass_20260815.txt
+orchestration/state/post_correction_read_only_smoke.txt
+orchestration/tools/__init__.py
+orchestration/tools/codex_tool.py
+orchestration/tools/experiment_reader.py
+orchestration/tools/git_tool.py
+orchestration/tools/test_tool.py
+requirements.txt
+results/experiments/.gitkeep
+results/interpretability/.gitkeep
+results/logs/hparam_search/.gitkeep
+results/logs/training/.gitkeep
+results/models/.gitkeep
+results/predictions/.gitkeep
+src/__init__.py
+src/data/__init__.py
+src/data/kprototypes.py
+src/data/preprocess.py
+src/models/__init__.py
+src/models/arima.py
+src/models/model.py
+src/models/nn.py
+src/models/prophet.py
+src/models/sarimax.py
+src/models/skmodels.py
+src/predict.py
+src/train.py
+src/visualization/__init__.py
+src/visualization/visualize.py
+tests/test_auto.py
+tests/test_codex_tool.py
+tests/test_flow.py
+tests/test_orchestration_tools.py
+tests/test_phase0_baseline.py
+tests/test_phase1_data_eda.py
+tests/test_phase2_features.py
+tests/test_phase3_feature_selection.py
+tests/test_phase4_traditional_ml.py
+tests/test_phase5_chronological_holdout.py
+tests/test_validator.py
+
+exec
+/bin/bash -lc "sed -n '1,280p' experiments/phase5_chronological_holdout.py && sed -n '1,240p' tests/test_phase5_chronological_holdout.py && sed -n '45,78p' EXPERIMENT_PLAN.md && sed -n '1,220p' PERMISSIONS.md && git status --short" in /home/asus/projects/water-forecast
+ succeeded in 0ms:
+"""Run the formal Phase 5 chronological 80/20 traditional-ML holdout."""
+
+from __future__ import annotations
+
+import argparse
+import json
+import platform
+from dataclasses import asdict, dataclass
+from datetime import datetime, timezone
+from pathlib import Path
+from typing import Any, Iterable
+
+import joblib
+import matplotlib
+import numpy as np
+import pandas as pd
+import sklearn
+
+from experiments.phase4_traditional_ml import (
+    DEFAULT_PHASE2_DIR,
+    DEFAULT_PHASE3_DIR,
+    Phase4Config,
+    SCALED_MODELS,
+    build_model_registry,
+    regression_metrics,
+    sha256_file,
+)
+
+matplotlib.use("Agg")
+import matplotlib.pyplot as plt
+
+
+DEFAULT_ARTIFACT_ROOT = Path("artifacts/phase5")
+SEASON_CODES = {"winter": 0.0, "spring": 1.0, "summer": 2.0, "autumn": 3.0}
+
+
+@dataclass(frozen=True)
+class Phase5Config:
+    """Reproducible configuration for the approved Test 1 methodology."""
+
+    training_fraction: float = 0.80
+    random_seed: int = 42
+
+    def split_row(self, row_count: int) -> int:
+        if not 0.0 < self.training_fraction < 1.0:
+            raise ValueError("training_fraction must be strictly between zero and one")
+        split = int(np.floor(row_count * self.training_fraction))
+        if split < 2 or split >= row_count:
+            raise ValueError("dataset is too short for the requested holdout")
+        return split
+
+
+def _read_json(path: Path) -> dict[str, Any]:
+    payload = json.loads(path.read_text(encoding="utf-8"))
+    if not isinstance(payload, dict):
+        raise ValueError(f"expected a JSON object: {path}")
+    return payload
+
+
+def _write_json(path: Path, payload: dict[str, Any]) -> None:
+    path.write_text(json.dumps(payload, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+
+
+def load_phase5_frame(
+    phase2_dir: Path, phase3_dir: Path, config: Phase5Config
+) -> tuple[pd.DataFrame, list[str], int, dict[str, str]]:
+    """Load the selected schema and verify it against approved upstream evidence."""
+    phase2_dir, phase3_dir = phase2_dir.resolve(), phase3_dir.resolve()
+    manifest = _read_json(phase2_dir / "feature_manifest.json")
+    selection = _read_json(phase3_dir / "selection_report.json")
+    candidates, selected, row_count = (
+        manifest.get("feature_columns"),
+        selection.get("selected_features"),
+        manifest.get("row_count"),
+    )
+    if not isinstance(candidates, list) or not isinstance(selected, list) or not selected:
+        raise ValueError("upstream feature manifests are invalid")
+    if len(selected) != len(set(selected)) or not set(selected).issubset(candidates):
+        raise ValueError("Phase 3 selected features do not match the Phase 2 manifest")
+    if not isinstance(row_count, int):
+        raise ValueError("Phase 2 row count is invalid")
+    features_path = phase2_dir / "features.csv"
+    features_hash = sha256_file(features_path)
+    if selection.get("phase2_features_sha256") != features_hash:
+        raise ValueError("Phase 2 features do not match the approved Phase 3 input")
+    if "consumption_lag_1" not in candidates:
+        raise ValueError("naive lag-1 baseline is unavailable")
+    auxiliary = [] if "consumption_lag_1" in selected else ["consumption_lag_1"]
+    columns = ["Date", "Consumption", *selected, *auxiliary]
+    frame = pd.read_csv(features_path, usecols=columns)
+    if len(frame) != row_count or set(frame.columns) != set(columns):
+        raise ValueError("Phase 2 feature artifact does not satisfy its manifest")
+    frame = frame.loc[:, columns]
+    frame["Date"] = pd.to_datetime(frame["Date"], errors="raise")
+    if frame["Date"].duplicated().any() or not frame["Date"].is_monotonic_increasing:
+        raise ValueError("dates must be unique and strictly chronological")
+    frame["Consumption"] = pd.to_numeric(frame["Consumption"], errors="raise")
+    if frame["Consumption"].isna().any() or not np.isfinite(frame["Consumption"]).all():
+        raise ValueError("target must be finite and complete")
+    for column in selected:
+        frame[column] = (
+            frame[column].map(SEASON_CODES)
+            if column == "season"
+            else pd.to_numeric(frame[column], errors="raise")
+        )
+    frame[selected] = frame[selected].replace([np.inf, -np.inf], np.nan).astype(float)
+    return frame, selected, config.split_row(row_count), {
+        "phase2_features_sha256": features_hash,
+        "phase3_selection_report_sha256": sha256_file(phase3_dir / "selection_report.json"),
+    }
+
+
+def _save_plots(predictions: pd.DataFrame, metrics: pd.DataFrame, output: Path) -> None:
+    best_name = str(metrics.loc[metrics["model"] != "naive_lag_1"].iloc[0]["model"])
+    figure, axis = plt.subplots(figsize=(12, 5))
+    axis.plot(predictions["Date"], predictions["actual"], label="Actual", linewidth=1.5)
+    axis.plot(predictions["Date"], predictions["naive_lag_1"], label="Naive lag-1", alpha=0.7)
+    axis.plot(predictions["Date"], predictions["linear_regression"], label="Linear regression", alpha=0.7)
+    if best_name != "linear_regression":
+        axis.plot(predictions["Date"], predictions[best_name], label=f"Lowest MAE: {best_name}", alpha=0.8)
+    axis.set(title="Phase 5 chronological 80/20 holdout", xlabel="Date", ylabel="Consumption")
+    axis.legend()
+    figure.tight_layout()
+    figure.savefig(output / "actual_vs_predicted.png", dpi=150)
+    plt.close(figure)
+
+    residual = predictions["actual"] - predictions[best_name]
+    figure, axes = plt.subplots(1, 2, figsize=(12, 4))
+    axes[0].scatter(predictions[best_name], residual, s=10, alpha=0.6)
+    axes[0].axhline(0, color="black", linewidth=1)
+    axes[0].set(xlabel="Predicted", ylabel="Residual", title=f"Residuals: {best_name}")
+    axes[1].hist(residual, bins=30)
+    axes[1].set(xlabel="Residual", ylabel="Count", title="Residual distribution")
+    figure.tight_layout()
+    figure.savefig(output / "residual_diagnostics.png", dpi=150)
+    plt.close(figure)
+
+
+def run_phase5_holdout(
+    phase2_dir: Path = DEFAULT_PHASE2_DIR,
+    phase3_dir: Path = DEFAULT_PHASE3_DIR,
+    artifact_root: Path = DEFAULT_ARTIFACT_ROOT,
+    experiment_id: str | None = None,
+    config: Phase5Config | None = None,
+    model_config: Phase4Config | None = None,
+) -> Path:
+    config = config or Phase5Config()
+    model_config = model_config or Phase4Config(random_seed=config.random_seed)
+    if model_config.random_seed != config.random_seed:
+        raise ValueError("holdout and model random seeds must match")
+    experiment_id = experiment_id or datetime.now(timezone.utc).strftime("phase5_%Y%m%dT%H%M%SZ")
+    output = artifact_root.resolve() / experiment_id
+    output.mkdir(parents=True, exist_ok=False)
+    models_dir = output / "models"
+    models_dir.mkdir()
+    started = datetime.now(timezone.utc)
+    frame, selected, split, hashes = load_phase5_frame(phase2_dir, phase3_dir, config)
+    train, test = frame.iloc[:split], frame.iloc[split:]
+    x_train, y_train = train[selected], train["Consumption"]
+    x_test, y_test = test[selected], test["Consumption"]
+    predictions = pd.DataFrame({"Date": test["Date"], "actual": y_test})
+    naive = test["consumption_lag_1"].to_numpy(dtype=float)
+    if not np.isfinite(naive).all():
+        raise ValueError("naive lag-1 baseline is incomplete on the holdout")
+    predictions["naive_lag_1"] = naive
+    metric_rows = [{"model": "naive_lag_1", **regression_metrics(y_test, naive)}]
+    registry = build_model_registry(model_config)
+    for name, model in registry.items():
+        model.fit(x_train, y_train)
+        predicted = model.predict(x_test)
+        if not np.isfinite(predicted).all():
+            raise RuntimeError(f"{name} produced non-finite predictions")
+        predictions[name] = predicted
+        metric_rows.append({"model": name, **regression_metrics(y_test, predicted)})
+        joblib.dump(model, models_dir / f"{name}.joblib")
+    metrics = pd.DataFrame(metric_rows).sort_values(["mae", "model"]).reset_index(drop=True)
+    predictions.to_csv(output / "predictions.csv", index=False, date_format="%Y-%m-%d")
+    metrics.to_csv(output / "metrics.csv", index=False)
+    _save_plots(predictions, metrics, output)
+    report = {
+        "phase": "Phase 5",
+        "experiment": "Test 1 chronological 80/20 holdout",
+        "row_count": len(frame),
+        "training_rows": len(train),
+        "holdout_rows": len(test),
+        "training_start_date": train["Date"].iloc[0].date().isoformat(),
+        "training_end_date_inclusive": train["Date"].iloc[-1].date().isoformat(),
+        "holdout_start_date": test["Date"].iloc[0].date().isoformat(),
+        "holdout_end_date_inclusive": test["Date"].iloc[-1].date().isoformat(),
+        "chronological_order_preserved": True,
+        "shuffle_used": False,
+        "selected_features": selected,
+        "simple_baselines": ["naive_lag_1", "linear_regression"],
+        "model_names": list(registry),
+        "preprocessing_fit_scope": "each Pipeline fitted on chronological training rows only",
+        "scaled_models": sorted(SCALED_MODELS),
+        "holdout_used_for_fitting_or_tuning": False,
+        "hyperparameter_optimization_performed": False,
+        "improvement_claimed": False,
+        "lowest_holdout_mae_model_descriptive_only": str(metrics.iloc[0]["model"]),
+        **hashes,
+    }
+    _write_json(output / "holdout_report.json", report)
+    _write_json(output / "config.json", {
+        "phase": "Phase 5", "experiment_id": experiment_id,
+        "configuration": asdict(config), "model_configuration": asdict(model_config),
+        "random_seed": config.random_seed,
+        "phase2_directory": str(Path(phase2_dir).resolve()),
+        "phase3_directory": str(Path(phase3_dir).resolve()),
+        "environment": {"python": platform.python_version(), "numpy": np.__version__, "pandas": pd.__version__, "scikit_learn": sklearn.__version__, "joblib": joblib.__version__},
+        "started_at_utc": started.isoformat(), "completed_at_utc": datetime.now(timezone.utc).isoformat(),
+    })
+    (output / "execution.log").write_text(
+        f"Phase 5 chronological 80/20 holdout completed.\nTraining rows: {len(train)}; holdout rows: {len(test)}.\n"
+        f"Fitted {len(registry)} approved models with seed {config.random_seed}.\nNo tuning or improvement claim was made.\n",
+        encoding="utf-8",
+    )
+    return output
+
+
+def main(argv: Iterable[str] | None = None) -> None:
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("--phase2-dir", type=Path, default=DEFAULT_PHASE2_DIR)
+    parser.add_argument("--phase3-dir", type=Path, default=DEFAULT_PHASE3_DIR)
+    parser.add_argument("--artifact-root", type=Path, default=DEFAULT_ARTIFACT_ROOT)
+    parser.add_argument("--experiment-id")
+    args = parser.parse_args(argv)
+    print(run_phase5_holdout(args.phase2_dir, args.phase3_dir, args.artifact_root, args.experiment_id))
+
+
+if __name__ == "__main__":
+    main()
+import json
+from pathlib import Path
+
+import joblib
+import numpy as np
+import pandas as pd
+from sklearn.pipeline import Pipeline
+from sklearn.preprocessing import RobustScaler
+
+from experiments.phase2_features import build_past_only_features
+from experiments.phase3_feature_selection import SelectionConfig, run_phase3_selection
+from experiments.phase4_traditional_ml import Phase4Config
+from experiments.phase5_chronological_holdout import Phase5Config, load_phase5_frame, run_phase5_holdout
+
+
+def _inputs(root: Path, rows: int = 180) -> tuple[Path, Path]:
+    phase2 = root / "phase2"
+    phase2.mkdir()
+    dates = pd.date_range("2019-01-01", periods=rows, freq="D")
+    target = 100 + 8 * np.sin(np.arange(rows) * 2 * np.pi / 7) + np.arange(rows) * 0.05
+    features = build_past_only_features(pd.DataFrame({"Date": dates, "Consumption": target}))
+    features.to_csv(phase2 / "features.csv", index=False, date_format="%Y-%m-%d")
+    candidates = [column for column in features if column not in {"Date", "Consumption"}]
+    (phase2 / "feature_manifest.json").write_text(json.dumps({
+        "date_column": "Date", "target_column": "Consumption", "feature_columns": candidates,
+        "row_count": rows, "feature_selection": {"performed": False},
+        "causality": {"target_derived_features": "past only", "rolling_policy": "shifted", "calendar_offset_policy": "exact", "calendar_features": "known date"},
+    }), encoding="utf-8")
+    phase3 = run_phase3_selection(phase2, root / "phase3", "selection", SelectionConfig(n_splits=2, n_estimators=8, permutation_repeats=1, max_features=8, stability_top_k=6))
+    return phase2, phase3
+
+
+def _models() -> Phase4Config:
+    return Phase4Config(random_forest_estimators=5, bagging_estimators=5, gradient_boosting_estimators=5, knn_neighbors=3)
+
+
+def test_loader_creates_exact_chronological_80_20_boundary(tmp_path: Path) -> None:
+    phase2, phase3 = _inputs(tmp_path, 101)
+    frame, selected, split, _ = load_phase5_frame(phase2, phase3, Phase5Config())
+    assert len(frame) == 101 and split == 80 and selected
+    assert frame.iloc[split - 1]["Date"] < frame.iloc[split]["Date"]
+
+
+def test_holdout_run_preserves_complete_evidence_and_training_fitted_scaler(tmp_path: Path) -> None:
+    phase2, phase3 = _inputs(tmp_path)
+    output = run_phase5_holdout(phase2, phase3, tmp_path / "runs", "run", model_config=_models())
+    required = {"config.json", "execution.log", "holdout_report.json", "metrics.csv", "predictions.csv", "actual_vs_predicted.png", "residual_diagnostics.png"}
+    assert required.issubset(path.name for path in output.iterdir())
+    report = json.loads((output / "holdout_report.json").read_text())
+    assert report["training_rows"] == 144 and report["holdout_rows"] == 36
+    assert report["shuffle_used"] is False and report["holdout_used_for_fitting_or_tuning"] is False
+    metrics = pd.read_csv(output / "metrics.csv")
+    assert set(metrics["model"]) == {"naive_lag_1", *report["model_names"]}
+    assert np.isfinite(metrics[["mae", "mse", "rmse", "r2"]]).all().all()
+    linear = joblib.load(output / "models" / "linear_regression.joblib")
+    assert isinstance(linear, Pipeline) and isinstance(linear.named_steps["scaler"], RobustScaler)
+
+
+def test_fit_preprocessing_statistics_ignore_holdout_features(tmp_path: Path) -> None:
+    phase2, phase3 = _inputs(tmp_path)
+    first = run_phase5_holdout(phase2, phase3, tmp_path / "runs", "first", model_config=_models())
+    first_model = joblib.load(first / "models" / "linear_regression.joblib")
+    frame = pd.read_csv(phase2 / "features.csv")
+    selected = json.loads((phase3 / "selection_report.json").read_text())["selected_features"]
+    frame.loc[144:, selected] = 1_000_000
+    frame.to_csv(phase2 / "features.csv", index=False)
+    selection_path = phase3 / "selection_report.json"
+    selection = json.loads(selection_path.read_text())
+    from experiments.phase4_traditional_ml import sha256_file
+    selection["phase2_features_sha256"] = sha256_file(phase2 / "features.csv")
+    selection_path.write_text(json.dumps(selection), encoding="utf-8")
+    second = run_phase5_holdout(phase2, phase3, tmp_path / "runs", "second", model_config=_models())
+    second_model = joblib.load(second / "models" / "linear_regression.joblib")
+    np.testing.assert_allclose(first_model.named_steps["imputer"].statistics_, second_model.named_steps["imputer"].statistics_)
+    np.testing.assert_allclose(first_model.named_steps["scaler"].center_, second_model.named_steps["scaler"].center_)
+## Forecasting Comparison
+
+Compare:
+- naive/reference forecast
+- Linear Regression
+- best traditional ML model
+- ARIMA
+- SARIMAX
+- Prophet
+- LSTM
+- GRU
+- CNN
+- Transformer if completed
+
+## Evaluation Artifacts
+
+Generate:
+- actual vs predicted over time
+- actual vs predicted scatter
+- residual vs predicted
+- residual distribution
+- error over time
+- highest-error dates
+- metrics table
+
+Large residuals may be called prediction-error/anomaly candidates.
+Do not call them confirmed anomalies unless an anomaly-detection method is implemented.
+
+# Permissions
+
+## Automatically Allowed
+
+Agents may:
+- read project files
+- create/edit project source files
+- create tests
+- run Python
+- run pytest
+- install ordinary project dependencies
+- perform EDA
+- train models
+- run Optuna experiments
+- use GPU
+- create plots
+- save artifacts
+- inspect git status
+- inspect git diff
+- create local commits/checkpoints when explicitly enabled by supervisor
+- retry failed code
+- fix implementation errors
+- write reports
+
+## Must Ask User First
+
+Agents must request permission before:
+- deleting original datasets
+- deleting large portions of the repository
+- force pushing
+- pushing publicly
+- exposing credentials
+- requesting/storing API keys
+- using paid cloud services
+- purchasing resources
+- public deployment
+- modifying GitHub history
+- starting external Selenium/web scraping
+- changing the fundamental approved experiment methodology
+- destructive system operations
+
+## Secrets
+
+Never commit:
+- API keys
+- passwords
+- tokens
+- credentials
+
+Use environment variables or ignored local configuration.
+
+?? artifacts/phase5/
+?? experiments/phase5_chronological_holdout.py
+?? tests/test_phase5_chronological_holdout.py
+
+codex
+The existing Phase 5 runner already identifies a descriptive lowest-MAE non-naive model for diagnostics. I’ll use that same clearly labeled model—without tuning or changing selection—to produce a separate actual-vs-predicted scatter, a dated signed/absolute error plot, and a top-error CSV derived directly from the saved holdout predictions.
+apply patch
+patch: completed
+/home/asus/projects/water-forecast/experiments/phase5_chronological_holdout.py
+/home/asus/projects/water-forecast/tests/test_phase5_chronological_holdout.py
+diff --git a/experiments/phase5_chronological_holdout.py b/experiments/phase5_chronological_holdout.py
+index d2a93046759d3b50f58d15ac7b2bb53a2c1f1018..bab0606f051544ff8b248ac933fa584a30aa680c
+--- a/experiments/phase5_chronological_holdout.py
++++ b/experiments/phase5_chronological_holdout.py
+@@ -110,7 +110,10 @@
+     }
+ 
+ 
+-def _save_plots(predictions: pd.DataFrame, metrics: pd.DataFrame, output: Path) -> None:
++def _save_evaluation_artifacts(
++    predictions: pd.DataFrame, metrics: pd.DataFrame, output: Path
++) -> None:
++    """Preserve the required holdout diagnostics for one clearly named model."""
+     best_name = str(metrics.loc[metrics["model"] != "naive_lag_1"].iloc[0]["model"])
+     figure, axis = plt.subplots(figsize=(12, 5))
+     axis.plot(predictions["Date"], predictions["actual"], label="Actual", linewidth=1.5)
+@@ -125,6 +128,22 @@
+     plt.close(figure)
+ 
+     residual = predictions["actual"] - predictions[best_name]
++    absolute_error = residual.abs()
++
++    figure, axis = plt.subplots(figsize=(6, 6))
++    axis.scatter(predictions["actual"], predictions[best_name], s=12, alpha=0.65)
++    lower = float(min(predictions["actual"].min(), predictions[best_name].min()))
++    upper = float(max(predictions["actual"].max(), predictions[best_name].max()))
++    axis.plot([lower, upper], [lower, upper], color="black", linewidth=1, linestyle="--")
++    axis.set(
++        xlabel="Actual consumption",
++        ylabel="Predicted consumption",
++        title=f"Actual versus predicted: {best_name}",
++    )
++    figure.tight_layout()
++    figure.savefig(output / "actual_vs_predicted_scatter.png", dpi=150)
++    plt.close(figure)
++
+     figure, axes = plt.subplots(1, 2, figsize=(12, 4))
+     axes[0].scatter(predictions[best_name], residual, s=10, alpha=0.6)
+     axes[0].axhline(0, color="black", linewidth=1)
+@@ -135,6 +154,28 @@
+     figure.savefig(output / "residual_diagnostics.png", dpi=150)
+     plt.close(figure)
+ 
++    figure, axis = plt.subplots(figsize=(12, 5))
++    axis.plot(predictions["Date"], residual, label="Residual (actual - prediction)", alpha=0.75)
++    axis.plot(predictions["Date"], absolute_error, label="Absolute error", linewidth=1.5)
++    axis.axhline(0, color="black", linewidth=1)
++    axis.set(xlabel="Date", ylabel="Error", title=f"Dated holdout error: {best_name}")
++    axis.legend()
++    figure.tight_layout()
++    figure.savefig(output / "error_over_time.png", dpi=150)
++    plt.close(figure)
++
++    highest_errors = pd.DataFrame({
++        "date": predictions["Date"],
++        "model": best_name,
++        "actual": predictions["actual"],
++        "prediction": predictions[best_name],
++        "residual": residual,
++        "absolute_error": absolute_error,
++    }).sort_values(["absolute_error", "date"], ascending=[False, True])
++    highest_errors.head(min(20, len(highest_errors))).to_csv(
++        output / "highest_error_dates.csv", index=False, date_format="%Y-%m-%d"
++    )
++
+ 
+ def run_phase5_holdout(
+     phase2_dir: Path = DEFAULT_PHASE2_DIR,
+@@ -176,7 +217,7 @@
+     metrics = pd.DataFrame(metric_rows).sort_values(["mae", "model"]).reset_index(drop=True)
+     predictions.to_csv(output / "predictions.csv", index=False, date_format="%Y-%m-%d")
+     metrics.to_csv(output / "metrics.csv", index=False)
+-    _save_plots(predictions, metrics, output)
++    _save_evaluation_artifacts(predictions, metrics, output)
+     report = {
+         "phase": "Phase 5",
+         "experiment": "Test 1 chronological 80/20 holdout",
+diff --git a/tests/test_phase5_chronological_holdout.py b/tests/test_phase5_chronological_holdout.py
+index f2ce5631d08daba83d2576861839b6a04c8aa3da..34fb9bb4883b5eb02d82a34485c2e2345d79ce21
+--- a/tests/test_phase5_chronological_holdout.py
++++ b/tests/test_phase5_chronological_holdout.py
+@@ -44,8 +44,13 @@
+ def test_holdout_run_preserves_complete_evidence_and_training_fitted_scaler(tmp_path: Path) -> None:
+     phase2, phase3 = _inputs(tmp_path)
+     output = run_phase5_holdout(phase2, phase3, tmp_path / "runs", "run", model_config=_models())
+-    required = {"config.json", "execution.log", "holdout_report.json", "metrics.csv", "predictions.csv", "actual_vs_predicted.png", "residual_diagnostics.png"}
++    required = {
++        "config.json", "execution.log", "holdout_report.json", "metrics.csv",
++        "predictions.csv", "actual_vs_predicted.png", "actual_vs_predicted_scatter.png",
++        "residual_diagnostics.png", "error_over_time.png", "highest_error_dates.csv",
++    }
+     assert required.issubset(path.name for path in output.iterdir())
++    assert all((output / name).stat().st_size > 0 for name in required)
+     report = json.loads((output / "holdout_report.json").read_text())
+     assert report["training_rows"] == 144 and report["holdout_rows"] == 36
+     assert report["shuffle_used"] is False and report["holdout_used_for_fitting_or_tuning"] is False
+@@ -55,6 +60,26 @@
+     linear = joblib.load(output / "models" / "linear_regression.joblib")
+     assert isinstance(linear, Pipeline) and isinstance(linear.named_steps["scaler"], RobustScaler)
+ 
++    predictions = pd.read_csv(output / "predictions.csv", parse_dates=["Date"])
++    highest_errors = pd.read_csv(output / "highest_error_dates.csv", parse_dates=["date"])
++    assert list(highest_errors.columns) == [
++        "date", "model", "actual", "prediction", "residual", "absolute_error"
++    ]
++    assert highest_errors["model"].nunique() == 1
++    diagnostic_model = highest_errors["model"].iloc[0]
++    expected = pd.DataFrame({
++        "date": predictions["Date"],
++        "model": diagnostic_model,
++        "actual": predictions["actual"],
++        "prediction": predictions[diagnostic_model],
++    })
++    expected["residual"] = expected["actual"] - expected["prediction"]
++    expected["absolute_error"] = expected["residual"].abs()
++    expected = expected.sort_values(
++        ["absolute_error", "date"], ascending=[False, True]
++    ).head(20).reset_index(drop=True)
++    pd.testing.assert_frame_equal(highest_errors, expected, check_exact=False, rtol=1e-12, atol=1e-12)
++
+ 
+ def test_fit_preprocessing_statistics_ignore_holdout_features(tmp_path: Path) -> None:
+     phase2, phase3 = _inputs(tmp_path)
+
+diff --git a/experiments/phase5_chronological_holdout.py b/experiments/phase5_chronological_holdout.py
+index d2a93046759d3b50f58d15ac7b2bb53a2c1f1018..bab0606f051544ff8b248ac933fa584a30aa680c
+--- a/experiments/phase5_chronological_holdout.py
++++ b/experiments/phase5_chronological_holdout.py
+@@ -110,7 +110,10 @@
+     }
+ 
+ 
+-def _save_plots(predictions: pd.DataFrame, metrics: pd.DataFrame, output: Path) -> None:
++def _save_evaluation_artifacts(
++    predictions: pd.DataFrame, metrics: pd.DataFrame, output: Path
++) -> None:
++    """Preserve the required holdout diagnostics for one clearly named model."""
+     best_name = str(metrics.loc[metrics["model"] != "naive_lag_1"].iloc[0]["model"])
+     figure, axis = plt.subplots(figsize=(12, 5))
+     axis.plot(predictions["Date"], predictions["actual"], label="Actual", linewidth=1.5)
+@@ -125,6 +128,22 @@
+     plt.close(figure)
+ 
+     residual = predictions["actual"] - predictions[best_name]
++    absolute_error = residual.abs()
++
++    figure, axis = plt.subplots(figsize=(6, 6))
++    axis.scatter(predictions["actual"], predictions[best_name], s=12, alpha=0.65)
++    lower = float(min(predictions["actual"].min(), predictions[best_name].min()))
++    upper = float(max(predictions["actual"].max(), predictions[best_name].max()))
++    axis.plot([lower, upper], [lower, upper], color="black", linewidth=1, linestyle="--")
++    axis.set(
++        xlabel="Actual consumption",
++        ylabel="Predicted consumption",
++        title=f"Actual versus predicted: {best_name}",
++    )
++    figure.tight_layout()
++    figure.savefig(output / "actual_vs_predicted_scatter.png", dpi=150)
++    plt.close(figure)
++
+     figure, axes = plt.subplots(1, 2, figsize=(12, 4))
+     axes[0].scatter(predictions[best_name], residual, s=10, alpha=0.6)
+     axes[0].axhline(0, color="black", linewidth=1)
+@@ -135,6 +154,28 @@
+     figure.savefig(output / "residual_diagnostics.png", dpi=150)
+     plt.close(figure)
+ 
++    figure, axis = plt.subplots(figsize=(12, 5))
++    axis.plot(predictions["Date"], residual, label="Residual (actual - prediction)", alpha=0.75)
++    axis.plot(predictions["Date"], absolute_error, label="Absolute error", linewidth=1.5)
++    axis.axhline(0, color="black", linewidth=1)
++    axis.set(xlabel="Date", ylabel="Error", title=f"Dated holdout error: {best_name}")
++    axis.legend()
++    figure.tight_layout()
++    figure.savefig(output / "error_over_time.png", dpi=150)
++    plt.close(figure)
++
++    highest_errors = pd.DataFrame({
++        "date": predictions["Date"],
++        "model": best_name,
++        "actual": predictions["actual"],
++        "prediction": predictions[best_name],
++        "residual": residual,
++        "absolute_error": absolute_error,
++    }).sort_values(["absolute_error", "date"], ascending=[False, True])
++    highest_errors.head(min(20, len(highest_errors))).to_csv(
++        output / "highest_error_dates.csv", index=False, date_format="%Y-%m-%d"
++    )
++
+ 
+ def run_phase5_holdout(
+     phase2_dir: Path = DEFAULT_PHASE2_DIR,
+@@ -176,7 +217,7 @@
+     metrics = pd.DataFrame(metric_rows).sort_values(["mae", "model"]).reset_index(drop=True)
+     predictions.to_csv(output / "predictions.csv", index=False, date_format="%Y-%m-%d")
+     metrics.to_csv(output / "metrics.csv", index=False)
+-    _save_plots(predictions, metrics, output)
++    _save_evaluation_artifacts(predictions, metrics, output)
+     report = {
+         "phase": "Phase 5",
+         "experiment": "Test 1 chronological 80/20 holdout",
+diff --git a/tests/test_phase5_chronological_holdout.py b/tests/test_phase5_chronological_holdout.py
+index f2ce5631d08daba83d2576861839b6a04c8aa3da..34fb9bb4883b5eb02d82a34485c2e2345d79ce21
+--- a/tests/test_phase5_chronological_holdout.py
++++ b/tests/test_phase5_chronological_holdout.py
+@@ -44,8 +44,13 @@
+ def test_holdout_run_preserves_complete_evidence_and_training_fitted_scaler(tmp_path: Path) -> None:
+     phase2, phase3 = _inputs(tmp_path)
+     output = run_phase5_holdout(phase2, phase3, tmp_path / "runs", "run", model_config=_models())
+-    required = {"config.json", "execution.log", "holdout_report.json", "metrics.csv", "predictions.csv", "actual_vs_predicted.png", "residual_diagnostics.png"}
++    required = {
++        "config.json", "execution.log", "holdout_report.json", "metrics.csv",
++        "predictions.csv", "actual_vs_predicted.png", "actual_vs_predicted_scatter.png",
++        "residual_diagnostics.png", "error_over_time.png", "highest_error_dates.csv",
++    }
+     assert required.issubset(path.name for path in output.iterdir())
++    assert all((output / name).stat().st_size > 0 for name in required)
+     report = json.loads((output / "holdout_report.json").read_text())
+     assert report["training_rows"] == 144 and report["holdout_rows"] == 36
+     assert report["shuffle_used"] is False and report["holdout_used_for_fitting_or_tuning"] is False
+@@ -55,6 +60,26 @@
+     linear = joblib.load(output / "models" / "linear_regression.joblib")
+     assert isinstance(linear, Pipeline) and isinstance(linear.named_steps["scaler"], RobustScaler)
+ 
++    predictions = pd.read_csv(output / "predictions.csv", parse_dates=["Date"])
++    highest_errors = pd.read_csv(output / "highest_error_dates.csv", parse_dates=["date"])
++    assert list(highest_errors.columns) == [
++        "date", "model", "actual", "prediction", "residual", "absolute_error"
++    ]
++    assert highest_errors["model"].nunique() == 1
++    diagnostic_model = highest_errors["model"].iloc[0]
++    expected = pd.DataFrame({
++        "date": predictions["Date"],
++        "model": diagnostic_model,
++        "actual": predictions["actual"],
++        "prediction": predictions[diagnostic_model],
++    })
++    expected["residual"] = expected["actual"] - expected["prediction"]
++    expected["absolute_error"] = expected["residual"].abs()
++    expected = expected.sort_values(
++        ["absolute_error", "date"], ascending=[False, True]
++    ).head(20).reset_index(drop=True)
++    pd.testing.assert_frame_equal(highest_errors, expected, check_exact=False, rtol=1e-12, atol=1e-12)
++
+ 
+ def test_fit_preprocessing_statistics_ignore_holdout_features(tmp_path: Path) -> None:
+     phase2, phase3 = _inputs(tmp_path)
+
+exec
+/bin/bash -lc 'pytest -q tests/test_phase5_chronological_holdout.py' in /home/asus/projects/water-forecast
+ exited 2 in 1046ms:
+
+==================================== ERRORS ====================================
+_________ ERROR collecting tests/test_phase5_chronological_holdout.py __________
+ImportError while importing test module '/home/asus/projects/water-forecast/tests/test_phase5_chronological_holdout.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+../../.local/share/uv/python/cpython-3.12.14-linux-x86_64-gnu/lib/python3.12/importlib/__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests/test_phase5_chronological_holdout.py:10: in <module>
+    from experiments.phase2_features import build_past_only_features
+E   ModuleNotFoundError: No module named 'experiments'
+=========================== short test summary info ============================
+ERROR tests/test_phase5_chronological_holdout.py
+!!!!!!!!!!!!!!!!!!!! Interrupted: 1 error during collection !!!!!!!!!!!!!!!!!!!!
+1 error in 0.83s
+
+diff --git a/experiments/phase5_chronological_holdout.py b/experiments/phase5_chronological_holdout.py
+index d2a93046759d3b50f58d15ac7b2bb53a2c1f1018..bab0606f051544ff8b248ac933fa584a30aa680c
+--- a/experiments/phase5_chronological_holdout.py
++++ b/experiments/phase5_chronological_holdout.py
+@@ -110,7 +110,10 @@
+     }
+ 
+ 
+-def _save_plots(predictions: pd.DataFrame, metrics: pd.DataFrame, output: Path) -> None:
++def _save_evaluation_artifacts(
++    predictions: pd.DataFrame, metrics: pd.DataFrame, output: Path
++) -> None:
++    """Preserve the required holdout diagnostics for one clearly named model."""
+     best_name = str(metrics.loc[metrics["model"] != "naive_lag_1"].iloc[0]["model"])
+     figure, axis = plt.subplots(figsize=(12, 5))
+     axis.plot(predictions["Date"], predictions["actual"], label="Actual", linewidth=1.5)
+@@ -125,6 +128,22 @@
+     plt.close(figure)
+ 
+     residual = predictions["actual"] - predictions[best_name]
++    absolute_error = residual.abs()
++
++    figure, axis = plt.subplots(figsize=(6, 6))
++    axis.scatter(predictions["actual"], predictions[best_name], s=12, alpha=0.65)
++    lower = float(min(predictions["actual"].min(), predictions[best_name].min()))
++    upper = float(max(predictions["actual"].max(), predictions[best_name].max()))
++    axis.plot([lower, upper], [lower, upper], color="black", linewidth=1, linestyle="--")
++    axis.set(
++        xlabel="Actual consumption",
++        ylabel="Predicted consumption",
++        title=f"Actual versus predicted: {best_name}",
++    )
++    figure.tight_layout()
++    figure.savefig(output / "actual_vs_predicted_scatter.png", dpi=150)
++    plt.close(figure)
++
+     figure, axes = plt.subplots(1, 2, figsize=(12, 4))
+     axes[0].scatter(predictions[best_name], residual, s=10, alpha=0.6)
+     axes[0].axhline(0, color="black", linewidth=1)
+@@ -135,6 +154,28 @@
+     figure.savefig(output / "residual_diagnostics.png", dpi=150)
+     plt.close(figure)
+ 
++    figure, axis = plt.subplots(figsize=(12, 5))
++    axis.plot(predictions["Date"], residual, label="Residual (actual - prediction)", alpha=0.75)
++    axis.plot(predictions["Date"], absolute_error, label="Absolute error", linewidth=1.5)
++    axis.axhline(0, color="black", linewidth=1)
++    axis.set(xlabel="Date", ylabel="Error", title=f"Dated holdout error: {best_name}")
++    axis.legend()
++    figure.tight_layout()
++    figure.savefig(output / "error_over_time.png", dpi=150)
++    plt.close(figure)
++
++    highest_errors = pd.DataFrame({
++        "date": predictions["Date"],
++        "model": best_name,
++        "actual": predictions["actual"],
++        "prediction": predictions[best_name],
++        "residual": residual,
++        "absolute_error": absolute_error,
++    }).sort_values(["absolute_error", "date"], ascending=[False, True])
++    highest_errors.head(min(20, len(highest_errors))).to_csv(
++        output / "highest_error_dates.csv", index=False, date_format="%Y-%m-%d"
++    )
++
+ 
+ def run_phase5_holdout(
+     phase2_dir: Path = DEFAULT_PHASE2_DIR,
+@@ -176,7 +217,7 @@
+     metrics = pd.DataFrame(metric_rows).sort_values(["mae", "model"]).reset_index(drop=True)
+     predictions.to_csv(output / "predictions.csv", index=False, date_format="%Y-%m-%d")
+     metrics.to_csv(output / "metrics.csv", index=False)
+-    _save_plots(predictions, metrics, output)
++    _save_evaluation_artifacts(predictions, metrics, output)
+     report = {
+         "phase": "Phase 5",
+         "experiment": "Test 1 chronological 80/20 holdout",
+diff --git a/tests/test_phase5_chronological_holdout.py b/tests/test_phase5_chronological_holdout.py
+index f2ce5631d08daba83d2576861839b6a04c8aa3da..34fb9bb4883b5eb02d82a34485c2e2345d79ce21
+--- a/tests/test_phase5_chronological_holdout.py
++++ b/tests/test_phase5_chronological_holdout.py
+@@ -44,8 +44,13 @@
+ def test_holdout_run_preserves_complete_evidence_and_training_fitted_scaler(tmp_path: Path) -> None:
+     phase2, phase3 = _inputs(tmp_path)
+     output = run_phase5_holdout(phase2, phase3, tmp_path / "runs", "run", model_config=_models())
+-    required = {"config.json", "execution.log", "holdout_report.json", "metrics.csv", "predictions.csv", "actual_vs_predicted.png", "residual_diagnostics.png"}
++    required = {
++        "config.json", "execution.log", "holdout_report.json", "metrics.csv",
++        "predictions.csv", "actual_vs_predicted.png", "actual_vs_predicted_scatter.png",
++        "residual_diagnostics.png", "error_over_time.png", "highest_error_dates.csv",
++    }
+     assert required.issubset(path.name for path in output.iterdir())
++    assert all((output / name).stat().st_size > 0 for name in required)
+     report = json.loads((output / "holdout_report.json").read_text())
+     assert report["training_rows"] == 144 and report["holdout_rows"] == 36
+     assert report["shuffle_used"] is False and report["holdout_used_for_fitting_or_tuning"] is False
+@@ -55,6 +60,26 @@
+     linear = joblib.load(output / "models" / "linear_regression.joblib")
+     assert isinstance(linear, Pipeline) and isinstance(linear.named_steps["scaler"], RobustScaler)
+ 
++    predictions = pd.read_csv(output / "predictions.csv", parse_dates=["Date"])
++    highest_errors = pd.read_csv(output / "highest_error_dates.csv", parse_dates=["date"])
++    assert list(highest_errors.columns) == [
++        "date", "model", "actual", "prediction", "residual", "absolute_error"
++    ]
++    assert highest_errors["model"].nunique() == 1
++    diagnostic_model = highest_errors["model"].iloc[0]
++    expected = pd.DataFrame({
++        "date": predictions["Date"],
++        "model": diagnostic_model,
++        "actual": predictions["actual"],
++        "prediction": predictions[diagnostic_model],
++    })
++    expected["residual"] = expected["actual"] - expected["prediction"]
++    expected["absolute_error"] = expected["residual"].abs()
++    expected = expected.sort_values(
++        ["absolute_error", "date"], ascending=[False, True]
++    ).head(20).reset_index(drop=True)
++    pd.testing.assert_frame_equal(highest_errors, expected, check_exact=False, rtol=1e-12, atol=1e-12)
++
+ 
+ def test_fit_preprocessing_statistics_ignore_holdout_features(tmp_path: Path) -> None:
+     phase2, phase3 = _inputs(tmp_path)
+
+codex
+The first focused invocation exposed an environment-only collection issue (`experiments` was not on Python’s import path), not a test failure. I’m rerunning with the repository root explicitly on `PYTHONPATH`, matching how these experiment modules are intended to be loaded.
+exec
+/bin/bash -lc 'PYTHONPATH=. pytest -q tests/test_phase5_chronological_holdout.py' in /home/asus/projects/water-forecast
+ succeeded in 3479ms:
+...                                                                      [100%]
+=============================== warnings summary ===============================
+tests/test_phase5_chronological_holdout.py: 15 warnings
+  /home/asus/projects/water-forecast/.venv/lib/python3.12/site-packages/joblib/numpy_pickle.py:207: DeprecationWarning: Setting the shape on a NumPy array has been deprecated in NumPy 2.5.
+  As an alternative, you can create a new view using np.reshape (with copy=False if needed).
+    array.shape = self.shape
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+3 passed, 15 warnings in 3.08s
+
+diff --git a/experiments/phase5_chronological_holdout.py b/experiments/phase5_chronological_holdout.py
+index d2a93046759d3b50f58d15ac7b2bb53a2c1f1018..bab0606f051544ff8b248ac933fa584a30aa680c
+--- a/experiments/phase5_chronological_holdout.py
++++ b/experiments/phase5_chronological_holdout.py
+@@ -110,7 +110,10 @@
+     }
+ 
+ 
+-def _save_plots(predictions: pd.DataFrame, metrics: pd.DataFrame, output: Path) -> None:
++def _save_evaluation_artifacts(
++    predictions: pd.DataFrame, metrics: pd.DataFrame, output: Path
++) -> None:
++    """Preserve the required holdout diagnostics for one clearly named model."""
+     best_name = str(metrics.loc[metrics["model"] != "naive_lag_1"].iloc[0]["model"])
+     figure, axis = plt.subplots(figsize=(12, 5))
+     axis.plot(predictions["Date"], predictions["actual"], label="Actual", linewidth=1.5)
+@@ -125,6 +128,22 @@
+     plt.close(figure)
+ 
+     residual = predictions["actual"] - predictions[best_name]
++    absolute_error = residual.abs()
++
++    figure, axis = plt.subplots(figsize=(6, 6))
++    axis.scatter(predictions["actual"], predictions[best_name], s=12, alpha=0.65)
++    lower = float(min(predictions["actual"].min(), predictions[best_name].min()))
++    upper = float(max(predictions["actual"].max(), predictions[best_name].max()))
++    axis.plot([lower, upper], [lower, upper], color="black", linewidth=1, linestyle="--")
++    axis.set(
++        xlabel="Actual consumption",
++        ylabel="Predicted consumption",
++        title=f"Actual versus predicted: {best_name}",
++    )
++    figure.tight_layout()
++    figure.savefig(output / "actual_vs_predicted_scatter.png", dpi=150)
++    plt.close(figure)
++
+     figure, axes = plt.subplots(1, 2, figsize=(12, 4))
+     axes[0].scatter(predictions[best_name], residual, s=10, alpha=0.6)
+     axes[0].axhline(0, color="black", linewidth=1)
+@@ -135,6 +154,28 @@
+     figure.savefig(output / "residual_diagnostics.png", dpi=150)
+     plt.close(figure)
+ 
++    figure, axis = plt.subplots(figsize=(12, 5))
++    axis.plot(predictions["Date"], residual, label="Residual (actual - prediction)", alpha=0.75)
++    axis.plot(predictions["Date"], absolute_error, label="Absolute error", linewidth=1.5)
++    axis.axhline(0, color="black", linewidth=1)
++    axis.set(xlabel="Date", ylabel="Error", title=f"Dated holdout error: {best_name}")
++    axis.legend()
++    figure.tight_layout()
++    figure.savefig(output / "error_over_time.png", dpi=150)
++    plt.close(figure)
++
++    highest_errors = pd.DataFrame({
++        "date": predictions["Date"],
++        "model": best_name,
++        "actual": predictions["actual"],
++        "prediction": predictions[best_name],
++        "residual": residual,
++        "absolute_error": absolute_error,
++    }).sort_values(["absolute_error", "date"], ascending=[False, True])
++    highest_errors.head(min(20, len(highest_errors))).to_csv(
++        output / "highest_error_dates.csv", index=False, date_format="%Y-%m-%d"
++    )
++
+ 
+ def run_phase5_holdout(
+     phase2_dir: Path = DEFAULT_PHASE2_DIR,
+@@ -176,7 +217,7 @@
+     metrics = pd.DataFrame(metric_rows).sort_values(["mae", "model"]).reset_index(drop=True)
+     predictions.to_csv(output / "predictions.csv", index=False, date_format="%Y-%m-%d")
+     metrics.to_csv(output / "metrics.csv", index=False)
+-    _save_plots(predictions, metrics, output)
++    _save_evaluation_artifacts(predictions, metrics, output)
+     report = {
+         "phase": "Phase 5",
+         "experiment": "Test 1 chronological 80/20 holdout",
+diff --git a/tests/test_phase5_chronological_holdout.py b/tests/test_phase5_chronological_holdout.py
+index f2ce5631d08daba83d2576861839b6a04c8aa3da..34fb9bb4883b5eb02d82a34485c2e2345d79ce21
+--- a/tests/test_phase5_chronological_holdout.py
++++ b/tests/test_phase5_chronological_holdout.py
+@@ -44,8 +44,13 @@
+ def test_holdout_run_preserves_complete_evidence_and_training_fitted_scaler(tmp_path: Path) -> None:
+     phase2, phase3 = _inputs(tmp_path)
+     output = run_phase5_holdout(phase2, phase3, tmp_path / "runs", "run", model_config=_models())
+-    required = {"config.json", "execution.log", "holdout_report.json", "metrics.csv", "predictions.csv", "actual_vs_predicted.png", "residual_diagnostics.png"}
++    required = {
++        "config.json", "execution.log", "holdout_report.json", "metrics.csv",
++        "predictions.csv", "actual_vs_predicted.png", "actual_vs_predicted_scatter.png",
++        "residual_diagnostics.png", "error_over_time.png", "highest_error_dates.csv",
++    }
+     assert required.issubset(path.name for path in output.iterdir())
++    assert all((output / name).stat().st_size > 0 for name in required)
+     report = json.loads((output / "holdout_report.json").read_text())
+     assert report["training_rows"] == 144 and report["holdout_rows"] == 36
+     assert report["shuffle_used"] is False and report["holdout_used_for_fitting_or_tuning"] is False
+@@ -55,6 +60,26 @@
+     linear = joblib.load(output / "models" / "linear_regression.joblib")
+     assert isinstance(linear, Pipeline) and isinstance(linear.named_steps["scaler"], RobustScaler)
+ 
++    predictions = pd.read_csv(output / "predictions.csv", parse_dates=["Date"])
++    highest_errors = pd.read_csv(output / "highest_error_dates.csv", parse_dates=["date"])
++    assert list(highest_errors.columns) == [
++        "date", "model", "actual", "prediction", "residual", "absolute_error"
++    ]
++    assert highest_errors["model"].nunique() == 1
++    diagnostic_model = highest_errors["model"].iloc[0]
++    expected = pd.DataFrame({
++        "date": predictions["Date"],
++        "model": diagnostic_model,
++        "actual": predictions["actual"],
++        "prediction": predictions[diagnostic_model],
++    })
++    expected["residual"] = expected["actual"] - expected["prediction"]
++    expected["absolute_error"] = expected["residual"].abs()
++    expected = expected.sort_values(
++        ["absolute_error", "date"], ascending=[False, True]
++    ).head(20).reset_index(drop=True)
++    pd.testing.assert_frame_equal(highest_errors, expected, check_exact=False, rtol=1e-12, atol=1e-12)
++
+ 
+ def test_fit_preprocessing_statistics_ignore_holdout_features(tmp_path: Path) -> None:
+     phase2, phase3 = _inputs(tmp_path)
+
+exec
+/bin/bash -lc 'rg -n "DEFAULT_PHASE[23]_DIR" experiments/phase4_traditional_ml.py && PYTHONPATH=. python -m experiments.phase5_chronological_holdout --experiment-id phase5_attempt_2_20260815T230000Z' in /home/asus/projects/water-forecast
+ succeeded in 8376ms:
+/home/asus/.config/matplotlib is not a writable directory
+Matplotlib created a temporary cache directory at /tmp/matplotlib-23_jwzp2 because there was an issue with the default path ({configdir}); it is highly recommended to set the MPLCONFIGDIR environment variable to a writable directory, in particular to speed up the import of Matplotlib and to better support multiprocessing.
+/home/asus/projects/water-forecast/artifacts/phase5/phase5_attempt_2_20260815T230000Z
+
+diff --git a/experiments/phase5_chronological_holdout.py b/experiments/phase5_chronological_holdout.py
+index d2a93046759d3b50f58d15ac7b2bb53a2c1f1018..bab0606f051544ff8b248ac933fa584a30aa680c
+--- a/experiments/phase5_chronological_holdout.py
++++ b/experiments/phase5_chronological_holdout.py
+@@ -110,7 +110,10 @@
+     }
+ 
+ 
+-def _save_plots(predictions: pd.DataFrame, metrics: pd.DataFrame, output: Path) -> None:
++def _save_evaluation_artifacts(
++    predictions: pd.DataFrame, metrics: pd.DataFrame, output: Path
++) -> None:
++    """Preserve the required holdout diagnostics for one clearly named model."""
+     best_name = str(metrics.loc[metrics["model"] != "naive_lag_1"].iloc[0]["model"])
+     figure, axis = plt.subplots(figsize=(12, 5))
+     axis.plot(predictions["Date"], predictions["actual"], label="Actual", linewidth=1.5)
+@@ -125,6 +128,22 @@
+     plt.close(figure)
+ 
+     residual = predictions["actual"] - predictions[best_name]
++    absolute_error = residual.abs()
++
++    figure, axis = plt.subplots(figsize=(6, 6))
++    axis.scatter(predictions["actual"], predictions[best_name], s=12, alpha=0.65)
++    lower = float(min(predictions["actual"].min(), predictions[best_name].min()))
++    upper = float(max(predictions["actual"].max(), predictions[best_name].max()))
++    axis.plot([lower, upper], [lower, upper], color="black", linewidth=1, linestyle="--")
++    axis.set(
++        xlabel="Actual consumption",
++        ylabel="Predicted consumption",
++        title=f"Actual versus predicted: {best_name}",
++    )
++    figure.tight_layout()
++    figure.savefig(output / "actual_vs_predicted_scatter.png", dpi=150)
++    plt.close(figure)
++
+     figure, axes = plt.subplots(1, 2, figsize=(12, 4))
+     axes[0].scatter(predictions[best_name], residual, s=10, alpha=0.6)
+     axes[0].axhline(0, color="black", linewidth=1)
+@@ -135,6 +154,28 @@
+     figure.savefig(output / "residual_diagnostics.png", dpi=150)
+     plt.close(figure)
+ 
++    figure, axis = plt.subplots(figsize=(12, 5))
++    axis.plot(predictions["Date"], residual, label="Residual (actual - prediction)", alpha=0.75)
++    axis.plot(predictions["Date"], absolute_error, label="Absolute error", linewidth=1.5)
++    axis.axhline(0, color="black", linewidth=1)
++    axis.set(xlabel="Date", ylabel="Error", title=f"Dated holdout error: {best_name}")
++    axis.legend()
++    figure.tight_layout()
++    figure.savefig(output / "error_over_time.png", dpi=150)
++    plt.close(figure)
++
++    highest_errors = pd.DataFrame({
++        "date": predictions["Date"],
++        "model": best_name,
++        "actual": predictions["actual"],
++        "prediction": predictions[best_name],
++        "residual": residual,
++        "absolute_error": absolute_error,
++    }).sort_values(["absolute_error", "date"], ascending=[False, True])
++    highest_errors.head(min(20, len(highest_errors))).to_csv(
++        output / "highest_error_dates.csv", index=False, date_format="%Y-%m-%d"
++    )
++
+ 
+ def run_phase5_holdout(
+     phase2_dir: Path = DEFAULT_PHASE2_DIR,
+@@ -176,7 +217,7 @@
+     metrics = pd.DataFrame(metric_rows).sort_values(["mae", "model"]).reset_index(drop=True)
+     predictions.to_csv(output / "predictions.csv", index=False, date_format="%Y-%m-%d")
+     metrics.to_csv(output / "metrics.csv", index=False)
+-    _save_plots(predictions, metrics, output)
++    _save_evaluation_artifacts(predictions, metrics, output)
+     report = {
+         "phase": "Phase 5",
+         "experiment": "Test 1 chronological 80/20 holdout",
+diff --git a/tests/test_phase5_chronological_holdout.py b/tests/test_phase5_chronological_holdout.py
+index f2ce5631d08daba83d2576861839b6a04c8aa3da..34fb9bb4883b5eb02d82a34485c2e2345d79ce21
+--- a/tests/test_phase5_chronological_holdout.py
++++ b/tests/test_phase5_chronological_holdout.py
+@@ -44,8 +44,13 @@
+ def test_holdout_run_preserves_complete_evidence_and_training_fitted_scaler(tmp_path: Path) -> None:
+     phase2, phase3 = _inputs(tmp_path)
+     output = run_phase5_holdout(phase2, phase3, tmp_path / "runs", "run", model_config=_models())
+-    required = {"config.json", "execution.log", "holdout_report.json", "metrics.csv", "predictions.csv", "actual_vs_predicted.png", "residual_diagnostics.png"}
++    required = {
++        "config.json", "execution.log", "holdout_report.json", "metrics.csv",
++        "predictions.csv", "actual_vs_predicted.png", "actual_vs_predicted_scatter.png",
++        "residual_diagnostics.png", "error_over_time.png", "highest_error_dates.csv",
++    }
+     assert required.issubset(path.name for path in output.iterdir())
++    assert all((output / name).stat().st_size > 0 for name in required)
+     report = json.loads((output / "holdout_report.json").read_text())
+     assert report["training_rows"] == 144 and report["holdout_rows"] == 36
+     assert report["shuffle_used"] is False and report["holdout_used_for_fitting_or_tuning"] is False
+@@ -55,6 +60,26 @@
+     linear = joblib.load(output / "models" / "linear_regression.joblib")
+     assert isinstance(linear, Pipeline) and isinstance(linear.named_steps["scaler"], RobustScaler)
+ 
++    predictions = pd.read_csv(output / "predictions.csv", parse_dates=["Date"])
++    highest_errors = pd.read_csv(output / "highest_error_dates.csv", parse_dates=["date"])
++    assert list(highest_errors.columns) == [
++        "date", "model", "actual", "prediction", "residual", "absolute_error"
++    ]
++    assert highest_errors["model"].nunique() == 1
++    diagnostic_model = highest_errors["model"].iloc[0]
++    expected = pd.DataFrame({
++        "date": predictions["Date"],
++        "model": diagnostic_model,
++        "actual": predictions["actual"],
++        "prediction": predictions[diagnostic_model],
++    })
++    expected["residual"] = expected["actual"] - expected["prediction"]
++    expected["absolute_error"] = expected["residual"].abs()
++    expected = expected.sort_values(
++        ["absolute_error", "date"], ascending=[False, True]
++    ).head(20).reset_index(drop=True)
++    pd.testing.assert_frame_equal(highest_errors, expected, check_exact=False, rtol=1e-12, atol=1e-12)
++
+ 
+ def test_fit_preprocessing_statistics_ignore_holdout_features(tmp_path: Path) -> None:
+     phase2, phase3 = _inputs(tmp_path)
+
+codex
+Focused tests now pass, and the new preserved attempt directory has been generated from the approved Phase 2/3 inputs. Next I’m running the full suite, then I’ll independently verify the CSV arithmetic, artifact sizes, hashes/split evidence, and repository diff.
+exec
+/bin/bash -lc 'PYTHONPATH=. pytest -q' in /home/asus/projects/water-forecast
+ succeeded in 8243ms:
+........................................................................ [ 40%]
+........................................................................ [ 80%]
+..................................                                       [100%]
+=============================== warnings summary ===============================
+tests/test_phase0_baseline.py: 3 warnings
+tests/test_phase4_traditional_ml.py: 5 warnings
+tests/test_phase5_chronological_holdout.py: 15 warnings
+  /home/asus/projects/water-forecast/.venv/lib/python3.12/site-packages/joblib/numpy_pickle.py:207: DeprecationWarning: Setting the shape on a NumPy array has been deprecated in NumPy 2.5.
+  As an alternative, you can create a new view using np.reshape (with copy=False if needed).
+    array.shape = self.shape
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+178 passed, 23 warnings in 7.33s
+
+diff --git a/experiments/phase5_chronological_holdout.py b/experiments/phase5_chronological_holdout.py
+index d2a93046759d3b50f58d15ac7b2bb53a2c1f1018..bab0606f051544ff8b248ac933fa584a30aa680c
+--- a/experiments/phase5_chronological_holdout.py
++++ b/experiments/phase5_chronological_holdout.py
+@@ -110,7 +110,10 @@
+     }
+ 
+ 
+-def _save_plots(predictions: pd.DataFrame, metrics: pd.DataFrame, output: Path) -> None:
++def _save_evaluation_artifacts(
++    predictions: pd.DataFrame, metrics: pd.DataFrame, output: Path
++) -> None:
++    """Preserve the required holdout diagnostics for one clearly named model."""
+     best_name = str(metrics.loc[metrics["model"] != "naive_lag_1"].iloc[0]["model"])
+     figure, axis = plt.subplots(figsize=(12, 5))
+     axis.plot(predictions["Date"], predictions["actual"], label="Actual", linewidth=1.5)
+@@ -125,6 +128,22 @@
+     plt.close(figure)
+ 
+     residual = predictions["actual"] - predictions[best_name]
++    absolute_error = residual.abs()
++
++    figure, axis = plt.subplots(figsize=(6, 6))
++    axis.scatter(predictions["actual"], predictions[best_name], s=12, alpha=0.65)
++    lower = float(min(predictions["actual"].min(), predictions[best_name].min()))
++    upper = float(max(predictions["actual"].max(), predictions[best_name].max()))
++    axis.plot([lower, upper], [lower, upper], color="black", linewidth=1, linestyle="--")
++    axis.set(
++        xlabel="Actual consumption",
++        ylabel="Predicted consumption",
++        title=f"Actual versus predicted: {best_name}",
++    )
++    figure.tight_layout()
++    figure.savefig(output / "actual_vs_predicted_scatter.png", dpi=150)
++    plt.close(figure)
++
+     figure, axes = plt.subplots(1, 2, figsize=(12, 4))
+     axes[0].scatter(predictions[best_name], residual, s=10, alpha=0.6)
+     axes[0].axhline(0, color="black", linewidth=1)
+@@ -135,6 +154,28 @@
+     figure.savefig(output / "residual_diagnostics.png", dpi=150)
+     plt.close(figure)
+ 
++    figure, axis = plt.subplots(figsize=(12, 5))
++    axis.plot(predictions["Date"], residual, label="Residual (actual - prediction)", alpha=0.75)
++    axis.plot(predictions["Date"], absolute_error, label="Absolute error", linewidth=1.5)
++    axis.axhline(0, color="black", linewidth=1)
++    axis.set(xlabel="Date", ylabel="Error", title=f"Dated holdout error: {best_name}")
++    axis.legend()
++    figure.tight_layout()
++    figure.savefig(output / "error_over_time.png", dpi=150)
++    plt.close(figure)
++
++    highest_errors = pd.DataFrame({
++        "date": predictions["Date"],
++        "model": best_name,
++        "actual": predictions["actual"],
++        "prediction": predictions[best_name],
++        "residual": residual,
++        "absolute_error": absolute_error,
++    }).sort_values(["absolute_error", "date"], ascending=[False, True])
++    highest_errors.head(min(20, len(highest_errors))).to_csv(
++        output / "highest_error_dates.csv", index=False, date_format="%Y-%m-%d"
++    )
++
+ 
+ def run_phase5_holdout(
+     phase2_dir: Path = DEFAULT_PHASE2_DIR,
+@@ -176,7 +217,7 @@
+     metrics = pd.DataFrame(metric_rows).sort_values(["mae", "model"]).reset_index(drop=True)
+     predictions.to_csv(output / "predictions.csv", index=False, date_format="%Y-%m-%d")
+     metrics.to_csv(output / "metrics.csv", index=False)
+-    _save_plots(predictions, metrics, output)
++    _save_evaluation_artifacts(predictions, metrics, output)
+     report = {
+         "phase": "Phase 5",
+         "experiment": "Test 1 chronological 80/20 holdout",
+diff --git a/tests/test_phase5_chronological_holdout.py b/tests/test_phase5_chronological_holdout.py
+index f2ce5631d08daba83d2576861839b6a04c8aa3da..34fb9bb4883b5eb02d82a34485c2e2345d79ce21
+--- a/tests/test_phase5_chronological_holdout.py
++++ b/tests/test_phase5_chronological_holdout.py
+@@ -44,8 +44,13 @@
+ def test_holdout_run_preserves_complete_evidence_and_training_fitted_scaler(tmp_path: Path) -> None:
+     phase2, phase3 = _inputs(tmp_path)
+     output = run_phase5_holdout(phase2, phase3, tmp_path / "runs", "run", model_config=_models())
+-    required = {"config.json", "execution.log", "holdout_report.json", "metrics.csv", "predictions.csv", "actual_vs_predicted.png", "residual_diagnostics.png"}
++    required = {
++        "config.json", "execution.log", "holdout_report.json", "metrics.csv",
++        "predictions.csv", "actual_vs_predicted.png", "actual_vs_predicted_scatter.png",
++        "residual_diagnostics.png", "error_over_time.png", "highest_error_dates.csv",
++    }
+     assert required.issubset(path.name for path in output.iterdir())
++    assert all((output / name).stat().st_size > 0 for name in required)
+     report = json.loads((output / "holdout_report.json").read_text())
+     assert report["training_rows"] == 144 and report["holdout_rows"] == 36
+     assert report["shuffle_used"] is False and report["holdout_used_for_fitting_or_tuning"] is False
+@@ -55,6 +60,26 @@
+     linear = joblib.load(output / "models" / "linear_regression.joblib")
+     assert isinstance(linear, Pipeline) and isinstance(linear.named_steps["scaler"], RobustScaler)
+ 
++    predictions = pd.read_csv(output / "predictions.csv", parse_dates=["Date"])
++    highest_errors = pd.read_csv(output / "highest_error_dates.csv", parse_dates=["date"])
++    assert list(highest_errors.columns) == [
++        "date", "model", "actual", "prediction", "residual", "absolute_error"
++    ]
++    assert highest_errors["model"].nunique() == 1
++    diagnostic_model = highest_errors["model"].iloc[0]
++    expected = pd.DataFrame({
++        "date": predictions["Date"],
++        "model": diagnostic_model,
++        "actual": predictions["actual"],
++        "prediction": predictions[diagnostic_model],
++    })
++    expected["residual"] = expected["actual"] - expected["prediction"]
++    expected["absolute_error"] = expected["residual"].abs()
++    expected = expected.sort_values(
++        ["absolute_error", "date"], ascending=[False, True]
++    ).head(20).reset_index(drop=True)
++    pd.testing.assert_frame_equal(highest_errors, expected, check_exact=False, rtol=1e-12, atol=1e-12)
++
+ 
+ def test_fit_preprocessing_statistics_ignore_holdout_features(tmp_path: Path) -> None:
+     phase2, phase3 = _inputs(tmp_path)
+
+exec
+/bin/bash -lc "python - <<'PY'
+from pathlib import Path
+import json
+import pandas as pd
+p=Path('artifacts/phase5/phase5_attempt_2_20260815T230000Z')
+pred=pd.read_csv(p/'predictions.csv',parse_dates=['Date'])
+high=pd.read_csv(p/'highest_error_dates.csv',parse_dates=['date'])
+model=high.model.iloc[0]
+exp=pd.DataFrame({'date':pred.Date,'actual':pred.actual,'prediction':pred[model]})
+exp['residual']=exp.actual-exp.prediction
+exp['absolute_error']=exp.residual.abs()
+exp=exp.sort_values(['absolute_error','date'],ascending=[False,True]).head(20).reset_index(drop=True)
+print('diagnostic_model',model)
+print('rows',len(high))
+print('max_residual_delta',float((high.residual-exp.residual).abs().max()))
+print('max_absolute_error_delta',float((high.absolute_error-exp.absolute_error).abs().max()))
+print('artifact_sizes')
+for name in ['actual_vs_predicted_scatter.png','error_over_time.png','highest_error_dates.csv']:
+ print(name,(p/name).stat().st_size)
+print('report',json.loads((p/'holdout_report.json').read_text()))
+PY
+git diff --check
+git status --short
+git diff -- experiments/phase5_chronological_holdout.py tests/test_phase5_chronological_holdout.py" in /home/asus/projects/water-forecast
+ succeeded in 138ms:
+diagnostic_model linear_regression
+rows 20
+max_residual_delta 1.4779288903810084e-11
+max_absolute_error_delta 1.4779288903810084e-11
+artifact_sizes
+actual_vs_predicted_scatter.png 80744
+error_over_time.png 168541
+highest_error_dates.csv 1998
+report {'chronological_order_preserved': True, 'experiment': 'Test 1 chronological 80/20 holdout', 'holdout_end_date_inclusive': '2020-09-02', 'holdout_rows': 760, 'holdout_start_date': '2018-08-05', 'holdout_used_for_fitting_or_tuning': False, 'hyperparameter_optimization_performed': False, 'improvement_claimed': False, 'lowest_holdout_mae_model_descriptive_only': 'naive_lag_1', 'model_names': ['linear_regression', 'ridge', 'lasso', 'decision_tree', 'knn', 'svr', 'random_forest', 'bagging', 'gradient_boosting', 'voting'], 'phase': 'Phase 5', 'phase2_features_sha256': 'a01313f30cd58cebc14b9a2d16bd1098bc63f2e62facbd6ed3c137de0ab6ab37', 'phase3_selection_report_sha256': '81e780b220f64bb37451a5c3ea1d8da4de0ebac25d9eb7f386e58f42daad3eed', 'preprocessing_fit_scope': 'each Pipeline fitted on chronological training rows only', 'row_count': 3800, 'scaled_models': ['knn', 'lasso', 'linear_regression', 'ridge', 'svr'], 'selected_features': ['consumption_lag_1', 'same_period_previous_year', 'fourier_yearly_cos_1', 'fourier_yearly_cos_2', 'rolling_std_30', 'consumption_lag_14', 'rolling_slope_30', 'fourier_yearly_sin_2', 'day_over_day_change', 'day_of_year_sin', 'consumption_lag_365', 'rolling_max_30', 'growth_7d', 'rolling_min_30', 'rolling_std_7', 'is_canada_ontario_holiday', 'consumption_lag_30', 'rolling_slope_7', 'fourier_weekly_cos_2', 'day_of_week_sin'], 'shuffle_used': False, 'simple_baselines': ['naive_lag_1', 'linear_regression'], 'training_end_date_inclusive': '2018-08-04', 'training_rows': 3040, 'training_start_date': '2009-07-01'}
+?? artifacts/phase5/
+?? experiments/phase5_chronological_holdout.py
+?? tests/test_phase5_chronological_holdout.py
+
+diff --git a/experiments/phase5_chronological_holdout.py b/experiments/phase5_chronological_holdout.py
+index d2a93046759d3b50f58d15ac7b2bb53a2c1f1018..bab0606f051544ff8b248ac933fa584a30aa680c
+--- a/experiments/phase5_chronological_holdout.py
++++ b/experiments/phase5_chronological_holdout.py
+@@ -110,7 +110,10 @@
+     }
+ 
+ 
+-def _save_plots(predictions: pd.DataFrame, metrics: pd.DataFrame, output: Path) -> None:
++def _save_evaluation_artifacts(
++    predictions: pd.DataFrame, metrics: pd.DataFrame, output: Path
++) -> None:
++    """Preserve the required holdout diagnostics for one clearly named model."""
+     best_name = str(metrics.loc[metrics["model"] != "naive_lag_1"].iloc[0]["model"])
+     figure, axis = plt.subplots(figsize=(12, 5))
+     axis.plot(predictions["Date"], predictions["actual"], label="Actual", linewidth=1.5)
+@@ -125,6 +128,22 @@
+     plt.close(figure)
+ 
+     residual = predictions["actual"] - predictions[best_name]
++    absolute_error = residual.abs()
++
++    figure, axis = plt.subplots(figsize=(6, 6))
++    axis.scatter(predictions["actual"], predictions[best_name], s=12, alpha=0.65)
++    lower = float(min(predictions["actual"].min(), predictions[best_name].min()))
++    upper = float(max(predictions["actual"].max(), predictions[best_name].max()))
++    axis.plot([lower, upper], [lower, upper], color="black", linewidth=1, linestyle="--")
++    axis.set(
++        xlabel="Actual consumption",
++        ylabel="Predicted consumption",
++        title=f"Actual versus predicted: {best_name}",
++    )
++    figure.tight_layout()
++    figure.savefig(output / "actual_vs_predicted_scatter.png", dpi=150)
++    plt.close(figure)
++
+     figure, axes = plt.subplots(1, 2, figsize=(12, 4))
+     axes[0].scatter(predictions[best_name], residual, s=10, alpha=0.6)
+     axes[0].axhline(0, color="black", linewidth=1)
+@@ -135,6 +154,28 @@
+     figure.savefig(output / "residual_diagnostics.png", dpi=150)
+     plt.close(figure)
+ 
++    figure, axis = plt.subplots(figsize=(12, 5))
++    axis.plot(predictions["Date"], residual, label="Residual (actual - prediction)", alpha=0.75)
++    axis.plot(predictions["Date"], absolute_error, label="Absolute error", linewidth=1.5)
++    axis.axhline(0, color="black", linewidth=1)
++    axis.set(xlabel="Date", ylabel="Error", title=f"Dated holdout error: {best_name}")
++    axis.legend()
++    figure.tight_layout()
++    figure.savefig(output / "error_over_time.png", dpi=150)
++    plt.close(figure)
++
++    highest_errors = pd.DataFrame({
++        "date": predictions["Date"],
++        "model": best_name,
++        "actual": predictions["actual"],
++        "prediction": predictions[best_name],
++        "residual": residual,
++        "absolute_error": absolute_error,
++    }).sort_values(["absolute_error", "date"], ascending=[False, True])
++    highest_errors.head(min(20, len(highest_errors))).to_csv(
++        output / "highest_error_dates.csv", index=False, date_format="%Y-%m-%d"
++    )
++
+ 
+ def run_phase5_holdout(
+     phase2_dir: Path = DEFAULT_PHASE2_DIR,
+@@ -176,7 +217,7 @@
+     metrics = pd.DataFrame(metric_rows).sort_values(["mae", "model"]).reset_index(drop=True)
+     predictions.to_csv(output / "predictions.csv", index=False, date_format="%Y-%m-%d")
+     metrics.to_csv(output / "metrics.csv", index=False)
+-    _save_plots(predictions, metrics, output)
++    _save_evaluation_artifacts(predictions, metrics, output)
+     report = {
+         "phase": "Phase 5",
+         "experiment": "Test 1 chronological 80/20 holdout",
+diff --git a/tests/test_phase5_chronological_holdout.py b/tests/test_phase5_chronological_holdout.py
+index f2ce5631d08daba83d2576861839b6a04c8aa3da..34fb9bb4883b5eb02d82a34485c2e2345d79ce21
+--- a/tests/test_phase5_chronological_holdout.py
++++ b/tests/test_phase5_chronological_holdout.py
+@@ -44,8 +44,13 @@
+ def test_holdout_run_preserves_complete_evidence_and_training_fitted_scaler(tmp_path: Path) -> None:
+     phase2, phase3 = _inputs(tmp_path)
+     output = run_phase5_holdout(phase2, phase3, tmp_path / "runs", "run", model_config=_models())
+-    required = {"config.json", "execution.log", "holdout_report.json", "metrics.csv", "predictions.csv", "actual_vs_predicted.png", "residual_diagnostics.png"}
++    required = {
++        "config.json", "execution.log", "holdout_report.json", "metrics.csv",
++        "predictions.csv", "actual_vs_predicted.png", "actual_vs_predicted_scatter.png",
++        "residual_diagnostics.png", "error_over_time.png", "highest_error_dates.csv",
++    }
+     assert required.issubset(path.name for path in output.iterdir())
++    assert all((output / name).stat().st_size > 0 for name in required)
+     report = json.loads((output / "holdout_report.json").read_text())
+     assert report["training_rows"] == 144 and report["holdout_rows"] == 36
+     assert report["shuffle_used"] is False and report["holdout_used_for_fitting_or_tuning"] is False
+@@ -55,6 +60,26 @@
+     linear = joblib.load(output / "models" / "linear_regression.joblib")
+     assert isinstance(linear, Pipeline) and isinstance(linear.named_steps["scaler"], RobustScaler)
+ 
++    predictions = pd.read_csv(output / "predictions.csv", parse_dates=["Date"])
++    highest_errors = pd.read_csv(output / "highest_error_dates.csv", parse_dates=["date"])
++    assert list(highest_errors.columns) == [
++        "date", "model", "actual", "prediction", "residual", "absolute_error"
++    ]
++    assert highest_errors["model"].nunique() == 1
++    diagnostic_model = highest_errors["model"].iloc[0]
++    expected = pd.DataFrame({
++        "date": predictions["Date"],
++        "model": diagnostic_model,
++        "actual": predictions["actual"],
++        "prediction": predictions[diagnostic_model],
++    })
++    expected["residual"] = expected["actual"] - expected["prediction"]
++    expected["absolute_error"] = expected["residual"].abs()
++    expected = expected.sort_values(
++        ["absolute_error", "date"], ascending=[False, True]
++    ).head(20).reset_index(drop=True)
++    pd.testing.assert_frame_equal(highest_errors, expected, check_exact=False, rtol=1e-12, atol=1e-12)
++
+ 
+ def test_fit_preprocessing_statistics_ignore_holdout_features(tmp_path: Path) -> None:
+     phase2, phase3 = _inputs(tmp_path)
+
+apply patch
+patch: completed
+/home/asus/projects/water-forecast/STATUS.md
+/home/asus/projects/water-forecast/orchestration/state/phase_5_attempt_2_ml_agent_evidence_20260815.txt
+diff --git a/STATUS.md b/STATUS.md
+index 1d3356c3b22bac49906fcaccdb8e2dd818bc60f8..31b358f0889717ea411e552d752c839ae0f630ce
+--- a/STATUS.md
++++ b/STATUS.md
+@@ -1,6 +1,6 @@
+ # Project Status
+ 
+-Current Phase: Phase 5 ready; automatic execution mode awaiting independent validation
++Current Phase: Phase 5 attempt 2 repaired and tested; awaiting independent revalidation
+ 
+ ## Completed
+ - Repository cloned
+diff --git a/experiments/phase5_chronological_holdout.py b/experiments/phase5_chronological_holdout.py
+index d2a93046759d3b50f58d15ac7b2bb53a2c1f1018..bab0606f051544ff8b248ac933fa584a30aa680c
+--- a/experiments/phase5_chronological_holdout.py
++++ b/experiments/phase5_chronological_holdout.py
+@@ -110,7 +110,10 @@
+     }
+ 
+ 
+-def _save_plots(predictions: pd.DataFrame, metrics: pd.DataFrame, output: Path) -> None:
++def _save_evaluation_artifacts(
++    predictions: pd.DataFrame, metrics: pd.DataFrame, output: Path
++) -> None:
++    """Preserve the required holdout diagnostics for one clearly named model."""
+     best_name = str(metrics.loc[metrics["model"] != "naive_lag_1"].iloc[0]["model"])
+     figure, axis = plt.subplots(figsize=(12, 5))
+     axis.plot(predictions["Date"], predictions["actual"], label="Actual", linewidth=1.5)
+@@ -125,6 +128,22 @@
+     plt.close(figure)
+ 
+     residual = predictions["actual"] - predictions[best_name]
++    absolute_error = residual.abs()
++
++    figure, axis = plt.subplots(figsize=(6, 6))
++    axis.scatter(predictions["actual"], predictions[best_name], s=12, alpha=0.65)
++    lower = float(min(predictions["actual"].min(), predictions[best_name].min()))
++    upper = float(max(predictions["actual"].max(), predictions[best_name].max()))
++    axis.plot([lower, upper], [lower, upper], color="black", linewidth=1, linestyle="--")
++    axis.set(
++        xlabel="Actual consumption",
++        ylabel="Predicted consumption",
++        title=f"Actual versus predicted: {best_name}",
++    )
++    figure.tight_layout()
++    figure.savefig(output / "actual_vs_predicted_scatter.png", dpi=150)
++    plt.close(figure)
++
+     figure, axes = plt.subplots(1, 2, figsize=(12, 4))
+     axes[0].scatter(predictions[best_name], residual, s=10, alpha=0.6)
+     axes[0].axhline(0, color="black", linewidth=1)
+@@ -135,6 +154,28 @@
+     figure.savefig(output / "residual_diagnostics.png", dpi=150)
+     plt.close(figure)
+ 
++    figure, axis = plt.subplots(figsize=(12, 5))
++    axis.plot(predictions["Date"], residual, label="Residual (actual - prediction)", alpha=0.75)
++    axis.plot(predictions["Date"], absolute_error, label="Absolute error", linewidth=1.5)
++    axis.axhline(0, color="black", linewidth=1)
++    axis.set(xlabel="Date", ylabel="Error", title=f"Dated holdout error: {best_name}")
++    axis.legend()
++    figure.tight_layout()
++    figure.savefig(output / "error_over_time.png", dpi=150)
++    plt.close(figure)
++
++    highest_errors = pd.DataFrame({
++        "date": predictions["Date"],
++        "model": best_name,
++        "actual": predictions["actual"],
++        "prediction": predictions[best_name],
++        "residual": residual,
++        "absolute_error": absolute_error,
++    }).sort_values(["absolute_error", "date"], ascending=[False, True])
++    highest_errors.head(min(20, len(highest_errors))).to_csv(
++        output / "highest_error_dates.csv", index=False, date_format="%Y-%m-%d"
++    )
++
+ 
+ def run_phase5_holdout(
+     phase2_dir: Path = DEFAULT_PHASE2_DIR,
+@@ -176,7 +217,7 @@
+     metrics = pd.DataFrame(metric_rows).sort_values(["mae", "model"]).reset_index(drop=True)
+     predictions.to_csv(output / "predictions.csv", index=False, date_format="%Y-%m-%d")
+     metrics.to_csv(output / "metrics.csv", index=False)
+-    _save_plots(predictions, metrics, output)
++    _save_evaluation_artifacts(predictions, metrics, output)
+     report = {
+         "phase": "Phase 5",
+         "experiment": "Test 1 chronological 80/20 holdout",
+diff --git a/orchestration/state/phase_5_attempt_2_ml_agent_evidence_20260815.txt b/orchestration/state/phase_5_attempt_2_ml_agent_evidence_20260815.txt
+new file mode 100644
+index 0000000000000000000000000000000000000000..e184e040581857d0cb002082ccbf74f73e89a6cf
+--- /dev/null
++++ b/orchestration/state/phase_5_attempt_2_ml_agent_evidence_20260815.txt
+@@ -0,0 +1,42 @@
++Phase 5 attempt 2 repair evidence
++=================================
++
++Scope
++-----
++- Added the three evaluation artifacts required by EXPERIMENT_PLAN.md.
++- Retained the approved chronological holdout, selected features, model registry,
++  preprocessing scope, configuration, and random seed.
++- Diagnostic model: linear_regression (lowest-MAE non-naive model, descriptive only).
++- No tuning, cross-validation, improvement claim, or locked Test 3 access occurred.
++
++Preserved artifact directory
++----------------------------
++artifacts/phase5/phase5_attempt_2_20260815T230000Z
++
++New required outputs
++--------------------
++- actual_vs_predicted_scatter.png: 80,744 bytes
++- error_over_time.png: 168,541 bytes
++- highest_error_dates.csv: 1,998 bytes; 20 ranked rows
++
++Direct verification
++-------------------
++- Chronological split: 3,040 training / 760 holdout rows.
++- Boundary: training ends 2018-08-04; holdout starts 2018-08-05.
++- highest_error_dates.csv contains date, model, actual, prediction, residual,
++  and absolute_error.
++- Maximum residual/absolute-error replay delta from predictions.csv:
++  1.4779288903810084e-11 (CSV floating-point serialization only).
++- git diff --check: PASS.
++
++Tests
++-----
++- PYTHONPATH=. pytest -q tests/test_phase5_chronological_holdout.py
++  Result: 3 passed, 15 warnings in 3.08s.
++- PYTHONPATH=. pytest -q
++  Result: 178 passed, 23 warnings in 7.33s.
++- Warnings are pre-existing joblib/NumPy deprecation warnings.
++
++Status
++------
++IMPLEMENTED AND TESTED; awaiting independent validator revalidation.
+diff --git a/tests/test_phase5_chronological_holdout.py b/tests/test_phase5_chronological_holdout.py
+index f2ce5631d08daba83d2576861839b6a04c8aa3da..34fb9bb4883b5eb02d82a34485c2e2345d79ce21
+--- a/tests/test_phase5_chronological_holdout.py
++++ b/tests/test_phase5_chronological_holdout.py
+@@ -44,8 +44,13 @@
+ def test_holdout_run_preserves_complete_evidence_and_training_fitted_scaler(tmp_path: Path) -> None:
+     phase2, phase3 = _inputs(tmp_path)
+     output = run_phase5_holdout(phase2, phase3, tmp_path / "runs", "run", model_config=_models())
+-    required = {"config.json", "execution.log", "holdout_report.json", "metrics.csv", "predictions.csv", "actual_vs_predicted.png", "residual_diagnostics.png"}
++    required = {
++        "config.json", "execution.log", "holdout_report.json", "metrics.csv",
++        "predictions.csv", "actual_vs_predicted.png", "actual_vs_predicted_scatter.png",
++        "residual_diagnostics.png", "error_over_time.png", "highest_error_dates.csv",
++    }
+     assert required.issubset(path.name for path in output.iterdir())
++    assert all((output / name).stat().st_size > 0 for name in required)
+     report = json.loads((output / "holdout_report.json").read_text())
+     assert report["training_rows"] == 144 and report["holdout_rows"] == 36
+     assert report["shuffle_used"] is False and report["holdout_used_for_fitting_or_tuning"] is False
+@@ -55,6 +60,26 @@
+     linear = joblib.load(output / "models" / "linear_regression.joblib")
+     assert isinstance(linear, Pipeline) and isinstance(linear.named_steps["scaler"], RobustScaler)
+ 
++    predictions = pd.read_csv(output / "predictions.csv", parse_dates=["Date"])
++    highest_errors = pd.read_csv(output / "highest_error_dates.csv", parse_dates=["date"])
++    assert list(highest_errors.columns) == [
++        "date", "model", "actual", "prediction", "residual", "absolute_error"
++    ]
++    assert highest_errors["model"].nunique() == 1
++    diagnostic_model = highest_errors["model"].iloc[0]
++    expected = pd.DataFrame({
++        "date": predictions["Date"],
++        "model": diagnostic_model,
++        "actual": predictions["actual"],
++        "prediction": predictions[diagnostic_model],
++    })
++    expected["residual"] = expected["actual"] - expected["prediction"]
++    expected["absolute_error"] = expected["residual"].abs()
++    expected = expected.sort_values(
++        ["absolute_error", "date"], ascending=[False, True]
++    ).head(20).reset_index(drop=True)
++    pd.testing.assert_frame_equal(highest_errors, expected, check_exact=False, rtol=1e-12, atol=1e-12)
++
+ 
+ def test_fit_preprocessing_statistics_ignore_holdout_features(tmp_path: Path) -> None:
+     phase2, phase3 = _inputs(tmp_path)
+
+diff --git a/STATUS.md b/STATUS.md
+index 1d3356c3b22bac49906fcaccdb8e2dd818bc60f8..31b358f0889717ea411e552d752c839ae0f630ce
+--- a/STATUS.md
++++ b/STATUS.md
+@@ -1,6 +1,6 @@
+ # Project Status
+ 
+-Current Phase: Phase 5 ready; automatic execution mode awaiting independent validation
++Current Phase: Phase 5 attempt 2 repaired and tested; awaiting independent revalidation
+ 
+ ## Completed
+ - Repository cloned
+diff --git a/experiments/phase5_chronological_holdout.py b/experiments/phase5_chronological_holdout.py
+index d2a93046759d3b50f58d15ac7b2bb53a2c1f1018..bab0606f051544ff8b248ac933fa584a30aa680c
+--- a/experiments/phase5_chronological_holdout.py
++++ b/experiments/phase5_chronological_holdout.py
+@@ -110,7 +110,10 @@
+     }
+ 
+ 
+-def _save_plots(predictions: pd.DataFrame, metrics: pd.DataFrame, output: Path) -> None:
++def _save_evaluation_artifacts(
++    predictions: pd.DataFrame, metrics: pd.DataFrame, output: Path
++) -> None:
++    """Preserve the required holdout diagnostics for one clearly named model."""
+     best_name = str(metrics.loc[metrics["model"] != "naive_lag_1"].iloc[0]["model"])
+     figure, axis = plt.subplots(figsize=(12, 5))
+     axis.plot(predictions["Date"], predictions["actual"], label="Actual", linewidth=1.5)
+@@ -125,6 +128,22 @@
+     plt.close(figure)
+ 
+     residual = predictions["actual"] - predictions[best_name]
++    absolute_error = residual.abs()
++
++    figure, axis = plt.subplots(figsize=(6, 6))
++    axis.scatter(predictions["actual"], predictions[best_name], s=12, alpha=0.65)
++    lower = float(min(predictions["actual"].min(), predictions[best_name].min()))
++    upper = float(max(predictions["actual"].max(), predictions[best_name].max()))
++    axis.plot([lower, upper], [lower, upper], color="black", linewidth=1, linestyle="--")
++    axis.set(
++        xlabel="Actual consumption",
++        ylabel="Predicted consumption",
++        title=f"Actual versus predicted: {best_name}",
++    )
++    figure.tight_layout()
++    figure.savefig(output / "actual_vs_predicted_scatter.png", dpi=150)
++    plt.close(figure)
++
+     figure, axes = plt.subplots(1, 2, figsize=(12, 4))
+     axes[0].scatter(predictions[best_name], residual, s=10, alpha=0.6)
+     axes[0].axhline(0, color="black", linewidth=1)
+@@ -135,6 +154,28 @@
+     figure.savefig(output / "residual_diagnostics.png", dpi=150)
+     plt.close(figure)
+ 
++    figure, axis = plt.subplots(figsize=(12, 5))
++    axis.plot(predictions["Date"], residual, label="Residual (actual - prediction)", alpha=0.75)
++    axis.plot(predictions["Date"], absolute_error, label="Absolute error", linewidth=1.5)
++    axis.axhline(0, color="black", linewidth=1)
++    axis.set(xlabel="Date", ylabel="Error", title=f"Dated holdout error: {best_name}")
++    axis.legend()
++    figure.tight_layout()
++    figure.savefig(output / "error_over_time.png", dpi=150)
++    plt.close(figure)
++
++    highest_errors = pd.DataFrame({
++        "date": predictions["Date"],
++        "model": best_name,
++        "actual": predictions["actual"],
++        "prediction": predictions[best_name],
++        "residual": residual,
++        "absolute_error": absolute_error,
++    }).sort_values(["absolute_error", "date"], ascending=[False, True])
++    highest_errors.head(min(20, len(highest_errors))).to_csv(
++        output / "highest_error_dates.csv", index=False, date_format="%Y-%m-%d"
++    )
++
+ 
+ def run_phase5_holdout(
+     phase2_dir: Path = DEFAULT_PHASE2_DIR,
+@@ -176,7 +217,7 @@
+     metrics = pd.DataFrame(metric_rows).sort_values(["mae", "model"]).reset_index(drop=True)
+     predictions.to_csv(output / "predictions.csv", index=False, date_format="%Y-%m-%d")
+     metrics.to_csv(output / "metrics.csv", index=False)
+-    _save_plots(predictions, metrics, output)
++    _save_evaluation_artifacts(predictions, metrics, output)
+     report = {
+         "phase": "Phase 5",
+         "experiment": "Test 1 chronological 80/20 holdout",
+diff --git a/orchestration/state/phase_5_attempt_2_ml_agent_evidence_20260815.txt b/orchestration/state/phase_5_attempt_2_ml_agent_evidence_20260815.txt
+new file mode 100644
+index 0000000000000000000000000000000000000000..e184e040581857d0cb002082ccbf74f73e89a6cf
+--- /dev/null
++++ b/orchestration/state/phase_5_attempt_2_ml_agent_evidence_20260815.txt
+@@ -0,0 +1,42 @@
++Phase 5 attempt 2 repair evidence
++=================================
++
++Scope
++-----
++- Added the three evaluation artifacts required by EXPERIMENT_PLAN.md.
++- Retained the approved chronological holdout, selected features, model registry,
++  preprocessing scope, configuration, and random seed.
++- Diagnostic model: linear_regression (lowest-MAE non-naive model, descriptive only).
++- No tuning, cross-validation, improvement claim, or locked Test 3 access occurred.
++
++Preserved artifact directory
++----------------------------
++artifacts/phase5/phase5_attempt_2_20260815T230000Z
++
++New required outputs
++--------------------
++- actual_vs_predicted_scatter.png: 80,744 bytes
++- error_over_time.png: 168,541 bytes
++- highest_error_dates.csv: 1,998 bytes; 20 ranked rows
++
++Direct verification
++-------------------
++- Chronological split: 3,040 training / 760 holdout rows.
++- Boundary: training ends 2018-08-04; holdout starts 2018-08-05.
++- highest_error_dates.csv contains date, model, actual, prediction, residual,
++  and absolute_error.
++- Maximum residual/absolute-error replay delta from predictions.csv:
++  1.4779288903810084e-11 (CSV floating-point serialization only).
++- git diff --check: PASS.
++
++Tests
++-----
++- PYTHONPATH=. pytest -q tests/test_phase5_chronological_holdout.py
++  Result: 3 passed, 15 warnings in 3.08s.
++- PYTHONPATH=. pytest -q
++  Result: 178 passed, 23 warnings in 7.33s.
++- Warnings are pre-existing joblib/NumPy deprecation warnings.
++
++Status
++------
++IMPLEMENTED AND TESTED; awaiting independent validator revalidation.
+diff --git a/tests/test_phase5_chronological_holdout.py b/tests/test_phase5_chronological_holdout.py
+index f2ce5631d08daba83d2576861839b6a04c8aa3da..34fb9bb4883b5eb02d82a34485c2e2345d79ce21
+--- a/tests/test_phase5_chronological_holdout.py
++++ b/tests/test_phase5_chronological_holdout.py
+@@ -44,8 +44,13 @@
+ def test_holdout_run_preserves_complete_evidence_and_training_fitted_scaler(tmp_path: Path) -> None:
+     phase2, phase3 = _inputs(tmp_path)
+     output = run_phase5_holdout(phase2, phase3, tmp_path / "runs", "run", model_config=_models())
+-    required = {"config.json", "execution.log", "holdout_report.json", "metrics.csv", "predictions.csv", "actual_vs_predicted.png", "residual_diagnostics.png"}
++    required = {
++        "config.json", "execution.log", "holdout_report.json", "metrics.csv",
++        "predictions.csv", "actual_vs_predicted.png", "actual_vs_predicted_scatter.png",
++        "residual_diagnostics.png", "error_over_time.png", "highest_error_dates.csv",
++    }
+     assert required.issubset(path.name for path in output.iterdir())
++    assert all((output / name).stat().st_size > 0 for name in required)
+     report = json.loads((output / "holdout_report.json").read_text())
+     assert report["training_rows"] == 144 and report["holdout_rows"] == 36
+     assert report["shuffle_used"] is False and report["holdout_used_for_fitting_or_tuning"] is False
+@@ -55,6 +60,26 @@
+     linear = joblib.load(output / "models" / "linear_regression.joblib")
+     assert isinstance(linear, Pipeline) and isinstance(linear.named_steps["scaler"], RobustScaler)
+ 
++    predictions = pd.read_csv(output / "predictions.csv", parse_dates=["Date"])
++    highest_errors = pd.read_csv(output / "highest_error_dates.csv", parse_dates=["date"])
++    assert list(highest_errors.columns) == [
++        "date", "model", "actual", "prediction", "residual", "absolute_error"
++    ]
++    assert highest_errors["model"].nunique() == 1
++    diagnostic_model = highest_errors["model"].iloc[0]
++    expected = pd.DataFrame({
++        "date": predictions["Date"],
++        "model": diagnostic_model,
++        "actual": predictions["actual"],
++        "prediction": predictions[diagnostic_model],
++    })
++    expected["residual"] = expected["actual"] - expected["prediction"]
++    expected["absolute_error"] = expected["residual"].abs()
++    expected = expected.sort_values(
++        ["absolute_error", "date"], ascending=[False, True]
++    ).head(20).reset_index(drop=True)
++    pd.testing.assert_frame_equal(highest_errors, expected, check_exact=False, rtol=1e-12, atol=1e-12)
++
+ 
+ def test_fit_preprocessing_statistics_ignore_holdout_features(tmp_path: Path) -> None:
+     phase2, phase3 = _inputs(tmp_path)
+
+codex
+The full suite passes (178 tests). The regenerated run preserves the 3,040/760 boundary and identifies `linear_regression` in the highest-error CSV; replay differences are only CSV serialization noise (~1.48e-11). I’m completing the review by checking that attempt 2’s predictions/metrics match attempt 1 and visually inspecting the new plots.
+exec
+/bin/bash -lc "sha256sum artifacts/phase5/phase5_attempt_1_20260815T220000Z/predictions.csv artifacts/phase5/phase5_attempt_2_20260815T230000Z/predictions.csv artifacts/phase5/phase5_attempt_1_20260815T220000Z/metrics.csv artifacts/phase5/phase5_attempt_2_20260815T230000Z/metrics.csv && git diff --check && git status --short && sed -n '1,8p' artifacts/phase5/phase5_attempt_2_20260815T230000Z/highest_error_dates.csv" in /home/asus/projects/water-forecast
+ succeeded in 0ms:
+2131a887ebdf4900bd53d5d02573042c789c72f970b127bfc111563e17921ef9  artifacts/phase5/phase5_attempt_1_20260815T220000Z/predictions.csv
+2131a887ebdf4900bd53d5d02573042c789c72f970b127bfc111563e17921ef9  artifacts/phase5/phase5_attempt_2_20260815T230000Z/predictions.csv
+8f0870ae83755fa77180b4d73a950101edbd2d3f1a12e32eb732de4e25992c02  artifacts/phase5/phase5_attempt_1_20260815T220000Z/metrics.csv
+8f0870ae83755fa77180b4d73a950101edbd2d3f1a12e32eb732de4e25992c02  artifacts/phase5/phase5_attempt_2_20260815T230000Z/metrics.csv
+ M STATUS.md
+?? artifacts/phase5/
+?? experiments/phase5_chronological_holdout.py
+?? tests/test_phase5_chronological_holdout.py
+date,model,actual,prediction,residual,absolute_error
+2020-06-25,linear_regression,131057.1014,128470.88031712537,2586.221082874632,2586.221082874632
+2019-10-30,linear_regression,105484.2778,103033.5453975455,2450.732402454494,2450.732402454494
+2019-01-24,linear_regression,104759.9772,102333.82771077596,2426.14948922403,2426.14948922403
+2020-08-27,linear_regression,118444.7436,120763.46135507585,-2318.7177550758497,2318.7177550758497
+2018-11-29,linear_regression,105847.3593,108053.42909417246,-2206.0697941724648,2206.0697941724648
+2019-11-08,linear_regression,106806.4989,105009.80885868164,1796.6900413183612,1796.6900413183612
+2018-09-26,linear_regression,114561.6102,112833.49338619443,1728.1168138055655,1728.1168138055655
+
+diff --git a/STATUS.md b/STATUS.md
+index 1d3356c3b22bac49906fcaccdb8e2dd818bc60f8..31b358f0889717ea411e552d752c839ae0f630ce
+--- a/STATUS.md
++++ b/STATUS.md
+@@ -1,6 +1,6 @@
+ # Project Status
+ 
+-Current Phase: Phase 5 ready; automatic execution mode awaiting independent validation
++Current Phase: Phase 5 attempt 2 repaired and tested; awaiting independent revalidation
+ 
+ ## Completed
+ - Repository cloned
+diff --git a/experiments/phase5_chronological_holdout.py b/experiments/phase5_chronological_holdout.py
+index d2a93046759d3b50f58d15ac7b2bb53a2c1f1018..bab0606f051544ff8b248ac933fa584a30aa680c
+--- a/experiments/phase5_chronological_holdout.py
++++ b/experiments/phase5_chronological_holdout.py
+@@ -110,7 +110,10 @@
+     }
+ 
+ 
+-def _save_plots(predictions: pd.DataFrame, metrics: pd.DataFrame, output: Path) -> None:
++def _save_evaluation_artifacts(
++    predictions: pd.DataFrame, metrics: pd.DataFrame, output: Path
++) -> None:
++    """Preserve the required holdout diagnostics for one clearly named model."""
+     best_name = str(metrics.loc[metrics["model"] != "naive_lag_1"].iloc[0]["model"])
+     figure, axis = plt.subplots(figsize=(12, 5))
+     axis.plot(predictions["Date"], predictions["actual"], label="Actual", linewidth=1.5)
+@@ -125,6 +128,22 @@
+     plt.close(figure)
+ 
+     residual = predictions["actual"] - predictions[best_name]
++    absolute_error = residual.abs()
++
++    figure, axis = plt.subplots(figsize=(6, 6))
++    axis.scatter(predictions["actual"], predictions[best_name], s=12, alpha=0.65)
++    lower = float(min(predictions["actual"].min(), predictions[best_name].min()))
++    upper = float(max(predictions["actual"].max(), predictions[best_name].max()))
++    axis.plot([lower, upper], [lower, upper], color="black", linewidth=1, linestyle="--")
++    axis.set(
++        xlabel="Actual consumption",
++        ylabel="Predicted consumption",
++        title=f"Actual versus predicted: {best_name}",
++    )
++    figure.tight_layout()
++    figure.savefig(output / "actual_vs_predicted_scatter.png", dpi=150)
++    plt.close(figure)
++
+     figure, axes = plt.subplots(1, 2, figsize=(12, 4))
+     axes[0].scatter(predictions[best_name], residual, s=10, alpha=0.6)
+     axes[0].axhline(0, color="black", linewidth=1)
+@@ -135,6 +154,28 @@
+     figure.savefig(output / "residual_diagnostics.png", dpi=150)
+     plt.close(figure)
+ 
++    figure, axis = plt.subplots(figsize=(12, 5))
++    axis.plot(predictions["Date"], residual, label="Residual (actual - prediction)", alpha=0.75)
++    axis.plot(predictions["Date"], absolute_error, label="Absolute error", linewidth=1.5)
++    axis.axhline(0, color="black", linewidth=1)
++    axis.set(xlabel="Date", ylabel="Error", title=f"Dated holdout error: {best_name}")
++    axis.legend()
++    figure.tight_layout()
++    figure.savefig(output / "error_over_time.png", dpi=150)
++    plt.close(figure)
++
++    highest_errors = pd.DataFrame({
++        "date": predictions["Date"],
++        "model": best_name,
++        "actual": predictions["actual"],
++        "prediction": predictions[best_name],
++        "residual": residual,
++        "absolute_error": absolute_error,
++    }).sort_values(["absolute_error", "date"], ascending=[False, True])
++    highest_errors.head(min(20, len(highest_errors))).to_csv(
++        output / "highest_error_dates.csv", index=False, date_format="%Y-%m-%d"
++    )
++
+ 
+ def run_phase5_holdout(
+     phase2_dir: Path = DEFAULT_PHASE2_DIR,
+@@ -176,7 +217,7 @@
+     metrics = pd.DataFrame(metric_rows).sort_values(["mae", "model"]).reset_index(drop=True)
+     predictions.to_csv(output / "predictions.csv", index=False, date_format="%Y-%m-%d")
+     metrics.to_csv(output / "metrics.csv", index=False)
+-    _save_plots(predictions, metrics, output)
++    _save_evaluation_artifacts(predictions, metrics, output)
+     report = {
+         "phase": "Phase 5",
+         "experiment": "Test 1 chronological 80/20 holdout",
+diff --git a/orchestration/state/phase_5_attempt_2_ml_agent_evidence_20260815.txt b/orchestration/state/phase_5_attempt_2_ml_agent_evidence_20260815.txt
+new file mode 100644
+index 0000000000000000000000000000000000000000..e184e040581857d0cb002082ccbf74f73e89a6cf
+--- /dev/null
++++ b/orchestration/state/phase_5_attempt_2_ml_agent_evidence_20260815.txt
+@@ -0,0 +1,42 @@
++Phase 5 attempt 2 repair evidence
++=================================
++
++Scope
++-----
++- Added the three evaluation artifacts required by EXPERIMENT_PLAN.md.
++- Retained the approved chronological holdout, selected features, model registry,
++  preprocessing scope, configuration, and random seed.
++- Diagnostic model: linear_regression (lowest-MAE non-naive model, descriptive only).
++- No tuning, cross-validation, improvement claim, or locked Test 3 access occurred.
++
++Preserved artifact directory
++----------------------------
++artifacts/phase5/phase5_attempt_2_20260815T230000Z
++
++New required outputs
++--------------------
++- actual_vs_predicted_scatter.png: 80,744 bytes
++- error_over_time.png: 168,541 bytes
++- highest_error_dates.csv: 1,998 bytes; 20 ranked rows
++
++Direct verification
++-------------------
++- Chronological split: 3,040 training / 760 holdout rows.
++- Boundary: training ends 2018-08-04; holdout starts 2018-08-05.
++- highest_error_dates.csv contains date, model, actual, prediction, residual,
++  and absolute_error.
++- Maximum residual/absolute-error replay delta from predictions.csv:
++  1.4779288903810084e-11 (CSV floating-point serialization only).
++- git diff --check: PASS.
++
++Tests
++-----
++- PYTHONPATH=. pytest -q tests/test_phase5_chronological_holdout.py
++  Result: 3 passed, 15 warnings in 3.08s.
++- PYTHONPATH=. pytest -q
++  Result: 178 passed, 23 warnings in 7.33s.
++- Warnings are pre-existing joblib/NumPy deprecation warnings.
++
++Status
++------
++IMPLEMENTED AND TESTED; awaiting independent validator revalidation.
+diff --git a/tests/test_phase5_chronological_holdout.py b/tests/test_phase5_chronological_holdout.py
+index f2ce5631d08daba83d2576861839b6a04c8aa3da..34fb9bb4883b5eb02d82a34485c2e2345d79ce21
+--- a/tests/test_phase5_chronological_holdout.py
++++ b/tests/test_phase5_chronological_holdout.py
+@@ -44,8 +44,13 @@
+ def test_holdout_run_preserves_complete_evidence_and_training_fitted_scaler(tmp_path: Path) -> None:
+     phase2, phase3 = _inputs(tmp_path)
+     output = run_phase5_holdout(phase2, phase3, tmp_path / "runs", "run", model_config=_models())
+-    required = {"config.json", "execution.log", "holdout_report.json", "metrics.csv", "predictions.csv", "actual_vs_predicted.png", "residual_diagnostics.png"}
++    required = {
++        "config.json", "execution.log", "holdout_report.json", "metrics.csv",
++        "predictions.csv", "actual_vs_predicted.png", "actual_vs_predicted_scatter.png",
++        "residual_diagnostics.png", "error_over_time.png", "highest_error_dates.csv",
++    }
+     assert required.issubset(path.name for path in output.iterdir())
++    assert all((output / name).stat().st_size > 0 for name in required)
+     report = json.loads((output / "holdout_report.json").read_text())
+     assert report["training_rows"] == 144 and report["holdout_rows"] == 36
+     assert report["shuffle_used"] is False and report["holdout_used_for_fitting_or_tuning"] is False
+@@ -55,6 +60,26 @@
+     linear = joblib.load(output / "models" / "linear_regression.joblib")
+     assert isinstance(linear, Pipeline) and isinstance(linear.named_steps["scaler"], RobustScaler)
+ 
++    predictions = pd.read_csv(output / "predictions.csv", parse_dates=["Date"])
++    highest_errors = pd.read_csv(output / "highest_error_dates.csv", parse_dates=["date"])
++    assert list(highest_errors.columns) == [
++        "date", "model", "actual", "prediction", "residual", "absolute_error"
++    ]
++    assert highest_errors["model"].nunique() == 1
++    diagnostic_model = highest_errors["model"].iloc[0]
++    expected = pd.DataFrame({
++        "date": predictions["Date"],
++        "model": diagnostic_model,
++        "actual": predictions["actual"],
++        "prediction": predictions[diagnostic_model],
++    })
++    expected["residual"] = expected["actual"] - expected["prediction"]
++    expected["absolute_error"] = expected["residual"].abs()
++    expected = expected.sort_values(
++        ["absolute_error", "date"], ascending=[False, True]
++    ).head(20).reset_index(drop=True)
++    pd.testing.assert_frame_equal(highest_errors, expected, check_exact=False, rtol=1e-12, atol=1e-12)
++
+ 
+ def test_fit_preprocessing_statistics_ignore_holdout_features(tmp_path: Path) -> None:
+     phase2, phase3 = _inputs(tmp_path)
+
+diff --git a/STATUS.md b/STATUS.md
+index 1d3356c3b22bac49906fcaccdb8e2dd818bc60f8..31b358f0889717ea411e552d752c839ae0f630ce
+--- a/STATUS.md
++++ b/STATUS.md
+@@ -1,6 +1,6 @@
+ # Project Status
+ 
+-Current Phase: Phase 5 ready; automatic execution mode awaiting independent validation
++Current Phase: Phase 5 attempt 2 repaired and tested; awaiting independent revalidation
+ 
+ ## Completed
+ - Repository cloned
+diff --git a/experiments/phase5_chronological_holdout.py b/experiments/phase5_chronological_holdout.py
+index d2a93046759d3b50f58d15ac7b2bb53a2c1f1018..bab0606f051544ff8b248ac933fa584a30aa680c
+--- a/experiments/phase5_chronological_holdout.py
++++ b/experiments/phase5_chronological_holdout.py
+@@ -110,7 +110,10 @@
+     }
+ 
+ 
+-def _save_plots(predictions: pd.DataFrame, metrics: pd.DataFrame, output: Path) -> None:
++def _save_evaluation_artifacts(
++    predictions: pd.DataFrame, metrics: pd.DataFrame, output: Path
++) -> None:
++    """Preserve the required holdout diagnostics for one clearly named model."""
+     best_name = str(metrics.loc[metrics["model"] != "naive_lag_1"].iloc[0]["model"])
+     figure, axis = plt.subplots(figsize=(12, 5))
+     axis.plot(predictions["Date"], predictions["actual"], label="Actual", linewidth=1.5)
+@@ -125,6 +128,22 @@
+     plt.close(figure)
+ 
+     residual = predictions["actual"] - predictions[best_name]
++    absolute_error = residual.abs()
++
++    figure, axis = plt.subplots(figsize=(6, 6))
++    axis.scatter(predictions["actual"], predictions[best_name], s=12, alpha=0.65)
++    lower = float(min(predictions["actual"].min(), predictions[best_name].min()))
++    upper = float(max(predictions["actual"].max(), predictions[best_name].max()))
++    axis.plot([lower, upper], [lower, upper], color="black", linewidth=1, linestyle="--")
++    axis.set(
++        xlabel="Actual consumption",
++        ylabel="Predicted consumption",
++        title=f"Actual versus predicted: {best_name}",
++    )
++    figure.tight_layout()
++    figure.savefig(output / "actual_vs_predicted_scatter.png", dpi=150)
++    plt.close(figure)
++
+     figure, axes = plt.subplots(1, 2, figsize=(12, 4))
+     axes[0].scatter(predictions[best_name], residual, s=10, alpha=0.6)
+     axes[0].axhline(0, color="black", linewidth=1)
+@@ -135,6 +154,28 @@
+     figure.savefig(output / "residual_diagnostics.png", dpi=150)
+     plt.close(figure)
+ 
++    figure, axis = plt.subplots(figsize=(12, 5))
++    axis.plot(predictions["Date"], residual, label="Residual (actual - prediction)", alpha=0.75)
++    axis.plot(predictions["Date"], absolute_error, label="Absolute error", linewidth=1.5)
++    axis.axhline(0, color="black", linewidth=1)
++    axis.set(xlabel="Date", ylabel="Error", title=f"Dated holdout error: {best_name}")
++    axis.legend()
++    figure.tight_layout()
++    figure.savefig(output / "error_over_time.png", dpi=150)
++    plt.close(figure)
++
++    highest_errors = pd.DataFrame({
++        "date": predictions["Date"],
++        "model": best_name,
++        "actual": predictions["actual"],
++        "prediction": predictions[best_name],
++        "residual": residual,
++        "absolute_error": absolute_error,
++    }).sort_values(["absolute_error", "date"], ascending=[False, True])
++    highest_errors.head(min(20, len(highest_errors))).to_csv(
++        output / "highest_error_dates.csv", index=False, date_format="%Y-%m-%d"
++    )
++
+ 
+ def run_phase5_holdout(
+     phase2_dir: Path = DEFAULT_PHASE2_DIR,
+@@ -176,7 +217,7 @@
+     metrics = pd.DataFrame(metric_rows).sort_values(["mae", "model"]).reset_index(drop=True)
+     predictions.to_csv(output / "predictions.csv", index=False, date_format="%Y-%m-%d")
+     metrics.to_csv(output / "metrics.csv", index=False)
+-    _save_plots(predictions, metrics, output)
++    _save_evaluation_artifacts(predictions, metrics, output)
+     report = {
+         "phase": "Phase 5",
+         "experiment": "Test 1 chronological 80/20 holdout",
+diff --git a/orchestration/state/phase_5_attempt_2_ml_agent_evidence_20260815.txt b/orchestration/state/phase_5_attempt_2_ml_agent_evidence_20260815.txt
+new file mode 100644
+index 0000000000000000000000000000000000000000..e184e040581857d0cb002082ccbf74f73e89a6cf
+--- /dev/null
++++ b/orchestration/state/phase_5_attempt_2_ml_agent_evidence_20260815.txt
+@@ -0,0 +1,42 @@
++Phase 5 attempt 2 repair evidence
++=================================
++
++Scope
++-----
++- Added the three evaluation artifacts required by EXPERIMENT_PLAN.md.
++- Retained the approved chronological holdout, selected features, model registry,
++  preprocessing scope, configuration, and random seed.
++- Diagnostic model: linear_regression (lowest-MAE non-naive model, descriptive only).
++- No tuning, cross-validation, improvement claim, or locked Test 3 access occurred.
++
++Preserved artifact directory
++----------------------------
++artifacts/phase5/phase5_attempt_2_20260815T230000Z
++
++New required outputs
++--------------------
++- actual_vs_predicted_scatter.png: 80,744 bytes
++- error_over_time.png: 168,541 bytes
++- highest_error_dates.csv: 1,998 bytes; 20 ranked rows
++
++Direct verification
++-------------------
++- Chronological split: 3,040 training / 760 holdout rows.
++- Boundary: training ends 2018-08-04; holdout starts 2018-08-05.
++- highest_error_dates.csv contains date, model, actual, prediction, residual,
++  and absolute_error.
++- Maximum residual/absolute-error replay delta from predictions.csv:
++  1.4779288903810084e-11 (CSV floating-point serialization only).
++- git diff --check: PASS.
++
++Tests
++-----
++- PYTHONPATH=. pytest -q tests/test_phase5_chronological_holdout.py
++  Result: 3 passed, 15 warnings in 3.08s.
++- PYTHONPATH=. pytest -q
++  Result: 178 passed, 23 warnings in 7.33s.
++- Warnings are pre-existing joblib/NumPy deprecation warnings.
++
++Status
++------
++IMPLEMENTED AND TESTED; awaiting independent validator revalidation.
+diff --git a/tests/test_phase5_chronological_holdout.py b/tests/test_phase5_chronological_holdout.py
+index f2ce5631d08daba83d2576861839b6a04c8aa3da..34fb9bb4883b5eb02d82a34485c2e2345d79ce21
+--- a/tests/test_phase5_chronological_holdout.py
++++ b/tests/test_phase5_chronological_holdout.py
+@@ -44,8 +44,13 @@
+ def test_holdout_run_preserves_complete_evidence_and_training_fitted_scaler(tmp_path: Path) -> None:
+     phase2, phase3 = _inputs(tmp_path)
+     output = run_phase5_holdout(phase2, phase3, tmp_path / "runs", "run", model_config=_models())
+-    required = {"config.json", "execution.log", "holdout_report.json", "metrics.csv", "predictions.csv", "actual_vs_predicted.png", "residual_diagnostics.png"}
++    required = {
++        "config.json", "execution.log", "holdout_report.json", "metrics.csv",
++        "predictions.csv", "actual_vs_predicted.png", "actual_vs_predicted_scatter.png",
++        "residual_diagnostics.png", "error_over_time.png", "highest_error_dates.csv",
++    }
+     assert required.issubset(path.name for path in output.iterdir())
++    assert all((output / name).stat().st_size > 0 for name in required)
+     report = json.loads((output / "holdout_report.json").read_text())
+     assert report["training_rows"] == 144 and report["holdout_rows"] == 36
+     assert report["shuffle_used"] is False and report["holdout_used_for_fitting_or_tuning"] is False
+@@ -55,6 +60,26 @@
+     linear = joblib.load(output / "models" / "linear_regression.joblib")
+     assert isinstance(linear, Pipeline) and isinstance(linear.named_steps["scaler"], RobustScaler)
+ 
++    predictions = pd.read_csv(output / "predictions.csv", parse_dates=["Date"])
++    highest_errors = pd.read_csv(output / "highest_error_dates.csv", parse_dates=["date"])
++    assert list(highest_errors.columns) == [
++        "date", "model", "actual", "prediction", "residual", "absolute_error"
++    ]
++    assert highest_errors["model"].nunique() == 1
++    diagnostic_model = highest_errors["model"].iloc[0]
++    expected = pd.DataFrame({
++        "date": predictions["Date"],
++        "model": diagnostic_model,
++        "actual": predictions["actual"],
++        "prediction": predictions[diagnostic_model],
++    })
++    expected["residual"] = expected["actual"] - expected["prediction"]
++    expected["absolute_error"] = expected["residual"].abs()
++    expected = expected.sort_values(
++        ["absolute_error", "date"], ascending=[False, True]
++    ).head(20).reset_index(drop=True)
++    pd.testing.assert_frame_equal(highest_errors, expected, check_exact=False, rtol=1e-12, atol=1e-12)
++
+ 
+ def test_fit_preprocessing_statistics_ignore_holdout_features(tmp_path: Path) -> None:
+     phase2, phase3 = _inputs(tmp_path)
+
+codex
+Phase 5 attempt 2 is repaired and ready for independent revalidation.
+
+Changes:
+
+- Added actual-versus-predicted scatter plot.
+- Added dated residual and absolute-error plot.
+- Added `highest_error_dates.csv` with date, model, actual, prediction, residual, and absolute error.
+- Added tests for artifact existence, non-empty content, schema, ranking, and prediction-derived values.
+- Preserved all approved methodology. Attempt 1 and attempt 2 predictions and metrics have identical SHA-256 hashes.
+
+Evidence:
+
+- Focused tests: `3 passed`
+- Full suite: `178 passed`
+- `git diff --check`: passed
+- Chronological split remains 3,040/760, with boundary 2018-08-04 / 2018-08-05.
+- Highest-error replay delta: approximately `1.48e-11`, attributable to CSV serialization.
+
+Artifacts: [Phase 5 attempt 2](/home/asus/projects/water-forecast/artifacts/phase5/phase5_attempt_2_20260815T230000Z)
+
+Evidence report: [phase_5_attempt_2_ml_agent_evidence_20260815.txt](/home/asus/projects/water-forecast/orchestration/state/phase_5_attempt_2_ml_agent_evidence_20260815.txt)
+
+Implementation: [phase5_chronological_holdout.py](/home/asus/projects/water-forecast/experiments/phase5_chronological_holdout.py)
+
+Tests: [test_phase5_chronological_holdout.py](/home/asus/projects/water-forecast/tests/test_phase5_chronological_holdout.py)
+diff --git a/STATUS.md b/STATUS.md
+index 1d3356c3b22bac49906fcaccdb8e2dd818bc60f8..31b358f0889717ea411e552d752c839ae0f630ce
+--- a/STATUS.md
++++ b/STATUS.md
+@@ -1,6 +1,6 @@
+ # Project Status
+ 
+-Current Phase: Phase 5 ready; automatic execution mode awaiting independent validation
++Current Phase: Phase 5 attempt 2 repaired and tested; awaiting independent revalidation
+ 
+ ## Completed
+ - Repository cloned
+diff --git a/experiments/phase5_chronological_holdout.py b/experiments/phase5_chronological_holdout.py
+index d2a93046759d3b50f58d15ac7b2bb53a2c1f1018..bab0606f051544ff8b248ac933fa584a30aa680c
+--- a/experiments/phase5_chronological_holdout.py
++++ b/experiments/phase5_chronological_holdout.py
+@@ -110,7 +110,10 @@
+     }
+ 
+ 
+-def _save_plots(predictions: pd.DataFrame, metrics: pd.DataFrame, output: Path) -> None:
++def _save_evaluation_artifacts(
++    predictions: pd.DataFrame, metrics: pd.DataFrame, output: Path
++) -> None:
++    """Preserve the required holdout diagnostics for one clearly named model."""
+     best_name = str(metrics.loc[metrics["model"] != "naive_lag_1"].iloc[0]["model"])
+     figure, axis = plt.subplots(figsize=(12, 5))
+     axis.plot(predictions["Date"], predictions["actual"], label="Actual", linewidth=1.5)
+@@ -125,6 +128,22 @@
+     plt.close(figure)
+ 
+     residual = predictions["actual"] - predictions[best_name]
++    absolute_error = residual.abs()
++
++    figure, axis = plt.subplots(figsize=(6, 6))
++    axis.scatter(predictions["actual"], predictions[best_name], s=12, alpha=0.65)
++    lower = float(min(predictions["actual"].min(), predictions[best_name].min()))
++    upper = float(max(predictions["actual"].max(), predictions[best_name].max()))
++    axis.plot([lower, upper], [lower, upper], color="black", linewidth=1, linestyle="--")
++    axis.set(
++        xlabel="Actual consumption",
++        ylabel="Predicted consumption",
++        title=f"Actual versus predicted: {best_name}",
++    )
++    figure.tight_layout()
++    figure.savefig(output / "actual_vs_predicted_scatter.png", dpi=150)
++    plt.close(figure)
++
+     figure, axes = plt.subplots(1, 2, figsize=(12, 4))
+     axes[0].scatter(predictions[best_name], residual, s=10, alpha=0.6)
+     axes[0].axhline(0, color="black", linewidth=1)
+@@ -135,6 +154,28 @@
+     figure.savefig(output / "residual_diagnostics.png", dpi=150)
+     plt.close(figure)
+ 
++    figure, axis = plt.subplots(figsize=(12, 5))
++    axis.plot(predictions["Date"], residual, label="Residual (actual - prediction)", alpha=0.75)
++    axis.plot(predictions["Date"], absolute_error, label="Absolute error", linewidth=1.5)
++    axis.axhline(0, color="black", linewidth=1)
++    axis.set(xlabel="Date", ylabel="Error", title=f"Dated holdout error: {best_name}")
++    axis.legend()
++    figure.tight_layout()
++    figure.savefig(output / "error_over_time.png", dpi=150)
++    plt.close(figure)
++
++    highest_errors = pd.DataFrame({
++        "date": predictions["Date"],
++        "model": best_name,
++        "actual": predictions["actual"],
++        "prediction": predictions[best_name],
++        "residual": residual,
++        "absolute_error": absolute_error,
++    }).sort_values(["absolute_error", "date"], ascending=[False, True])
++    highest_errors.head(min(20, len(highest_errors))).to_csv(
++        output / "highest_error_dates.csv", index=False, date_format="%Y-%m-%d"
++    )
++
+ 
+ def run_phase5_holdout(
+     phase2_dir: Path = DEFAULT_PHASE2_DIR,
+@@ -176,7 +217,7 @@
+     metrics = pd.DataFrame(metric_rows).sort_values(["mae", "model"]).reset_index(drop=True)
+     predictions.to_csv(output / "predictions.csv", index=False, date_format="%Y-%m-%d")
+     metrics.to_csv(output / "metrics.csv", index=False)
+-    _save_plots(predictions, metrics, output)
++    _save_evaluation_artifacts(predictions, metrics, output)
+     report = {
+         "phase": "Phase 5",
+         "experiment": "Test 1 chronological 80/20 holdout",
+diff --git a/orchestration/state/phase_5_attempt_2_ml_agent_evidence_20260815.txt b/orchestration/state/phase_5_attempt_2_ml_agent_evidence_20260815.txt
+new file mode 100644
+index 0000000000000000000000000000000000000000..e184e040581857d0cb002082ccbf74f73e89a6cf
+--- /dev/null
++++ b/orchestration/state/phase_5_attempt_2_ml_agent_evidence_20260815.txt
+@@ -0,0 +1,42 @@
++Phase 5 attempt 2 repair evidence
++=================================
++
++Scope
++-----
++- Added the three evaluation artifacts required by EXPERIMENT_PLAN.md.
++- Retained the approved chronological holdout, selected features, model registry,
++  preprocessing scope, configuration, and random seed.
++- Diagnostic model: linear_regression (lowest-MAE non-naive model, descriptive only).
++- No tuning, cross-validation, improvement claim, or locked Test 3 access occurred.
++
++Preserved artifact directory
++----------------------------
++artifacts/phase5/phase5_attempt_2_20260815T230000Z
++
++New required outputs
++--------------------
++- actual_vs_predicted_scatter.png: 80,744 bytes
++- error_over_time.png: 168,541 bytes
++- highest_error_dates.csv: 1,998 bytes; 20 ranked rows
++
++Direct verification
++-------------------
++- Chronological split: 3,040 training / 760 holdout rows.
++- Boundary: training ends 2018-08-04; holdout starts 2018-08-05.
++- highest_error_dates.csv contains date, model, actual, prediction, residual,
++  and absolute_error.
++- Maximum residual/absolute-error replay delta from predictions.csv:
++  1.4779288903810084e-11 (CSV floating-point serialization only).
++- git diff --check: PASS.
++
++Tests
++-----
++- PYTHONPATH=. pytest -q tests/test_phase5_chronological_holdout.py
++  Result: 3 passed, 15 warnings in 3.08s.
++- PYTHONPATH=. pytest -q
++  Result: 178 passed, 23 warnings in 7.33s.
++- Warnings are pre-existing joblib/NumPy deprecation warnings.
++
++Status
++------
++IMPLEMENTED AND TESTED; awaiting independent validator revalidation.
+diff --git a/tests/test_phase5_chronological_holdout.py b/tests/test_phase5_chronological_holdout.py
+index f2ce5631d08daba83d2576861839b6a04c8aa3da..34fb9bb4883b5eb02d82a34485c2e2345d79ce21
+--- a/tests/test_phase5_chronological_holdout.py
++++ b/tests/test_phase5_chronological_holdout.py
+@@ -44,8 +44,13 @@
+ def test_holdout_run_preserves_complete_evidence_and_training_fitted_scaler(tmp_path: Path) -> None:
+     phase2, phase3 = _inputs(tmp_path)
+     output = run_phase5_holdout(phase2, phase3, tmp_path / "runs", "run", model_config=_models())
+-    required = {"config.json", "execution.log", "holdout_report.json", "metrics.csv", "predictions.csv", "actual_vs_predicted.png", "residual_diagnostics.png"}
++    required = {
++        "config.json", "execution.log", "holdout_report.json", "metrics.csv",
++        "predictions.csv", "actual_vs_predicted.png", "actual_vs_predicted_scatter.png",
++        "residual_diagnostics.png", "error_over_time.png", "highest_error_dates.csv",
++    }
+     assert required.issubset(path.name for path in output.iterdir())
++    assert all((output / name).stat().st_size > 0 for name in required)
+     report = json.loads((output / "holdout_report.json").read_text())
+     assert report["training_rows"] == 144 and report["holdout_rows"] == 36
+     assert report["shuffle_used"] is False and report["holdout_used_for_fitting_or_tuning"] is False
+@@ -55,6 +60,26 @@
+     linear = joblib.load(output / "models" / "linear_regression.joblib")
+     assert isinstance(linear, Pipeline) and isinstance(linear.named_steps["scaler"], RobustScaler)
+ 
++    predictions = pd.read_csv(output / "predictions.csv", parse_dates=["Date"])
++    highest_errors = pd.read_csv(output / "highest_error_dates.csv", parse_dates=["date"])
++    assert list(highest_errors.columns) == [
++        "date", "model", "actual", "prediction", "residual", "absolute_error"
++    ]
++    assert highest_errors["model"].nunique() == 1
++    diagnostic_model = highest_errors["model"].iloc[0]
++    expected = pd.DataFrame({
++        "date": predictions["Date"],
++        "model": diagnostic_model,
++        "actual": predictions["actual"],
++        "prediction": predictions[diagnostic_model],
++    })
++    expected["residual"] = expected["actual"] - expected["prediction"]
++    expected["absolute_error"] = expected["residual"].abs()
++    expected = expected.sort_values(
++        ["absolute_error", "date"], ascending=[False, True]
++    ).head(20).reset_index(drop=True)
++    pd.testing.assert_frame_equal(highest_errors, expected, check_exact=False, rtol=1e-12, atol=1e-12)
++
+ 
+ def test_fit_preprocessing_statistics_ignore_holdout_features(tmp_path: Path) -> None:
+     phase2, phase3 = _inputs(tmp_path)
+
+tokens used
+37,569

@@ -1,0 +1,3 @@
+CODEX_READY
+CURRENT_PHASE: Phase 0 repository audit and baseline reproduction
+VALIDATION_REQUIRED: YES

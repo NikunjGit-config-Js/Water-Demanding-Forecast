@@ -1,0 +1,27 @@
+Implemented Phase 7 as ML Agent, without invoking validation or advancing phases.
+
+Key outcomes:
+
+- Added chronological 70/15/15 Optuna experiment runner.
+- Tuned Ridge, Random Forest, and Gradient Boosting using validation MAE only.
+- Preserved naive lag-1 and Linear Regression baselines.
+- Froze model selection before one locked-test evaluation.
+- Confirmed preprocessing fits training rows only.
+- Added adversarial locked-test isolation coverage.
+- Preserved 60 Optuna trials, models, metrics, predictions, plot, configuration, hashes, and logs.
+
+Checks:
+
+- Focused tests: 3 passed
+- Full suite: 187 passed
+- Artifact replay: all locked-test metrics reproduced
+- Compilation and whitespace checks passed
+- No unrelated changes or deletions
+
+Artifacts: [phase7_attempt_1_20260815T223000Z](/home/asus/projects/water-forecast/artifacts/phase7/phase7_attempt_1_20260815T223000Z)
+
+Implementation: [phase7_locked_test_optuna.py](/home/asus/projects/water-forecast/experiments/phase7_locked_test_optuna.py)
+
+Tests: [test_phase7_locked_test_optuna.py](/home/asus/projects/water-forecast/tests/test_phase7_locked_test_optuna.py)
+
+No improvement claim was made: naive lag-1 remained the strongest validation baseline. Ridge was the best eligible tuned family and was frozen for locked-test evaluation. Independent validation remains pending.

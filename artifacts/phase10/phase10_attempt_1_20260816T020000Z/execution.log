@@ -1,0 +1,2 @@
+Phase 10 completed on CPU; seed=42; epochs=19.
+Read rows [0,3230); locked rows [3230,3800) were not loaded. PatchTST did not beat naive lag-1 on validation MAE. No model selection or hyperparameter search was performed.

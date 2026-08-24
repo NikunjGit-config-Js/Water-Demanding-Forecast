@@ -1,0 +1,20 @@
+Phase 0 attempt 1 is implemented and awaiting independent validation.
+
+Changes:
+
+- Replaced removed `DataFrame.append` with equivalent `pd.concat` in [skmodels.py](/home/asus/projects/water-forecast/src/models/skmodels.py:95).
+- Audited the supplied 3,800-row London dataset.
+- Reproduced the original linear-regression baseline using the chronological 90/10 split.
+- Updated [STATUS.md](/home/asus/projects/water-forecast/STATUS.md:1).
+- Preserved full evidence in [phase_0_attempt_1_20260815T200921Z.txt](/home/asus/projects/water-forecast/orchestration/state/phase_0_attempt_1_20260815T200921Z.txt).
+
+Baseline results: MAE 4,906.921; MSE 56,101,823.730; RMSE 7,490.115; MAPE 0.041361.
+
+Checks passed:
+
+- Source/import smoke
+- Bytecode compilation
+- `python -m pytest -q`: 122 passed
+- `git diff --check`
+
+No validator was invoked, no later phase was advanced, and no restricted external or destructive action occurred.

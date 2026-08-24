@@ -1,0 +1,30 @@
+Phase 7 repair attempt 2 is ready for independent revalidation.
+
+Changes:
+
+- Added reproducible generation of:
+  - Actual-vs-predicted scatter
+  - Residual-vs-predicted plot
+  - Residual distribution
+  - Error-over-time plot
+  - Highest-error dates table
+  - Row-level locked-test diagnostics
+- Added tests confirming artifacts are non-empty and:
+  - `residual = actual - selected_model`
+  - `absolute_error = abs(residual)`
+  - Highest-error rows are descending by absolute error
+- Generated artifacts solely from the preserved 570 locked-test predictions.
+- Confirmed prediction and saved-model hashes remained unchanged.
+- Updated `STATUS.md` to await validator PASS.
+
+Evidence:
+
+- Focused: `3 passed`
+- Full suite: `187 passed`
+- `git diff --check`: passed
+- No empty Phase 7 artifacts
+- Test and integrity evidence saved under [Phase 7 artifacts](/home/asus/projects/water-forecast/artifacts/phase7/phase7_attempt_1_20260815T223000Z)
+- Implementation: [phase7_locked_test_optuna.py](/home/asus/projects/water-forecast/experiments/phase7_locked_test_optuna.py)
+- Tests: [test_phase7_locked_test_optuna.py](/home/asus/projects/water-forecast/tests/test_phase7_locked_test_optuna.py)
+
+No tuning, selection, fitting, refitting, or additional locked-test model evaluation occurred.

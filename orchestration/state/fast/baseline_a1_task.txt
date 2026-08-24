@@ -1,0 +1,69 @@
+OPENCODE_TASK
+STAGE: baseline
+OBJECTIVE:
+Implement and execute the complete leakage-safe BASELINE stage for one-hour-ahead forecasting using only `data/siemens_hourly/source/waterconsumption_noNaN_fixedTimechange.csv`, while auditing `waterconsumption_rawdata.csv`. Establish naive lag-1, lag-24, lag-168, Ridge, and RandomForest validation results. Preserve the final 15% as a locked test whose targets are not scored, inspected, or used until OPTIMAL.
+
+IMPLEMENTATION:
+Create a small, reusable baseline implementation under `fast_pipeline/` and tests under `tests/fast_pipeline/`.
+
+The implementation must:
+- Verify source files against `data/siemens_hourly/provenance.json`; fail on a hash mismatch.
+- Audit raw and canonical sources for schema, types, missingness by column, duplicate rows, duplicate timestamps, timestamp gaps, DST-related irregularities, date range, target distribution, and weather distributions.
+- Parse `Date` plus the start hour from `Time`, sort chronologically, and reject unresolved duplicate or non-monotonic canonical timestamps.
+- Use the canonical file exactly as supplied. Do not synthesize, interpolate, or delete observations merely to force a regular hourly index.
+- Build causal features required by the specification: calendar/cyclical features; nominal `day_of_week_name`, `season`, and `hour_period`; binary `is_weekend`; target lags 1, 2, 3, 24, 48, 72, and 168; shifted rolling mean/std/min/max for windows 3, 24, and 168; shifted EWM features; previous-hour change from past targets; and lagged weather features. Do not use target-hour observed weather.
+- Drop only feature warm-up rows with unavailable causal history, then assign the first 70% to train, next 15% to validation, and final 15% to locked test. Save exact row counts, timestamp boundaries, source hashes, and indices.
+- Prevent baseline-stage access to locked-test targets after split creation. Do not compute locked-test metrics or predictions.
+- Evaluate naive lag-1, lag-24, and lag-168 directly on validation.
+- Fit Ridge through a `Pipeline`/`ColumnTransformer`: training-only median imputation, Yeo-Johnson with `standardize=False` only on defensible continuous numeric predictors, RobustScaler for numeric predictors, OHE for nominal categories, and passthrough 0/1 binaries. Do not transform IDs, binary flags, categorical codes, or cyclical sin/cos columns with Yeo-Johnson.
+- Fit a simple RandomForest using a separate defensible tree preprocessing branch; do not claim scaling or Yeo-Johnson is required for trees.
+- Use fixed recorded seeds and no shuffled splitting or CV.
+- Select nothing using the locked test. Report validation MAE, RMSE, R2, and correctly computed sMAPE for every model.
+- Save real executed outputs under `artifacts/fast/baseline/`, including:
+  - `metrics.csv`
+  - `predictions.csv` with validation timestamps, actuals, and one prediction column per model
+  - `split_metadata.json`
+  - `source_audit.json`
+  - `feature_manifest.json`
+  - `config.json`
+  - `run_evidence.json` containing command, UTC runtime, package versions, seed, source hashes, and artifact row counts
+  - validation actual-versus-predicted and residual plots
+  - fitted Ridge and RandomForest pipeline/model artifacts
+- Add tests proving shift-before-roll causality, feature values at time t are unchanged when targets at t or later are altered, chronological/non-overlapping split boundaries, locked-test exclusion from fitting/scoring, training-only preprocessing fitting, expected validation prediction coverage, and metric recomputation from `predictions.csv`.
+- Update `STATUS_FAST.md` only after successful execution, recording exact commands, real validation metrics, files created, locked-test status, and honest limitations.
+- Inspect and record `git diff --check` and `git status --short` as final evidence. Do not advance to BETTER.
+
+COMMANDS_TO_RUN:
+python -m pytest tests/fast_pipeline -q
+python -m fast_pipeline.baseline --data-dir data/siemens_hourly --output-dir artifacts/fast/baseline --seed 42
+python -m pytest tests/fast_pipeline -q
+python -m fast_pipeline.baseline --data-dir data/siemens_hourly --output-dir artifacts/fast/baseline --seed 42 --verify-artifacts-only
+git diff --check
+git status --short
+
+ACCEPTANCE_CRITERIA:
+- All commands complete successfully and their exact outputs or summarized return codes are preserved in `run_evidence.json` and `STATUS_FAST.md`.
+- Source hashes match provenance and `synthetic_data` remains false.
+- Split order is strictly train before validation before locked test, with approximately 70/15/15 of post-warm-up rows and exact boundaries saved.
+- No target-hour weather, future target, future rolling value, or full-dataset-fitted preprocessing is used.
+- Locked-test targets produce no metrics, predictions, plots, model selection, or preprocessing decisions during BASELINE.
+- `metrics.csv` contains exactly the executed validation results for naive_lag_1, naive_lag_24, naive_lag_168, Ridge, and RandomForest with MAE, RMSE, R2, and sMAPE.
+- Metrics recomputed from `predictions.csv` match `metrics.csv` within numerical tolerance.
+- `predictions.csv` covers every scored validation timestamp exactly once and contains no train or locked-test timestamps.
+- Tests independently verify causality, split integrity, fit boundaries, locked-test isolation, artifact completeness, and metric integrity.
+- At least one actual-versus-predicted plot and one residual plot are non-empty and derived from validation predictions.
+- Seeds, configurations, fitted models, preprocessing choices, source audit, split metadata, and execution evidence are preserved.
+- Any naive baseline outperforming trained models is reported honestly.
+- `STATUS_FAST.md` states BASELINE implementation is awaiting Codex validation; it must not claim PASS or begin BETTER.
+
+DO_NOT:
+- Do not ask the user questions.
+- Do not use any dataset except the imported Siemens/KIT files.
+- Do not fabricate, resample, synthesize, interpolate, or silently repair data.
+- Do not inspect, score, plot, tune against, or select models using locked-test targets.
+- Do not use shuffled splits, random KFold, or preprocessing fitted before splitting.
+- Do not use unshifted target rolling features or target-hour observed weather.
+- Do not label-encode nominal categories or apply Yeo-Johnson blindly.
+- Do not add Optuna, Keras Tuner, advanced ensembles, DL training, or BETTER/OPTIMAL work.
+- Do not overwrite historical project artifacts outside the fast-stage paths.
+- Do not delete files, push commits, or rewrite remote history.

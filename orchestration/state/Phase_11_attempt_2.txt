@@ -1,0 +1,21 @@
+Implemented Phase 11 repair attempt 2, pending independent validator approval.
+
+Changes:
+
+- Added a distinct 1–365 day **Forecast horizon** control.
+- Added causal last-observation and recursive 7-day seasonal-naive forecasts.
+- Enforced an explicit forecast origin; post-origin target values are ignored.
+- Separated historical evaluation plots/downloads from future forecasts.
+- Future CSV exports contain only `Date`, `forecast`, and `method`.
+- Added horizon length, date alignment, recursive forecasting, leakage-resistance, export-schema, and UI-control tests.
+- Updated [dashboard documentation](/home/asus/projects/water-forecast/app/README.md) and [project status](/home/asus/projects/water-forecast/STATUS.md).
+
+Evidence:
+
+- Focused tests: **8 passed**
+- Full suite: **204 passed**
+- Python compilation: passed
+- `git diff --check`: passed
+- Evidence preserved in [implementation_evidence.txt](/home/asus/projects/water-forecast/artifacts/phase11/phase11_attempt_2_20260816T000800Z/implementation_evidence.txt)
+
+No permission-gated actions or methodology changes were required. Phase 11 must now receive an independent validator `PASS` before Phase 12 begins.

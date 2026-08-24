@@ -1,0 +1,46 @@
+Phase 5 ML Agent attempt 1 evidence
+UTC date: 2026-08-15
+
+Scope
+- Implemented Test 1 as the approved chronological 80/20 holdout.
+- Reused the Phase 3 training-only selected feature set and the exact Phase 4
+  approved traditional model registry.
+- Compared naive lag-1 and linear-regression baselines before any improvement
+  claim; no improvement claim or hyperparameter optimization was performed.
+
+Methodology evidence
+- Source rows: 3,800, chronologically ordered from 2009-07-01 to 2020-09-02.
+- Training: first 3,040 rows (80%), ending 2018-08-04.
+- Holdout: final 760 rows (20%), starting 2018-08-05.
+- No shuffle or random train_test_split was used.
+- Each imputer and applicable RobustScaler is inside its sklearn Pipeline and
+  fitted only by Pipeline.fit on the first 3,040 rows.
+- Holdout rows were used only for prediction and metric calculation.
+- Random seed: 42. Traditional sklearn models ran on CPU as appropriate.
+
+Artifacts
+- artifacts/phase5/phase5_attempt_1_20260815T220000Z/config.json
+- artifacts/phase5/phase5_attempt_1_20260815T220000Z/holdout_report.json
+- artifacts/phase5/phase5_attempt_1_20260815T220000Z/metrics.csv
+- artifacts/phase5/phase5_attempt_1_20260815T220000Z/predictions.csv
+- artifacts/phase5/phase5_attempt_1_20260815T220000Z/actual_vs_predicted.png
+- artifacts/phase5/phase5_attempt_1_20260815T220000Z/residual_diagnostics.png
+- artifacts/phase5/phase5_attempt_1_20260815T220000Z/models/*.joblib
+- artifacts/phase5/phase5_attempt_1_20260815T220000Z/execution.log
+
+Checks
+- python -m pytest -q tests/test_phase5_chronological_holdout.py
+  Result: 3 passed (15 third-party joblib/NumPy deprecation warnings).
+- python -m pytest -q
+  Result: 178 passed (23 third-party joblib/NumPy deprecation warnings).
+- python -m py_compile experiments/phase5_chronological_holdout.py tests/test_phase5_chronological_holdout.py
+  Result: passed.
+- git diff --check
+  Result: passed.
+- Test coverage mutates holdout feature values and confirms training-fitted
+  imputer medians and RobustScaler centers remain identical.
+
+Review
+- Git status contains only new Phase 5 source, test, artifact, and evidence paths.
+- No prior artifacts, governance files, data, checkpoints, or methodology were
+  modified. No validator was invoked and no phase status was advanced.

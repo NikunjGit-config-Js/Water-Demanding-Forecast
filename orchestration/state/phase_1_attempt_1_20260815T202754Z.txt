@@ -1,0 +1,64 @@
+PHASE: Phase 1 - Data validation and EDA
+ROLE: Data Agent
+ATTEMPT: 1 of 3
+RECORDED_AT_UTC: 2026-08-15T20:27:54Z
+STATUS: IMPLEMENTED; awaiting independent validation
+
+SCOPE AND IMPLEMENTATION
+- Added experiments/phase1_data_eda.py as a configurable, non-mutating data
+  validation and univariate EDA runner.
+- Added tests/test_phase1_data_eda.py covering invalid data, duplicate dates,
+  suspicious gaps, source preservation, chronology, and complete artifacts.
+- Source rows are never sorted, imputed, transformed, dropped, or overwritten.
+- No scaler, feature engineering, dataset split, model, tuning, external data,
+  scraping, or Indian-city acquisition is involved.
+- Authoritative artifacts are in
+  artifacts/phase1/phase1_attempt_1_final_20260815T203000Z/.
+- The earlier phase1_attempt_1_20260815 directory is preserved as a preliminary
+  dry run; the final directory contains the reviewed reporting labels and is the
+  implementation evidence for validation.
+
+DATA QUALITY FINDINGS
+- Dataset: data/preprocessed/all/preprocessed_data.csv
+- SHA-256 before and after analysis:
+  2d95a510176c4dad93eae25958c714ab713790512193f55cf5747b44153da6c9
+- Shape: 3,800 rows, 2 columns (Date and Consumption).
+- Parsed types: datetime64[us] and float64.
+- Date range: 2009-07-01 through 2020-09-02, in strictly increasing source order.
+- Missing values: 0. Invalid dates: 0. Non-numeric/non-finite/non-positive
+  consumption values: 0.
+- Duplicate rows: 0. Duplicate dates: 0.
+- Two calendar gaps contain 282 missing daily dates: 214 dates between
+  2014-02-28 and 2014-10-01, and 68 dates between 2017-03-24 and 2017-06-01.
+- Tukey 1.5*IQR inspection candidates: 0 (fences 74632.61429374998 and
+  136150.21098375). No values were removed or called confirmed anomalies.
+- 300 rows have a Consumption value repeated elsewhere. These are reported for
+  inspection and are not classified as duplicate rows.
+- Correlation analysis is explicitly skipped because Consumption is the only
+  numeric variable and self-correlation is not informative.
+- Descriptive Consumption mean: 105434.44038381052; standard deviation:
+  9758.48521499627; min: 82045.44012; median: 103005.2719; max: 135780.4265.
+
+ARTIFACTS
+- config.json
+- data_quality_report.json
+- descriptive_statistics.csv
+- suspicious_observations.csv
+- calendar_summary.csv
+- target_distribution_boxplot.png
+- time_series_trend.png
+- calendar_seasonality.png
+
+TESTS AND REVIEW
+- .venv/bin/python -m pytest -q tests/test_phase1_data_eda.py: PASS (2 passed)
+- .venv/bin/python -m pytest -q: PASS (126 passed; 3 pre-existing third-party
+  joblib/NumPy deprecation warnings in the Phase 0 test)
+- git diff --check: PASS
+- Time-series/trend and calendar-seasonality plots visually inspected.
+- Source SHA-256 verified unchanged before and after analysis.
+- Repository status/diff inspected; changes are scoped to Phase 1 code, tests,
+  artifacts, this evidence record, and the required status update.
+
+VALIDATION GATE
+- Independent validator was not invoked by the Data Agent.
+- Phase 1 is not approved and Phase 2 has not started.

@@ -1,0 +1,61 @@
+Implemented the validated CrewAI orchestration control layer. Phase 0 was not started, and no independent validator PASS is claimed.
+
+1. Files created/modified
+
+Created:
+
+- `tests/test_flow.py`
+- `tests/test_validator.py`
+- `tests/test_orchestration_tools.py`
+
+Modified:
+
+- `orchestration/flow.py`
+- `orchestration/main.py`
+- `orchestration/config/agents.yaml`
+- `orchestration/config/tasks.yaml`
+- `orchestration/agents/validator.py`
+- `orchestration/tools/test_tool.py`
+- `orchestration/tools/git_tool.py`
+- `orchestration/tools/experiment_reader.py`
+- `STATUS.md`
+- `DECISIONS.md`
+
+2. Architecture implemented
+
+- Typed CrewAI `Flow` state containing all required fields.
+- Deterministic phase-to-specialist routing.
+- Codex CLI as the sole writable implementation/repair executor.
+- Independent validator forced through `read-only`.
+- Test gate before validation.
+- Exact validator failure report embedded in repair prompts.
+- Configurable bounded retry loop.
+- Fail-closed handling for malformed verdicts and missing corrections.
+- Repository snapshot comparison around validator execution.
+- Local JSON checkpoint evidence only after PASS.
+- No automatic Git commits or pushes.
+- CrewAI telemetry, tracing, automatic memory, and flow events disabled.
+- Explicit phase CLI prevents implicitly starting Phase 0.
+- YAML profiles for all eight requested roles and task templates.
+
+3. Tests and checks
+
+- Focused orchestration tests: `44 passed`
+- Full repository test discovery: `44 passed`
+- Python bytecode compilation: passed
+- AST parsing: passed
+- Orchestration imports: passed
+- `git diff --check`: passed
+- Final Git status and diff inspected
+
+No live Codex calls were made by the tests.
+
+4. Independent validation command
+
+```bash
+python -m orchestration.agents.validator \
+  --phase "CrewAI orchestration system" \
+  --implementation-summary "Implemented deterministic CrewAI 1.15.16 orchestration with typed state, specialist routing, mocked test gating, bounded FAIL repair loops, strict malformed-output handling, read-only validator isolation, safe Codex sandbox selection, and PASS-only local checkpoints. Full pytest discovery reports 44 passed. Phase 0 was not started."
+```
+
+This invokes the existing validator through the read-only Codex wrapper and exits nonzero on `FAIL`.

@@ -1,0 +1,81 @@
+Implemented all required corrections without starting Phase 0 or changing datasets/ML methodology.
+
+1. Files changed
+
+- [codex_tool.py](/home/asus/projects/water-forecast/orchestration/tools/codex_tool.py)
+- [validator.py](/home/asus/projects/water-forecast/orchestration/agents/validator.py)
+- [test_codex_tool.py](/home/asus/projects/water-forecast/tests/test_codex_tool.py)
+- [test_validator.py](/home/asus/projects/water-forecast/tests/test_validator.py)
+- [test_flow.py](/home/asus/projects/water-forecast/tests/test_flow.py)
+- [STATUS.md](/home/asus/projects/water-forecast/STATUS.md)
+- [DECISIONS.md](/home/asus/projects/water-forecast/DECISIONS.md)
+- [evidence artifact](/home/asus/projects/water-forecast/orchestration/state/raw_validator_response_hardening_20260815T195910Z.txt)
+
+2. Raw-response fix
+
+`run_codex()` now accepts `preserve_output=False`. Its default remains backward-compatible and strips output.
+
+The live validator explicitly uses:
+
+```python
+run_codex(..., preserve_output=True)
+```
+
+It passes that raw response directly to `validate_report()` without stripping or normalization. Writable implementation execution retains the existing default behavior.
+
+The shared parser now requires:
+
+- First line exactly `PASS` or `FAIL`.
+- No preceding blank line or surrounding whitespace.
+- For `FAIL`, an exact standalone `REQUIRED_CORRECTIONS:` line followed by non-empty correction content.
+
+3. Tests added
+
+Added coverage for:
+
+- All requested malformed live PASS and FAIL variants.
+- Exact `PASS\nEvidence`.
+- Exact well-formed FAIL.
+- Live/persisted validation parity.
+- Validator requesting `preserve_output=True`.
+- Wrapper default stripping compatibility.
+- Raw preservation under read-only and workspace-write modes.
+- Malformed/indented/inline correction markers.
+
+Existing sandbox, no-write, writable execution, and unsafe-path tests remain passing.
+
+4. Full verification
+
+Exact command:
+
+```text
+python -m pytest -q
+```
+
+Result:
+
+```text
+122 passed in 1.42s
+```
+
+Additional checks:
+
+- AST parsing: PASS, 14 Python files
+- Import checks: PASS
+- `uv pip check`: all 195 installed packages compatible
+- `git diff --check`: PASS
+- Git branch: `agentic-water-forecast`
+- Base commit: `67be49b28f6708e60af379ed7290c97e785891d4`
+- Git status and full diff inspected
+
+5. Evidence
+
+[raw_validator_response_hardening_20260815T195910Z.txt](/home/asus/projects/water-forecast/orchestration/state/raw_validator_response_hardening_20260815T195910Z.txt)
+
+6. Independent-validator command to run next
+
+```bash
+python -m orchestration.agents.validator --phase "Orchestration raw-validator response hardening" --implementation-summary "Preserve raw live Codex validator output via preserve_output=True; enforce identical strict live and persisted report validation; add adversarial and wrapper-regression tests. Supervisor evidence: orchestration/state/raw_validator_response_hardening_20260815T195910Z.txt"
+```
+
+No independent-validator PASS is claimed, no Git push occurred, and Phase 0 remains unstarted.

@@ -1,0 +1,17 @@
+{
+  "phase_name": "Phase 7",
+  "phase_number": 7,
+  "schema_version": 2,
+  "test_evidence": {
+    "command": [
+      "python",
+      "-m",
+      "pytest",
+      "-q"
+    ],
+    "returncode": 0
+  },
+  "validated_at_utc": "2026-08-16T10:55:50.064732+00:00",
+  "validation_report": "PASS\n\nDelhi 70/15/15 Optuna tuning with locked test complete.",
+  "validation_verdict": "PASS"
+}

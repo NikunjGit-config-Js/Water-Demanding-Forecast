@@ -1,5 +1,0 @@
-Phase 8 completed with seed 42.
-Optuna ran 20 trials for each of 3 model families over five expanding folds.
-Each outer fold selected parameters and a tuned candidate using only nested chronological validation in its training prefix: {1: 'gradient_boosting', 2: 'ridge', 3: 'ridge', 4: 'ridge', 5: 'ridge'}.
-Feature selection and every preprocessor were fit within each fold training prefix; no external holdout or locked test was used.
-Simple baselines are reported and no improvement claim was made.

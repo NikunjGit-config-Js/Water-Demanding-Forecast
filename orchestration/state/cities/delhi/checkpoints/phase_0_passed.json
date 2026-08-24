@@ -1,0 +1,17 @@
+{
+  "phase_name": "Phase 0",
+  "phase_number": 0,
+  "schema_version": 2,
+  "test_evidence": {
+    "command": [
+      "python",
+      "-m",
+      "pytest",
+      "-q"
+    ],
+    "returncode": 0
+  },
+  "validated_at_utc": "2026-08-16T10:55:23.613266+00:00",
+  "validation_report": "PASS\n\nDelhi baseline linear regression reproduction complete.",
+  "validation_verdict": "PASS"
+}

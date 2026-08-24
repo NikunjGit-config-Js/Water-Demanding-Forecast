@@ -1,0 +1,46 @@
+Phase 6 attempt 1 ML Agent evidence
+===================================
+
+Scope
+-----
+- Implemented approved Test 2: five-fold expanding-window cross-validation via
+  sklearn.model_selection.TimeSeriesSplit.
+- Evaluated naive lag-1 plus the ten approved traditional model families.
+- Fitted every model Pipeline independently on only that fold's training prefix.
+- Performed no tuning, locked Test 3 evaluation, or improvement claim.
+
+Preserved artifact directory
+----------------------------
+artifacts/phase6/phase6_attempt_1_20260815T233000Z
+
+Split evidence
+--------------
+- Input rows: 3,800, strictly chronological from 2009-07-01 to 2020-09-02.
+- Fold training rows: 635, 1,268, 1,901, 2,534, 3,167.
+- Each validation fold contains 633 rows and begins the day after its training
+  prefix ends.
+- Shuffle: false.
+
+Outputs
+-------
+- fold_metrics.csv: 55 rows (11 methods x 5 folds), MAE/MSE/RMSE/R2.
+- metrics_summary.csv: unweighted fold mean and sample standard deviation.
+- predictions.csv: dated validation predictions with fold identifiers.
+- models/fold_1 through models/fold_5: fold-specific fitted model Pipelines.
+- cv_report.json, config.json, execution.log, actual_vs_predicted.png, and
+  residual_diagnostics.png.
+- Lowest mean CV MAE is naive_lag_1 (230.284394), recorded descriptively only.
+
+Tests and checks
+----------------
+- PYTHONPATH=. .venv/bin/python -m pytest -q tests/test_phase6_time_series_cv.py
+  Result: 3 passed, 11 warnings in 3.04s.
+- PYTHONPATH=. .venv/bin/python -m pytest -q
+  Result: 184 passed, 34 warnings in 9.13s.
+- Warnings are joblib/NumPy deprecations plus one synthetic-test Lasso
+  convergence warning; no test failed.
+- git diff --check: PASS.
+
+Status
+------
+IMPLEMENTED AND TESTED; awaiting independent validator review.

@@ -1,0 +1,36 @@
+Phase 9 Time-Series Agent implementation evidence
+Attempt: 1 of 3
+Final artifact: artifacts/phase9/phase9_attempt_1_final_20260816T012000Z
+
+Implementation
+- Added experiments/phase9_time_series_baselines.py.
+- Added tests/test_phase9_time_series_baselines.py.
+- Evaluated fixed-origin recursive forecasts on the approved chronological 80/20 split.
+- Models: ARIMA, SARIMAX, Prophet, LSTM, GRU, 1D CNN.
+- References: last-value naive and recursively applied 7-day seasonal naive.
+- No holdout target was supplied to fitting, preprocessing, early stopping, or a later recursive step.
+- Neural RobustScaler fit ended at row 2584, before the chronological in-training validation rows.
+- Fixed parameters only; no hyperparameter optimization or improvement claim.
+- TensorFlow attempted CUDA, CUDA initialization failed, and the run completed on CPU. CPU fallback is recorded in forecast_report.json and execution.log.
+
+Results (descriptive holdout metrics; not a model-selection claim)
+- Prophet: MAE 3670.837494, RMSE 4488.956842, R2 0.718480.
+- SARIMAX: MAE 6189.737192, RMSE 8576.903425, R2 -0.027731.
+- ARIMA: MAE 7968.070396, RMSE 9181.440692, R2 -0.177715.
+- 1D CNN: MAE 8002.184973, RMSE 9222.954157, R2 -0.188389.
+- GRU: MAE 9229.249617, RMSE 10350.853277, R2 -0.496824.
+- Last-value naive: MAE 9490.603291, RMSE 10806.869948, R2 -0.631618.
+- LSTM: MAE 9904.092158, RMSE 11460.653066, R2 -0.835005.
+- 7-day seasonal naive: MAE 10382.617263, RMSE 11739.804008, R2 -0.925485.
+
+Checks
+- `.venv/bin/python -m pytest -q tests/test_phase9_time_series_baselines.py`: 3 passed.
+- `.venv/bin/python -m pytest -q`: 193 passed, 60 warnings in 268.84s.
+- Independent metric recomputation: maximum absolute difference <= 2.9802322387695312e-08.
+- Artifact hash verification: 19 checked, 0 mismatches.
+- Predictions: 760 rows, all actuals and model predictions finite.
+- `git diff --check`: clean.
+- `git status --short`: only Phase 9 source, tests, artifacts, and this evidence are untracked.
+
+Review note
+- The initial artifact directory phase9_attempt_1_20260816T010000Z is intentionally retained as failed-run evidence. It was interrupted after CUDA fallback exposed inefficient per-step TensorFlow input-pipeline construction. FAILED_RUN.md marks it invalid. The final run uses mathematically equivalent direct eager calls for recursive neural inference.

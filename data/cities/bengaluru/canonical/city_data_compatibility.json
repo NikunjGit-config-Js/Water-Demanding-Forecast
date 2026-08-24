@@ -1,0 +1,17 @@
+{
+  "capabilities": {},
+  "checks": {
+    "source_configured": false
+  },
+  "city": "bengaluru",
+  "date_end": null,
+  "date_start": null,
+  "gap_count": 0,
+  "minimum_observations": 523,
+  "reasons": [
+    "verified daily source is not configured"
+  ],
+  "rows": 0,
+  "schema_version": 1,
+  "status": "DATA_SOURCE_REQUIRED"
+}

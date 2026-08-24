@@ -1,0 +1,73 @@
+Implemented all required checkpoint-evidence corrections. Phase 0 was not started, datasets and ML methodology were untouched, and nothing was pushed.
+
+1. Files changed
+
+- [orchestration/flow.py](/home/asus/projects/water-forecast/orchestration/flow.py)
+- [orchestration/agents/validator.py](/home/asus/projects/water-forecast/orchestration/agents/validator.py)
+- [orchestration/tools/test_tool.py](/home/asus/projects/water-forecast/orchestration/tools/test_tool.py)
+- [tests/test_flow.py](/home/asus/projects/water-forecast/tests/test_flow.py)
+- [tests/test_validator.py](/home/asus/projects/water-forecast/tests/test_validator.py)
+- [STATUS.md](/home/asus/projects/water-forecast/STATUS.md)
+- [DECISIONS.md](/home/asus/projects/water-forecast/DECISIONS.md)
+- [checkpoint evidence](/home/asus/projects/water-forecast/orchestration/state/checkpoint_evidence_hardening_20260815T195117Z.txt)
+
+2. Checkpoint schema/evidence changes
+
+- Schema version increased to `2`.
+- `PhaseCheckpoint` uses strict Pydantic validation with extra fields forbidden.
+- Removed free-form `test_report` as checkpoint proof.
+- Added typed `test_evidence`:
+
+```json
+{
+  "command": ["python", "-m", "pytest", "-q"],
+  "returncode": 0
+}
+```
+
+- Command must match exactly; additional arguments and alternative invocation forms fail.
+- Return code must be strict integer `0`.
+- `validation_verdict` must be exact `PASS`.
+- `validation_report` first line must be exact, case-sensitive `PASS`.
+- Live and persisted validation share the same verdict/report consistency logic.
+- Phase number and canonical phase name are validated from checkpoint content.
+- Missing, malformed, contradictory, legacy, and extra evidence fails closed.
+
+3. Adversarial tests added
+
+Rejection is proven for:
+
+- `PASS` verdict with a report beginning `FAIL`
+- Lowercase `pass` and mixed-case `Pass`
+- Malformed or empty reports
+- Nonzero test return code
+- `python -c`
+- `python arbitrary_script.py`
+- Direct `pytest`
+- Additional pytest arguments
+- Missing, null, string, incomplete, or extra structured evidence
+- Legacy schema/free-form `test_report`
+- Filename/content phase mismatch
+
+Tests also confirm valid persisted checkpoints are accepted and the default writer serializes only the strict structured evidence.
+
+4. Exact test results
+
+- `python -m pytest -q`: **89 passed in 1.49s**
+- AST parsing: **14 Python files passed**
+- Imports: **PASS**
+  - `orchestration.flow`
+  - `orchestration.agents.validator`
+  - `orchestration.tools.test_tool`
+- `UV_CACHE_DIR=/tmp/water-forecast-uv-cache uv pip check`: **195 packages compatible**
+- `git diff --check`: **PASS**
+- Final `git status` and `git diff` inspected.
+- Repository validator review returned PASS, but no external independent-validator PASS is claimed.
+
+5. Exact independent validation command to run next
+
+```bash
+python -m orchestration.agents.validator \
+  --phase "Orchestration checkpoint-evidence hardening" \
+  --implementation-summary "Implemented strict schema-v2 prerequisite checkpoints with exact PASS report validation and typed pytest evidence. Supervisor evidence: orchestration/state/checkpoint_evidence_hardening_20260815T195117Z.txt"
+```

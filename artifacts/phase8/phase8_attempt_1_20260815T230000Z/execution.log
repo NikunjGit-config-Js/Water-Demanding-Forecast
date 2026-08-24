@@ -1,0 +1,5 @@
+Phase 8 completed with seed 42.
+Optuna ran 20 trials for each of 3 model families over five expanding folds.
+The validation-only selected model was ridge.
+Every preprocessor was fit within its fold training prefix; no external holdout or locked test was used.
+Simple baselines are reported and no improvement claim was made.

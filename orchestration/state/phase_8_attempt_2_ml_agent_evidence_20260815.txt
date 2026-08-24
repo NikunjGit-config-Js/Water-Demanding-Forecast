@@ -1,0 +1,54 @@
+Phase 8 repair attempt 2 - ML Agent implementation evidence
+Date: 2026-08-15 UTC
+
+Validator correction addressed
+- Attempt 1 reused a Phase 3 feature set selected through row 2659, contaminating
+  Phase 8 folds whose training prefixes ended earlier.
+- Attempt 1 artifacts remain preserved but are explicitly invalidated in STATUS.md.
+
+Implementation
+- experiments/phase8_cv_optuna.py loads all 40 Phase 2 candidates.
+- The approved deterministic Phase 3 selection method is fitted independently on
+  each outer-fold training prefix (635, 1268, 1901, 2534, and 3167 rows) for final
+  fitting, and separately on every nested inner-fold training prefix for tuning.
+- Each outer fold has five chronological inner folds contained entirely within
+  its training prefix. Each model family's parameters and the fold winner are
+  selected by inner mean MAE without access to the outer validation rows.
+- Fold-local selected features and parameters are used consistently by the
+  linear-regression baseline and every frozen tuned candidate.
+- Naive lag-1 remains a direct simple baseline and uses no feature selection.
+- No full-data refit, external holdout access, or locked-test access occurred.
+
+Regression coverage
+- tests/test_phase8_cv_optuna.py runs two discriminating trials per model, perturbs all numeric candidate observations after
+  fold 1's training boundary, updates only the synthetic fixture provenance hash,
+  and reruns the experiment.
+- It proves fold-1 selected features, complete Optuna trial records (including
+  objectives), selected parameters/trial and winner, imputer statistics, scaler
+  centers, fitted winner, and predictions on a fixed probe are unchanged.
+
+Regenerated evidence
+- The interim non-nested `phase8_attempt_2_20260815T235500Z` artifacts are invalid
+  and preserved only for audit history.
+- artifacts/phase8/phase8_attempt_2_final_20260816T003000Z/
+- 300 Optuna trials: 20 for each of three model families in each of five outer folds.
+- 3,165 out-of-fold prediction rows across five chronological folds.
+- 41 files total: five rankings, five selection reports, 20 fitted fold models,
+  trials, metrics, predictions, reports, plots, configuration, logs, and hashes.
+- artifact_hashes.json independently verified 40 SHA-256 entries.
+- Saved naive-lag-1 and linear-regression fold metrics independently recomputed.
+- Mean MAE: naive_lag_1 230.284394; linear_regression 303.248326; ridge
+  414.758158; gradient_boosting 570.714875; random_forest 636.509965.
+- Inner-validation-only selected tuned candidate in every outer fold: ridge. No
+  improvement claim made; the naive baseline remains best descriptively.
+
+Verification
+- PYTHONPATH=. pytest -q tests/test_phase8_cv_optuna.py
+  Result: 3 passed (the isolation case alone passed in 177.24 seconds).
+- PYTHONPATH=. pytest -q
+  Result: 190 passed, 60 warnings in 283.10 seconds.
+- git diff --check
+  Result: PASS (no output).
+- Git status contained only the expected pre-existing Phase 8/STATUS scope.
+
+ML Agent review: implementation is ready for independent Validator review.

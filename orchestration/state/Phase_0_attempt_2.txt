@@ -1,0 +1,23 @@
+Phase 0 attempt 2 is repaired and independently validated: **PASS**.
+
+Implemented:
+
+- Added reproducible artifact runner: [phase0_baseline.py](/home/asus/projects/water-forecast/experiments/phase0_baseline.py)
+- Preserved configuration, split manifest, structured metrics, 380 dated predictions/errors, plot, execution log, fitted model, and training-only scaler in [Phase 0 artifacts](/home/asus/projects/water-forecast/artifacts/phase0/phase0_attempt_2_20260815)
+- Recorded deterministic/no-seed declaration and dataset SHA-256
+- Reported historical metrics separately from supplemental R²
+- Added focused artifact and leakage tests: [test_phase0_baseline.py](/home/asus/projects/water-forecast/tests/test_phase0_baseline.py)
+- Updated [STATUS.md](/home/asus/projects/water-forecast/STATUS.md)
+- Preserved [supervisor evidence](/home/asus/projects/water-forecast/orchestration/state/phase_0_attempt_2_20260815T201523Z.txt) and [validator PASS](/home/asus/projects/water-forecast/orchestration/state/phase_0_attempt_2_validator_pass_20260815.txt)
+
+Results:
+
+- MAE: `4906.92098711926`
+- MAPE: `0.041361037066790236`
+- MSE: `56101823.72967102`
+- RMSE: `7490.115067852497`
+- Supplemental R²: `0.48074910979340124`
+- Full tests: `124 passed`
+- `git diff --check`: passed
+
+Phase 1 was not started.

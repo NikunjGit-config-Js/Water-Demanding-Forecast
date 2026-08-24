@@ -1,0 +1,1210 @@
+COMMAND:
+/home/asus/.local/bin/codex exec -C /home/asus/projects/water-forecast -s read-only --output-last-message /tmp/wf-codex-7b1rtyqn/last.txt [PROMPT]
+
+STDOUT:
+OPENCODE_TASK
+STAGE: baseline
+OBJECTIVE:
+Implement and execute the complete leakage-safe BASELINE stage for one-hour-ahead forecasting using only `data/siemens_hourly/source/waterconsumption_noNaN_fixedTimechange.csv`, while auditing `waterconsumption_rawdata.csv`. Establish naive lag-1, lag-24, lag-168, Ridge, and RandomForest validation results. Preserve the final 15% as a locked test whose targets are not scored, inspected, or used until OPTIMAL.
+
+IMPLEMENTATION:
+Create a small, reusable baseline implementation under `fast_pipeline/` and tests under `tests/fast_pipeline/`.
+
+The implementation must:
+- Verify source files against `data/siemens_hourly/provenance.json`; fail on a hash mismatch.
+- Audit raw and canonical sources for schema, types, missingness by column, duplicate rows, duplicate timestamps, timestamp gaps, DST-related irregularities, date range, target distribution, and weather distributions.
+- Parse `Date` plus the start hour from `Time`, sort chronologically, and reject unresolved duplicate or non-monotonic canonical timestamps.
+- Use the canonical file exactly as supplied. Do not synthesize, interpolate, or delete observations merely to force a regular hourly index.
+- Build causal features required by the specification: calendar/cyclical features; nominal `day_of_week_name`, `season`, and `hour_period`; binary `is_weekend`; target lags 1, 2, 3, 24, 48, 72, and 168; shifted rolling mean/std/min/max for windows 3, 24, and 168; shifted EWM features; previous-hour change from past targets; and lagged weather features. Do not use target-hour observed weather.
+- Drop only feature warm-up rows with unavailable causal history, then assign the first 70% to train, next 15% to validation, and final 15% to locked test. Save exact row counts, timestamp boundaries, source hashes, and indices.
+- Prevent baseline-stage access to locked-test targets after split creation. Do not compute locked-test metrics or predictions.
+- Evaluate naive lag-1, lag-24, and lag-168 directly on validation.
+- Fit Ridge through a `Pipeline`/`ColumnTransformer`: training-only median imputation, Yeo-Johnson with `standardize=False` only on defensible continuous numeric predictors, RobustScaler for numeric predictors, OHE for nominal categories, and passthrough 0/1 binaries. Do not transform IDs, binary flags, categorical codes, or cyclical sin/cos columns with Yeo-Johnson.
+- Fit a simple RandomForest using a separate defensible tree preprocessing branch; do not claim scaling or Yeo-Johnson is required for trees.
+- Use fixed recorded seeds and no shuffled splitting or CV.
+- Select nothing using the locked test. Report validation MAE, RMSE, R2, and correctly computed sMAPE for every model.
+- Save real executed outputs under `artifacts/fast/baseline/`, including:
+  - `metrics.csv`
+  - `predictions.csv` with validation timestamps, actuals, and one prediction column per model
+  - `split_metadata.json`
+  - `source_audit.json`
+  - `feature_manifest.json`
+  - `config.json`
+  - `run_evidence.json` containing command, UTC runtime, package versions, seed, source hashes, and artifact row counts
+  - validation actual-versus-predicted and residual plots
+  - fitted Ridge and RandomForest pipeline/model artifacts
+- Add tests proving shift-before-roll causality, feature values at time t are unchanged when targets at t or later are altered, chronological/non-overlapping split boundaries, locked-test exclusion from fitting/scoring, training-only preprocessing fitting, expected validation prediction coverage, and metric recomputation from `predictions.csv`.
+- Update `STATUS_FAST.md` only after successful execution, recording exact commands, real validation metrics, files created, locked-test status, and honest limitations.
+- Inspect and record `git diff --check` and `git status --short` as final evidence. Do not advance to BETTER.
+
+COMMANDS_TO_RUN:
+python -m pytest tests/fast_pipeline -q
+python -m fast_pipeline.baseline --data-dir data/siemens_hourly --output-dir artifacts/fast/baseline --seed 42
+python -m pytest tests/fast_pipeline -q
+python -m fast_pipeline.baseline --data-dir data/siemens_hourly --output-dir artifacts/fast/baseline --seed 42 --verify-artifacts-only
+git diff --check
+git status --short
+
+ACCEPTANCE_CRITERIA:
+- All commands complete successfully and their exact outputs or summarized return codes are preserved in `run_evidence.json` and `STATUS_FAST.md`.
+- Source hashes match provenance and `synthetic_data` remains false.
+- Split order is strictly train before validation before locked test, with approximately 70/15/15 of post-warm-up rows and exact boundaries saved.
+- No target-hour weather, future target, future rolling value, or full-dataset-fitted preprocessing is used.
+- Locked-test targets produce no metrics, predictions, plots, model selection, or preprocessing decisions during BASELINE.
+- `metrics.csv` contains exactly the executed validation results for naive_lag_1, naive_lag_24, naive_lag_168, Ridge, and RandomForest with MAE, RMSE, R2, and sMAPE.
+- Metrics recomputed from `predictions.csv` match `metrics.csv` within numerical tolerance.
+- `predictions.csv` covers every scored validation timestamp exactly once and contains no train or locked-test timestamps.
+- Tests independently verify causality, split integrity, fit boundaries, locked-test isolation, artifact completeness, and metric integrity.
+- At least one actual-versus-predicted plot and one residual plot are non-empty and derived from validation predictions.
+- Seeds, configurations, fitted models, preprocessing choices, source audit, split metadata, and execution evidence are preserved.
+- Any naive baseline outperforming trained models is reported honestly.
+- `STATUS_FAST.md` states BASELINE implementation is awaiting Codex validation; it must not claim PASS or begin BETTER.
+
+DO_NOT:
+- Do not ask the user questions.
+- Do not use any dataset except the imported Siemens/KIT files.
+- Do not fabricate, resample, synthesize, interpolate, or silently repair data.
+- Do not inspect, score, plot, tune against, or select models using locked-test targets.
+- Do not use shuffled splits, random KFold, or preprocessing fitted before splitting.
+- Do not use unshifted target rolling features or target-hour observed weather.
+- Do not label-encode nominal categories or apply Yeo-Johnson blindly.
+- Do not add Optuna, Keras Tuner, advanced ensembles, DL training, or BETTER/OPTIMAL work.
+- Do not overwrite historical project artifacts outside the fast-stage paths.
+- Do not delete files, push commits, or rewrite remote history.
+
+
+STDERR:
+OpenAI Codex v0.147.0
+--------
+workdir: /home/asus/projects/water-forecast
+model: gpt-5.6-sol
+provider: openai
+approval: never
+sandbox: read-only
+reasoning effort: none
+reasoning summaries: none
+session id: 01a03393-22c0-7722-98e0-e9bfd7254323
+--------
+user
+You are the Codex SUPERVISOR for the fast Siemens/KIT water-demand rebuild.
+READ ONLY. Do not modify files.
+
+Read these first:
+- AGENTS.md
+- AGENTS_FAST.md
+- FAST_PROJECT_SPEC.md
+- docs/FAST_ML_DL_RULEBOOK.md
+- STATUS_FAST.md if present
+- relevant current code/artifacts for stage baseline
+
+Stage: baseline
+Attempt: 1
+Previous review/corrections:
+NONE
+
+Your job is to generate ONE bounded implementation task for OpenCode that can be completed without asking the user anything. Preserve the baseline -> better -> optimal methodology and deadline. Use the real imported dataset only. Require actual execution and artifact evidence, not code-only claims.
+
+Return exactly this structure:
+OPENCODE_TASK
+STAGE: baseline
+OBJECTIVE:
+...
+IMPLEMENTATION:
+...
+COMMANDS_TO_RUN:
+...
+ACCEPTANCE_CRITERIA:
+...
+DO_NOT:
+...
+
+codex
+I’ll inspect the mandated fast-track documents, current baseline code, and existing artifacts, then return one execution-bounded OpenCode task in the exact requested format.
+exec
+/bin/bash -lc "pwd && rg --files -g 'AGENTS.md' -g 'AGENTS_FAST.md' -g 'FAST_PROJECT_SPEC.md' -g 'docs/FAST_ML_DL_RULEBOOK.md' -g 'STATUS_FAST.md' -g '"'!**/.git/**'"' && rg --files -g '"'!**/.git/**'"' | sed -n '1,240p'" in /home/asus/projects/water-forecast
+ succeeded in 0ms:
+/home/asus/projects/water-forecast
+docs/FAST_ML_DL_RULEBOOK.md
+FAST_PROJECT_SPEC.md
+AGENTS_FAST.md
+STATUS_FAST.md
+AGENTS.md
+PROJECT_SPEC.md
+PERMISSIONS.md
+AGENTS_FAST.md
+SUCCESS_CRITERIA.md
+README.md
+orchestration/requirements.txt
+orchestration/flow.py
+orchestration/dual_agent_auto.py
+orchestration/data/status.py
+orchestration/data/acquisition.py
+orchestration/data/__init__.py
+orchestration/data/adapters.py
+orchestration/data/normalize.py
+orchestration/main.py
+orchestration/data/sources/delhi_djb.py
+orchestration/data/sources/__init__.py
+orchestration/data/compatibility.py
+orchestration/data/provenance.py
+orchestration/data/pipeline.py
+orchestration/data/registry.py
+azure/train_pipeline.ipynb
+azure/preprocess_step/preprocess_step.py
+img/experiment_visualizations/.gitkeep
+azure/train_step/train_step.py
+orchestration/state/phase_0_attempt_2_20260815T201523Z.txt
+orchestration/state/phase_0_attempt_1_20260815T200921Z.txt
+orchestration/state/post_correction_read_only_smoke.txt
+orchestration/state/orchestration_fail_corrections_test_evidence.txt
+orchestration/state/phase_0_attempt_2_validator_pass_20260815.txt
+orchestration/__init__.py
+orchestration/README.md
+requirements-fast.txt
+img/readme/test_set_forecast_visualization.png
+img/readme/Prophet_forecast_example.png
+img/readme/Prophet_components.png
+img/readme/hparam_visualization.png
+img/readme/silhouette_plot_example.png
+img/readme/london_logo.png
+orchestration/config/tasks.yaml
+img/forecast_visualizations/.gitkeep
+orchestration/tools/fast_agent_cli.py
+orchestration/config/agents.yaml
+orchestration/context.py
+orchestration/auto.py
+orchestration/comparison.py
+img/interpretability_visualizations/.gitkeep
+results/experiments/.gitkeep
+orchestration/tools/__init__.py
+orchestration/tools/codex_tool.py
+orchestration/tools/experiment_reader.py
+orchestration/tools/test_tool.py
+orchestration/tools/git_tool.py
+STATUS.md
+results/predictions/.gitkeep
+EXPERIMENT_PLAN.md
+DECISIONS.md
+config.yml
+orchestration/agents/__init__.py
+experiments/phase11_dashboard.py
+orchestration/agents/validator.py
+experiments/phase4_traditional_ml.py
+experiments/phase12_full_validation.py
+experiments/advanced_tree_benchmark.py
+experiments/phase5_chronological_holdout.py
+experiments/phase2_features.py
+experiments/phase1_data_eda.py
+experiments/phase8_cv_optuna.py
+experiments/phase9_time_series_baselines.py
+experiments/phase10_patchtst.py
+experiments/phase13_finalize.py
+experiments/phase6_time_series_cv.py
+experiments/phase3_feature_selection.py
+experiments/phase7_locked_test_optuna.py
+experiments/phase0_baseline.py
+img/data_visualizations/.gitkeep
+FAST_PROJECT_SPEC.md
+LICENSE
+requirements.txt
+docs/MULTI_CITY_EXTENSION.md
+results/interpretability/.gitkeep
+src/visualization/visualize.py
+src/visualization/__init__.py
+docs/INTERVIEW_GUIDE.md
+docs/FAST_ML_DL_RULEBOOK.md
+app/app.py
+reports/FINAL_MULTI_CITY_PROJECT_REPORT.md
+app/requirements.txt
+src/data/preprocess.py
+scripts/delhi_pipeline.py
+scripts/city_pipeline.py
+scripts/delhi_comparison.py
+Water_Forecasting (1).pdf
+results/logs/training/.gitkeep
+src/__init__.py
+src/train.py
+STATUS_FAST.md
+AGENTS.md
+src/predict.py
+src/data/kprototypes.py
+src/data/__init__.py
+VALIDATION_RULES.md
+reports/independent_review_final.json
+reports/advanced_models/advanced_benchmark_results.json
+app/README.md
+reports/FINAL_MULTI_CITY_PROJECT_REPORT.json
+reports/advanced_models/xgboost_and_boosters.md
+results/models/.gitkeep
+results/logs/hparam_search/.gitkeep
+src/models/skmodels.py
+src/models/sarimax.py
+src/models/prophet.py
+src/models/model.py
+src/models/nn.py
+src/models/__init__.py
+src/models/arima.py
+reports/cities/bengaluru/source_audit.json
+tests/test_delhi_djb.py
+artifacts/phase2/phase2_attempt_1_20260815T204500Z/config.json
+data/preprocessed/preprocessed_example.csv
+artifacts/phase2/phase2_attempt_1_20260815T204500Z/feature_manifest.json
+artifacts/phase2/phase2_attempt_1_20260815T204500Z/features.csv
+tests/test_phase7_locked_test_optuna.py
+tests/test_phase2_features.py
+artifacts/phase7/phase7_attempt_1_20260815T223000Z/highest_error_dates.csv
+artifacts/phase7/phase7_attempt_1_20260815T223000Z/locked_test_actual_vs_predicted.png
+artifacts/phase7/phase7_attempt_1_20260815T223000Z/repair_attempt_2_integrity.txt
+artifacts/phase7/phase7_attempt_1_20260815T223000Z/config.json
+artifacts/phase7/phase7_attempt_1_20260815T223000Z/selected_model.joblib
+artifacts/phase7/phase7_attempt_1_20260815T223000Z/validation_metrics.csv
+artifacts/phase7/phase7_attempt_1_20260815T223000Z/actual_vs_predicted_scatter.png
+artifacts/phase7/phase7_attempt_1_20260815T223000Z/optuna_trials.csv
+artifacts/phase7/phase7_attempt_1_20260815T223000Z/linear_baseline.joblib
+artifacts/phase7/phase7_attempt_1_20260815T223000Z/error_over_time.png
+artifacts/phase7/phase7_attempt_1_20260815T223000Z/locked_test_predictions.csv
+artifacts/phase7/phase7_attempt_1_20260815T223000Z/locked_test_diagnostics.csv
+artifacts/phase7/phase7_attempt_1_20260815T223000Z/residual_distribution.png
+artifacts/phase7/phase7_attempt_1_20260815T223000Z/repair_attempt_2_test_evidence.txt
+artifacts/phase7/phase7_attempt_1_20260815T223000Z/split_and_selection_report.json
+artifacts/phase7/phase7_attempt_1_20260815T223000Z/residual_vs_predicted.png
+artifacts/phase7/phase7_attempt_1_20260815T223000Z/locked_test_metrics.csv
+tests/test_phase10_patchtst.py
+tests/test_validator.py
+tests/test_phase11_dashboard.py
+tests/test_city_data.py
+tests/test_flow.py
+tests/test_auto.py
+tests/test_phase12_full_validation.py
+tests/test_phase9_time_series_baselines.py
+tests/test_phase8_cv_optuna.py
+tests/test_codex_tool.py
+tests/test_orchestration_tools.py
+tests/test_phase13_finalize.py
+tests/test_naive_lag1_baseline.py
+tests/test_phase4_traditional_ml.py
+tests/test_phase1_data_eda.py
+tests/test_phase5_chronological_holdout.py
+tests/test_phase0_baseline.py
+tests/test_phase6_time_series_cv.py
+tests/test_phase3_feature_selection.py
+artifacts/phase6/phase6_attempt_1_20260815T233000Z/predictions.csv
+artifacts/phase6/phase6_attempt_1_20260815T233000Z/metrics_summary.csv
+artifacts/phase6/phase6_attempt_1_20260815T233000Z/cv_report.json
+data/siemens_hourly/provenance.json
+artifacts/phase0/phase0_attempt_2_20260815/config.json
+artifacts/phase0/phase0_attempt_2_20260815/standard_scaler.joblib
+artifacts/phase0/phase0_attempt_2_20260815/actual_vs_predicted.png
+artifacts/phase0/phase0_attempt_2_20260815/predictions.csv
+artifacts/phase0/phase0_attempt_2_20260815/metrics.json
+artifacts/phase0/phase0_attempt_2_20260815/split_manifest.json
+artifacts/phase0/phase0_attempt_2_20260815/linear_regression.joblib
+artifacts/phase10/phase10_attempt_1_final_20260816T021000Z/highest_error_dates.csv
+artifacts/phase10/phase10_attempt_1_final_20260816T021000Z/config.json
+artifacts/phase10/phase10_attempt_1_final_20260816T021000Z/actual_vs_predicted.png
+artifacts/phase10/phase10_attempt_1_final_20260816T021000Z/residual_diagnostics.png
+artifacts/phase10/phase10_attempt_1_final_20260816T021000Z/robust_scaler.joblib
+artifacts/phase10/phase10_attempt_1_final_20260816T021000Z/patchtst.keras
+artifacts/phase10/phase10_attempt_1_final_20260816T021000Z/predictions.csv
+artifacts/phase10/phase10_attempt_1_final_20260816T021000Z/actual_vs_predicted_scatter.png
+artifacts/phase10/phase10_attempt_1_final_20260816T021000Z/error_over_time.png
+artifacts/phase10/phase10_attempt_1_final_20260816T021000Z/forecast_report.json
+artifacts/phase10/phase10_attempt_1_final_20260816T021000Z/artifact_hashes.json
+artifacts/phase10/phase10_attempt_1_final_20260816T021000Z/metrics.csv
+artifacts/phase10/phase10_attempt_1_final_20260816T021000Z/training_history.csv
+artifacts/phase4/phase4_attempt_1_20260815T213000Z/config.json
+reports/cities/delhi/delhi_london_comparison.json
+reports/cities/delhi/independent_review.json
+reports/cities/delhi/delhi_final_report.json
+data/serializations/.gitkeep
+artifacts/phase5/phase5_attempt_1_20260815T220000Z/holdout_report.json
+artifacts/phase5/phase5_attempt_1_20260815T220000Z/metrics.csv
+artifacts/phase5/phase5_attempt_1_20260815T220000Z/config.json
+artifacts/phase13/phase13_attempt_1_20260816T060000Z/final_artifact_manifest.json
+reports/cities/delhi/phase12_validation/delhi_validation_report.json
+artifacts/phase1/phase1_attempt_1_final_20260815T203000Z/calendar_summary.csv
+artifacts/phase6/phase6_attempt_1_20260815T233000Z/config.json
+artifacts/phase10/phase10_attempt_1_20260816T020000Z/highest_error_dates.csv
+artifacts/phase10/phase10_attempt_1_20260816T020000Z/config.json
+artifacts/phase10/phase10_attempt_1_20260816T020000Z/actual_vs_predicted.png
+artifacts/phase10/phase10_attempt_1_20260816T020000Z/residual_diagnostics.png
+artifacts/phase10/phase10_attempt_1_20260816T020000Z/robust_scaler.joblib
+artifacts/phase10/phase10_attempt_1_20260816T020000Z/patchtst.keras
+artifacts/phase10/phase10_attempt_1_20260816T020000Z/predictions.csv
+artifacts/phase10/phase10_attempt_1_20260816T020000Z/forecast_report.json
+artifacts/phase10/phase10_attempt_1_20260816T020000Z/artifact_hashes.json
+artifacts/phase10/phase10_attempt_1_20260816T020000Z/metrics.csv
+artifacts/cities/delhi/phase2/delhi_features/config.json
+artifacts/cities/delhi/phase2/delhi_features/feature_manifest.json
+artifacts/cities/delhi/phase2/delhi_features/features.csv
+artifacts/phase5/phase5_attempt_1_20260815T220000Z/actual_vs_predicted.png
+artifacts/phase5/phase5_attempt_1_20260815T220000Z/residual_diagnostics.png
+artifacts/phase4/phase4_attempt_1_20260815T213000Z/models/voting.joblib
+artifacts/phase4/phase4_attempt_1_20260815T213000Z/models/gradient_boosting.joblib
+artifacts/phase4/phase4_attempt_1_20260815T213000Z/models/lasso.joblib
+artifacts/phase4/phase4_attempt_1_20260815T213000Z/models/svr.joblib
+artifacts/phase4/phase4_attempt_1_20260815T213000Z/models/bagging.joblib
+artifacts/phase4/phase4_attempt_1_20260815T213000Z/models/ridge.joblib
+artifacts/phase4/phase4_attempt_1_20260815T213000Z/models/random_forest.joblib
+artifacts/phase4/phase4_attempt_1_20260815T213000Z/models/decision_tree.joblib
+artifacts/phase4/phase4_attempt_1_20260815T213000Z/models/knn.joblib
+artifacts/phase4/phase4_attempt_1_20260815T213000Z/models/linear_regression.joblib
+artifacts/phase4/phase4_attempt_1_20260815T213000Z/predictions.csv
+artifacts/phase4/phase4_attempt_1_20260815T213000Z/metrics.csv
+artifacts/phase4/phase4_attempt_1_20260815T213000Z/model_report.json
+reports/cities/gurgaon/source_audit.json
+reports/cities/pune/source_audit.json
+artifacts/phase13/phase13_attempt_1_20260816T060000Z/implementation_evidence.txt
+data/raw/.gitkeep
+reports/cities/hyderabad/source_audit.json
+artifacts/phase5/phase5_attempt_2_20260815T230000Z/highest_error_dates.csv
+artifacts/phase4/phase4_attempt_1_final_20260815T213000Z/config.json
+artifacts/phase5/phase5_attempt_1_20260815T220000Z/models/voting.joblib
+data/raw/quarterly/.gitkeep
+artifacts/phase5/phase5_attempt_2_20260815T230000Z/predictions.csv
+artifacts/cities/delhi/phase10/delhi_patchtst/highest_error_dates.csv
+artifacts/cities/delhi/phase10/delhi_patchtst/config.json
+artifacts/cities/delhi/phase10/delhi_patchtst/actual_vs_predicted.png
+artifacts/cities/delhi/phase10/delhi_patchtst/residual_diagnostics.png
+artifacts/cities/delhi/phase10/delhi_patchtst/robust_scaler.joblib
+artifacts/cities/delhi/phase10/delhi_patchtst/patchtst.keras
+artifacts/cities/delhi/phase10/delhi_patchtst/predictions.csv
+
+exec
+/bin/bash -lc "sed -n '1,260p' AGENTS.md; sed -n '1,320p' AGENTS_FAST.md; sed -n '1,360p' FAST_PROJECT_SPEC.md; sed -n '1,360p' docs/FAST_ML_DL_RULEBOOK.md; sed -n '1,320p' STATUS_FAST.md" in /home/asus/projects/water-forecast
+ succeeded in 0ms:
+# AGENTS.md
+
+## Mission
+Build and validate the improved water-demand forecasting project autonomously while maintaining methodological correctness.
+
+## Mandatory Workflow
+
+For every major phase:
+
+UNDERSTAND
+→ PLAN
+→ IMPLEMENT
+→ TEST
+→ REVIEW
+→ FIX IF REQUIRED
+→ RE-TEST
+→ SAVE EVIDENCE
+→ UPDATE STATUS
+→ CONTINUE
+
+A phase is NOT complete because an implementation agent says it is complete.
+
+The validator must approve it.
+
+## Non-Negotiable ML Rules
+
+1. Never leak future information into training.
+2. Never fit preprocessing on validation/test data.
+3. Never perform feature selection using the locked test set.
+4. Never use shuffled KFold for final time-series evaluation.
+5. Lag features must only access past observations.
+6. Rolling features must not include future observations.
+7. Test 3 locked test data must remain untouched until final evaluation.
+8. Optuna objective must use validation/CV performance only.
+9. Record random seeds.
+10. Preserve experiment outputs.
+11. Compare against simple baselines before claiming improvement.
+12. Do not fabricate data, metrics, features, experiments or results.
+
+## Repository Safety
+
+Do not destroy or overwrite the original project unnecessarily.
+
+Prefer:
+- new modules
+- new experiment scripts
+- new artifact directories
+- small justified modifications
+
+Inspect git diff after every major phase.
+
+## Coding Standards
+
+Code must:
+- be readable
+- avoid unnecessary complexity
+- use reusable functions
+- contain meaningful names
+- handle errors
+- expose configuration rather than hard-code experiment values
+- be testable
+
+## GPU
+
+GPU should be used when supported and useful.
+
+Do not force GPU usage for algorithms that do not benefit from it.
+
+For TensorFlow use safe GPU memory behavior suitable for a laptop GPU.
+
+## Agent Roles
+
+Supervisor:
+understands the project, plans phases, assigns work and decides routing.
+
+Data Agent:
+data validation, preprocessing, EDA and data-quality work.
+
+Feature Agent:
+time-aware feature engineering and feature selection.
+
+ML Agent:
+traditional ML experiments and Optuna.
+
+Time-Series Agent:
+ARIMA/SARIMAX/Prophet/neural forecasting.
+
+Transformer Agent:
+PatchTST/Hugging Face forecasting experiments.
+
+UI Agent:
+Streamlit interface.
+
+Validator:
+independent methodological and software review.
+
+Validator must output:
+PASS
+or
+FAIL
+
+FAIL must include exact required corrections.
+
+## Completion Rule
+
+No phase advances until validation returns PASS.
+
+# AGENTS_FAST.md
+
+## Mission
+Finish the Siemens/KIT hourly water-demand forecasting project autonomously and quickly, without sacrificing methodological correctness.
+
+## Agent Contract
+- Codex is the supervisor, planner, and read-only reviewer.
+- OpenCode is the implementation/execution agent.
+- Codex generates each bounded task for OpenCode.
+- OpenCode implements, runs commands, trains models, and writes artifacts.
+- Codex reviews repository changes, logs, metrics, and tests after every OpenCode pass.
+- Advance only after Codex returns `PASS`.
+- On `FAIL`, exact corrections are automatically passed back to OpenCode.
+- Maximum repair attempts per stage: 3.
+
+## Fast Workflow
+BASELINE -> BETTER -> OPTIMAL -> FINAL NOTEBOOK
+
+## Non-Negotiable Rules
+1. Never fabricate data, metrics, plots, features, runs, or business impact.
+2. Use only the real Siemens/KIT dataset imported by the bootstrap script.
+3. Preserve chronological ordering. No shuffled KFold for forecasting evaluation.
+4. Fit imputers, encoders, Yeo-Johnson transformers, scalers, selectors, and tuners on training data only.
+5. All target lag/rolling features must use past target observations only.
+6. The locked test set must not influence model choice, feature selection, preprocessing fit, Optuna, or Keras Tuner.
+7. Compare every advanced model against naive lag baselines.
+8. OHE is for nominal categories; ordinal encoding only for genuinely ordered categories; binary categories use 0/1.
+9. Yeo-Johnson is used on continuous numerical predictors where justified; never blindly on IDs/binaries/categorical codes.
+10. Scaling is used for scale-sensitive models; do not claim trees require it.
+11. Use GPU where supported: TensorFlow/Keras and XGBoost. Do not pretend sklearn Bagging/Voting/RandomForest are GPU algorithms.
+12. Save seeds, split boundaries, configs, metrics, predictions, plots, and tuning histories.
+13. Prefer a correct simple result over a complex model that does not beat the baseline.
+14. Do not delete the historical project. New work lives under `fast_pipeline/`, `artifacts/fast/`, `tests/fast_pipeline/`, `data/siemens_hourly/`, and `notebooks/`.
+15. Do not push or rewrite remote history until the final stage is validated.
+
+## Time Budget
+- ML Optuna: 20-35 trials per shortlisted model, with pruning/early stopping where supported.
+- Keras Tuner: Hyperband or similarly efficient search, roughly 25-35 max epochs, EarlyStopping.
+- ML CV: 5-fold TimeSeriesSplit.
+- DL CV: 3 chronological folds for the selected architecture if 5 folds risks missing the deadline.
+- Reuse cached artifacts instead of retraining unchanged models.
+
+## Required Final Deliverable
+`notebooks/Water_Demand_Forecasting_Final.ipynb`
+
+The notebook must include real data provenance, EDA, missing/outlier handling, encoding decisions, Yeo-Johnson decisions, feature engineering, chronological validation, baseline -> better -> optimal results, Voting/Bagging/Boosting, Optuna, Keras Tuner, CV, locked-test metrics, plots, explainability, and honest limitations.
+# FAST_PROJECT_SPEC.md
+
+## Objective
+Build an interview-ready hourly water-demand forecasting project using the real Siemens/KIT dataset supplied by the user. Keep the methodology understandable: baseline -> better -> optimal.
+
+## Dataset
+Bootstrap imports the user's `11045013.zip` into `data/siemens_hourly/source/`.
+
+Files expected from the archive:
+- `waterconsumption_rawdata.csv`
+- `waterconsumption_noNaN.csv`
+- `waterconsumption_noNaN_fixedTimechange.csv`
+
+Use the raw file for source audit and missingness discussion. Use `waterconsumption_noNaN_fixedTimechange.csv` as the canonical modeling source because it preserves the supplied hourly target while correcting daylight-saving-time row irregularities. Do not invent or synthesize rows.
+
+Expected canonical schema:
+- `Date`
+- `Time`
+- `Consumption` (target)
+- `Temperature`
+- `Rain`
+- `Sun`
+
+The bootstrap records SHA-256 hashes and row/column summaries in `data/siemens_hourly/provenance.json`.
+
+## Forecasting Task
+Primary task: one-hour-ahead aggregate water-demand forecasting.
+
+Do not use observed weather at the target hour unless the notebook explicitly frames it as forecast weather. Default safe policy: use known calendar features plus lagged weather and lagged demand.
+
+## Chronological Validation
+After feature warm-up:
+- first 70% = train
+- next 15% = validation
+- final 15% = LOCKED TEST
+
+Use 5-fold `TimeSeriesSplit` within the development portion for ML CV and Optuna objectives. For DL, use the train/validation boundary for Keras Tuner and then 3 chronological CV folds for the frozen tuned architecture if runtime allows.
+
+The locked test is evaluated once after all model/tuning decisions are frozen.
+
+## Feature Engineering
+### Timestamp/calendar
+Parse `Date` plus the start hour of `Time`.
+Create:
+- hour
+- day_of_week
+- month
+- day_of_year
+- is_weekend
+- season
+- hour_period (night/morning/afternoon/evening)
+- optional Germany public-holiday flag if `holidays` is available
+- hour_sin/hour_cos
+- dow_sin/dow_cos
+- month_sin/month_cos
+
+### Leakage-safe demand history
+All rolling features shift target first.
+Create at minimum:
+- consumption_lag_1, lag_2, lag_3
+- lag_24, lag_48, lag_72
+- lag_168
+- rolling mean/std/min/max for 3, 24, and 168 hours using only earlier target observations
+- EWM/EMA from shifted target for short and daily windows
+- previous-hour change using only past values
+
+### Weather history
+Use lagged weather rather than target-hour observed weather by default:
+- temperature_lag_1, temperature_lag_24
+- rain_lag_1, rain_rolling_24
+- sun_lag_1, sun_rolling_24
+
+### Categorical encoding choices
+Use decisions that are defensible in an interview:
+- OHE: `day_of_week_name`, `season`, `hour_period` because they are nominal.
+- Binary 0/1: `is_weekend`, `is_holiday` because they are binary.
+- Ordinal: `rain_intensity` only if created with a genuine ordered scale such as none < light < moderate < heavy. Retain numeric rain as well; document that the band is an auxiliary nonlinear feature.
+- Do NOT label-encode nominal categories just to reduce dimensions.
+
+### Numerical transformation
+For scale-sensitive pipelines:
+- training-only median imputation
+- `PowerTransformer(method="yeo-johnson", standardize=False)` on continuous numeric predictors
+- `RobustScaler`
+
+For tree/boosting pipelines, do not claim scaling is required. Yeo-Johnson may be omitted for tree-only branches if a documented comparison shows no need. The notebook must still demonstrate the Yeo-Johnson preprocessing pipeline for the models that benefit from it.
+
+## Metrics
+Primary selection metric: MAE.
+Also report RMSE, R2, and sMAPE if implemented correctly.
+Always report naive lag baselines.
+
+## Stage 1 - BASELINE
+Required:
+- source audit + EDA
+- missing/duplicate/DST inspection
+- chronological split boundaries
+- naive lag_1, lag_24, lag_168 baselines
+- Ridge regression through leakage-safe preprocessing pipeline
+- simple RandomForest baseline
+- simple Keras MLP or sequence baseline only if GPU setup is already working; otherwise defer DL to BETTER
+- tests for feature causality and preprocessing fit boundaries
+
+Artifacts:
+- `artifacts/fast/baseline/metrics.csv`
+- `artifacts/fast/baseline/predictions.csv`
+- plots and split metadata
+
+## Stage 2 - BETTER
+Required ML models:
+- BaggingRegressor (tree base learner)
+- boosting model from sklearn (HistGradientBoosting or GradientBoosting)
+- XGBoost with CUDA when available, CPU fallback otherwise with fallback recorded
+- VotingRegressor combining complementary models
+- 5-fold TimeSeriesSplit summaries
+
+Required DL:
+- Keras MLP on engineered tabular features
+- LSTM on a compact causal sequence representation if runtime permits
+- EarlyStopping and sensible batch sizes
+
+Artifacts:
+- `artifacts/fast/better/metrics.csv`
+- `artifacts/fast/better/cv_summary.csv`
+- predictions/plots/configs
+
+## Stage 3 - OPTIMAL
+### Optuna
+Tune shortlisted ML models only; do not tune every model blindly.
+Priorities:
+1. XGBoost
+2. Bagging/boosting candidate that was competitive
+3. Voting weights using already-tuned constituents if useful
+
+Default time-bounded search: 20-35 trials/model.
+Objective uses development TimeSeriesSplit MAE only.
+
+### Keras Tuner
+Use Keras Tuner Hyperband or another bounded tuner for the best DL family.
+Tune only meaningful parameters such as units, layers, dropout, learning rate, and possibly sequence length if implemented cleanly.
+Use EarlyStopping.
+
+### Final selection
+Freeze preprocessing + hyperparameters, refit on train+validation, evaluate the chosen ML and DL finalists on locked test exactly once.
+
+Artifacts:
+- `artifacts/fast/optimal/metrics.csv`
+- `artifacts/fast/optimal/optuna_best_params.json`
+- `artifacts/fast/optimal/keras_tuner_summary.json`
+- locked-test predictions and plots
+
+## Stage 4 - FINAL NOTEBOOK
+Create and execute:
+`notebooks/Water_Demand_Forecasting_Final.ipynb`
+
+The notebook must be clean enough for an interviewer to open directly. Expensive searches may load preserved tuning results by default with an explicit `RUN_TUNING` switch and reproducible code to rerun them.
+
+## GPU Policy
+- TensorFlow: enable memory growth; assert/report GPU availability.
+- XGBoost: use `device="cuda"`, `tree_method="hist"` when CUDA support works.
+- sklearn ensembles remain CPU; use `n_jobs=-1` where supported.
+- Every fallback must be logged, not hidden.
+
+## Integrity
+Never claim an algorithm is better unless the preserved evaluation supports it. A naive baseline winning is a valid result and must be reported honestly.
+# FAST ML/DL RULEBOOK
+
+This is the practical rulebook for the automated rebuild. It distills the user's ML/DL notes and standard CampusX-style fundamentals into executable project rules.
+
+## 1. Data first
+- Identify numerical vs categorical variables before preprocessing.
+- Inspect shape, types, missing values, duplicates, distributions, time gaps, and target behavior.
+- For time series, chronological order is part of the data-generating process and must be preserved.
+
+## 2. Missing values
+- Do not drop rows automatically because a value is missing.
+- Decide based on amount, mechanism, feature role, and time-series meaning.
+- Fit statistical imputers on training data only.
+- Never impute target values merely to make model training easier unless the source provides an official corrected series or the method is explicitly justified.
+
+## 3. Outliers
+- Detect using distribution plots, IQR/percentiles, and time context.
+- Do not remove legitimate demand peaks just because they are extreme.
+- Treat only demonstrable data errors; otherwise use robust transformations/models and report sensitivity.
+
+## 4. Categorical encoding
+- OHE: nominal/unordered categories.
+- OrdinalEncoder: only categories with a true ordered relationship.
+- Binary label/0-1: genuinely binary categories.
+- Avoid LabelEncoder on nominal input features because it invents an order.
+- Cyclical time variables can additionally use sin/cos encoding because hour 23 is close to hour 0.
+
+## 5. Numerical transformation/scaling
+- Diagnose skewness before transforming.
+- Yeo-Johnson is preferred here for continuous predictors because it supports zero and negative values.
+- PowerTransformer and scalers are fitted on training data only.
+- RobustScaler is appropriate when outliers are present.
+- Scaling is important for distance-, gradient-, and regularization-sensitive models such as KNN, SVR, linear regularized models, and neural networks.
+- Tree ensembles generally do not require scaling; do not add preprocessing that has no defensible purpose.
+
+## 6. Feature engineering
+- Feature construction must use domain knowledge and preserve causality.
+- For target lags and rolling windows: shift first, then roll.
+- Calendar features are known in advance.
+- Observed future weather is not automatically available at forecast time; default to lagged weather unless explicitly framing target-hour weather as a forecast input.
+- Keep the feature set understandable. Prefer a smaller strong causal set over hundreds of opaque features.
+
+## 7. Pipelines
+- Use `Pipeline`/`ColumnTransformer` so preprocessing is fitted inside each training fold.
+- Do not preprocess the entire dataset before cross-validation.
+- Separate scale-sensitive and tree-based preprocessing branches when appropriate.
+
+## 8. Validation
+- Never random-shuffle forecasting data for final evaluation.
+- Use chronological holdout and TimeSeriesSplit/expanding windows.
+- Keep a locked test set untouched until final selection.
+- Tune only on training/CV/validation data.
+- Compare mean and variability across CV folds, not one lucky split.
+
+## 9. Ensembles
+- Voting: combine genuinely different estimators; weighted voting should be based on validation/CV evidence.
+- Bagging: bootstrap/resampling reduces variance; expose n_estimators, max_samples, max_features and base-tree complexity.
+- Boosting: sequentially corrects previous errors; control learning rate, tree depth/leaves, estimators/iterations and regularization.
+- XGBoost may use GPU; sklearn Bagging/Voting do not become GPU models by being in the same project.
+
+## 10. Hyperparameter tuning
+- Optuna objective must be time-aware CV MAE, not locked-test performance.
+- Use a bounded search because the deadline matters.
+- Store trial history and the chosen parameters.
+- Tuning should improve a competitive model, not rescue a fundamentally bad one.
+
+## 11. Deep learning
+- Use standardized/robustly scaled inputs.
+- Use sensible weight initialization, Adam, EarlyStopping, and validation monitoring.
+- Batch normalization/dropout are regularizers/tools, not mandatory decorations.
+- Keras Tuner should tune a bounded set of architecture/training hyperparameters.
+- Use GPU when TensorFlow detects it; enable memory growth on laptop GPUs.
+- Report whether GPU was actually used.
+
+## 12. Model comparison
+Always present the progression:
+1. BASELINE - naive + simple interpretable models.
+2. BETTER - engineered features + ensembles + CV.
+3. OPTIMAL - bounded tuning + frozen final evaluation.
+
+An advanced model that loses to lag-24 is not hidden; explain why persistence may dominate.
+
+## 13. Metrics
+For regression report at least MAE, RMSE, and R2. Prefer MAE as the primary selection metric for this project because it is directly interpretable in demand units and less dominated by a small number of large misses than RMSE.
+
+## 14. Interview defensibility
+Every notebook section must answer:
+- Why did we do this?
+- Was it fitted only on training data?
+- Could this feature exist at forecast time?
+- What baseline did it beat or fail to beat?
+- What would be different in production?
+# STATUS_FAST.md
+
+Status: BOOTSTRAPPED
+
+The fast Siemens/KIT workflow has been installed. Codex supervisor + OpenCode executor will update this file automatically after each stage.
+
+exec
+/bin/bash -lc "find fast_pipeline tests/fast_pipeline artifacts/fast data/siemens_hourly -maxdepth 4 -type f -printf '%p\\n' 2>/dev/null | sort; sed -n '1,260p' data/siemens_hourly/provenance.json; git status --short; git log -5 --oneline" in /home/asus/projects/water-forecast
+ succeeded in 0ms:
+artifacts/fast/.gitignore
+artifacts/fast/environment/gpu_report.json
+data/siemens_hourly/.gitignore
+data/siemens_hourly/provenance.json
+data/siemens_hourly/source/waterconsumption_noNaN.csv
+data/siemens_hourly/source/waterconsumption_noNaN_fixedTimechange.csv
+data/siemens_hourly/source/waterconsumption_rawdata.csv
+{
+  "archive_name": "11045013.zip",
+  "archive_sha256": "87612921fc3060db724893732c3074586fb94bff5e11b5b10ecd18a6251023a9",
+  "canonical_modeling_file": "waterconsumption_noNaN_fixedTimechange.csv",
+  "files": {
+    "waterconsumption_noNaN.csv": {
+      "bytes": 1712006,
+      "sha256": "9372b6e7e5bb3a51bbaf581dd9a5deb149a09a0e152ec25fdedc1f87459e4fed"
+    },
+    "waterconsumption_noNaN_fixedTimechange.csv": {
+      "bytes": 1712036,
+      "sha256": "3acf63ff46af582c00748a0d46fc4f10b1038a4eaf542a9cb882275d480b093a"
+    },
+    "waterconsumption_rawdata.csv": {
+      "bytes": 1848118,
+      "sha256": "bd621204e84c442014777353732f43bc3dd08cc5ff4413caee8507abaca004ed"
+    }
+  },
+  "raw_audit_file": "waterconsumption_rawdata.csv",
+  "synthetic_data": false
+}
+?? .opencode/commands/siemens-fast-auto.md
+?? AGENTS_FAST.md
+?? FAST_PROJECT_SPEC.md
+?? STATUS_FAST.md
+?? artifacts/fast/
+?? data/siemens_hourly/
+?? docs/FAST_ML_DL_RULEBOOK.md
+?? orchestration/dual_agent_auto.py
+?? orchestration/tools/fast_agent_cli.py
+?? requirements-fast.txt
+94a4b5b docs: separate validated results from post-hoc benchmark
+6937656 fix: correct advanced benchmark protocol and final reports
+128c6ae chore: remove temporary exploration scripts
+3e7ee99 feat: finalize validated multi-city water forecasting study
+ec623c1 docs(delhi): correct model classification and clean temporary files
+
+exec
+/bin/bash -lc "sed -n '1,320p' .opencode/commands/siemens-fast-auto.md; sed -n '1,240p' requirements-fast.txt; sed -n '1,240p' artifacts/fast/environment/gpu_report.json; sed -n '1,8p' data/siemens_hourly/source/waterconsumption_noNaN_fixedTimechange.csv; wc -l data/siemens_hourly/source/*.csv; du -sh data/siemens_hourly/source" in /home/asus/projects/water-forecast
+ succeeded in 0ms:
+---
+description: Fully automated Siemens/KIT water-demand rebuild
+---
+
+# Siemens Fast Auto
+
+This command is normally invoked by the Python dual-agent supervisor, not manually.
+
+Read:
+- `AGENTS_FAST.md`
+- `FAST_PROJECT_SPEC.md`
+- `docs/FAST_ML_DL_RULEBOOK.md`
+
+The workflow is:
+`BASELINE -> BETTER -> OPTIMAL -> FINAL NOTEBOOK`
+
+OpenCode is the implementation/execution agent. Codex owns planning and read-only validation.
+Never fabricate results and never use the locked test for tuning.
+numpy>=1.26
+pandas>=2.2
+scikit-learn>=1.5
+matplotlib>=3.8
+joblib>=1.4
+xgboost>=2.1
+optuna>=4.0
+keras-tuner>=1.4.7
+holidays>=0.60
+PyYAML>=6.0
+pytest>=8.0
+nbformat>=5.10
+nbconvert>=7.16
+jupyter>=1.0
+{
+  "nvidia_smi_returncode": 0,
+  "nvidia_smi": "NVIDIA GeForce RTX 4050 Laptop GPU, 6141 MiB",
+  "tensorflow_gpu_returncode": 0,
+  "tensorflow_gpus": "[\"/physical_device:GPU:0\"]"
+}
+Date,Time,Consumption,Temperature,Rain,Sun
+1/1/2016, 00:00-01:00 ,1480,0.6,0,0
+1/1/2016, 01:00-02:00 ,1362,0.6,0,0
+1/1/2016, 02:00-03:00 ,1296,0.5,0,0
+1/1/2016, 03:00-04:00 ,1096,0,0,0
+1/1/2016, 04:00-05:00 ,810,0.3,0,0
+1/1/2016, 05:00-06:00 ,474,1,1,0
+1/1/2016, 06:00-07:00 ,586,1.9,0,0
+  46032 data/siemens_hourly/source/waterconsumption_noNaN.csv
+  46033 data/siemens_hourly/source/waterconsumption_noNaN_fixedTimechange.csv
+  46032 data/siemens_hourly/source/waterconsumption_rawdata.csv
+ 138097 total
+5.1M	data/siemens_hourly/source
+
+exec
+/bin/bash -lc "sed -n '1,360p' orchestration/dual_agent_auto.py; sed -n '1,320p' orchestration/tools/fast_agent_cli.py" in /home/asus/projects/water-forecast
+ succeeded in 0ms:
+from __future__ import annotations
+
+import argparse
+import json
+import subprocess
+from datetime import datetime, timezone
+from pathlib import Path
+
+from orchestration.tools.fast_agent_cli import AgentExecutionError, run_codex_readonly, run_opencode_write
+
+ROOT = Path(__file__).resolve().parents[1]
+STATE_DIR = ROOT / "orchestration" / "state" / "fast"
+STATE_PATH = STATE_DIR / "dual_agent_state.json"
+STAGES = ["baseline", "better", "optimal", "final_notebook"]
+REQUIRED = {
+    "baseline": ["artifacts/fast/baseline/metrics.csv", "artifacts/fast/baseline/predictions.csv"],
+    "better": ["artifacts/fast/better/metrics.csv", "artifacts/fast/better/cv_summary.csv"],
+    "optimal": ["artifacts/fast/optimal/metrics.csv", "artifacts/fast/optimal/optuna_best_params.json", "artifacts/fast/optimal/keras_tuner_summary.json"],
+    "final_notebook": ["notebooks/Water_Demand_Forecasting_Final.ipynb"],
+}
+
+def now() -> str:
+    return datetime.now(timezone.utc).isoformat()
+
+def load_state() -> dict:
+    if STATE_PATH.exists():
+        return json.loads(STATE_PATH.read_text(encoding="utf-8"))
+    return {"status": "ready", "completed": [], "active_stage": None, "attempts": {}, "updated_at": now()}
+
+def save_state(state: dict) -> None:
+    STATE_DIR.mkdir(parents=True, exist_ok=True)
+    state["updated_at"] = now()
+    STATE_PATH.write_text(json.dumps(state, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+
+def git_status() -> str:
+    p = subprocess.run(["git", "status", "--short"], cwd=ROOT, text=True, capture_output=True, check=False)
+    return p.stdout[-12000:]
+
+def quick_tests() -> str:
+    tests = ROOT / "tests" / "fast_pipeline"
+    if not tests.exists():
+        return "NO_FAST_TEST_DIRECTORY_YET"
+    p = subprocess.run([str(_python()), "-m", "pytest", "tests/fast_pipeline", "-q"], cwd=ROOT, text=True, capture_output=True, check=False, timeout=1800)
+    return f"returncode={p.returncode}\nSTDOUT:\n{p.stdout[-12000:]}\nSTDERR:\n{p.stderr[-6000:]}"
+
+def _python() -> Path:
+    import sys
+    return Path(sys.executable)
+
+def required_gate(stage: str) -> tuple[bool, list[str]]:
+    missing = [p for p in REQUIRED[stage] if not (ROOT / p).exists()]
+    if stage == "final_notebook" and not missing:
+        try:
+            import nbformat
+            nb = nbformat.read(ROOT / REQUIRED[stage][0], as_version=4)
+            code = [c for c in nb.cells if c.cell_type == "code"]
+            if not code or not any(c.get("execution_count") is not None for c in code):
+                missing.append("notebook exists but has no executed code cells")
+        except Exception as exc:
+            missing.append(f"notebook validation error: {exc}")
+    return (not missing, missing)
+
+def supervisor_prompt(stage: str, attempt: int, previous_review: str) -> str:
+    return f"""You are the Codex SUPERVISOR for the fast Siemens/KIT water-demand rebuild.
+READ ONLY. Do not modify files.
+
+Read these first:
+- AGENTS.md
+- AGENTS_FAST.md
+- FAST_PROJECT_SPEC.md
+- docs/FAST_ML_DL_RULEBOOK.md
+- STATUS_FAST.md if present
+- relevant current code/artifacts for stage {stage}
+
+Stage: {stage}
+Attempt: {attempt}
+Previous review/corrections:
+{previous_review or 'NONE'}
+
+Your job is to generate ONE bounded implementation task for OpenCode that can be completed without asking the user anything. Preserve the baseline -> better -> optimal methodology and deadline. Use the real imported dataset only. Require actual execution and artifact evidence, not code-only claims.
+
+Return exactly this structure:
+OPENCODE_TASK
+STAGE: {stage}
+OBJECTIVE:
+...
+IMPLEMENTATION:
+...
+COMMANDS_TO_RUN:
+...
+ACCEPTANCE_CRITERIA:
+...
+DO_NOT:
+...
+"""
+
+def implement_prompt(stage: str, instruction: str) -> str:
+    return f"""You are OpenCode, the WRITE/EXECUTION agent for the water-demand project.
+Read AGENTS.md, AGENTS_FAST.md, FAST_PROJECT_SPEC.md and docs/FAST_ML_DL_RULEBOOK.md before editing.
+Do not ask the user questions. Do not push remote history.
+Implement only the current stage and actually run the required training/tests. Reuse valid cached artifacts when possible. Keep the locked test untouched until the optimal stage.
+
+CODEX SUPERVISOR INSTRUCTION:
+{instruction}
+
+When complete, update STATUS_FAST.md with exact commands, real metrics, GPU usage/fallbacks, files created, and unresolved limitations. End your response with IMPLEMENTATION_COMPLETE or IMPLEMENTATION_BLOCKED.
+"""
+
+def review_prompt(stage: str, instruction: str, implementation: str, tests: str, gate_missing: list[str]) -> str:
+    return f"""You are the Codex INDEPENDENT REVIEWER. READ ONLY. Do not modify files.
+Read AGENTS_FAST.md, FAST_PROJECT_SPEC.md, docs/FAST_ML_DL_RULEBOOK.md, the current diff, STATUS_FAST.md, code and artifacts for stage {stage}.
+
+Supervisor instruction:
+{instruction}
+
+OpenCode claim:
+{implementation[-12000:]}
+
+Deterministic test output:
+{tests[-12000:]}
+
+Required artifact gate missing items:
+{gate_missing or 'NONE'}
+
+Validate methodology, leakage, chronological splitting, training-only preprocessing, correct OHE/ordinal/binary choices, Yeo-Johnson fit scope, real execution evidence, metrics, and GPU claims. For optimal stage, verify the locked test was untouched before final frozen evaluation. For final_notebook, verify the notebook is executed and numbers match preserved artifacts.
+
+Return PASS on the first line if valid.
+Otherwise return:
+FAIL
+REQUIRED_CORRECTIONS:
+- exact correction 1
+- ...
+"""
+
+def run(max_attempts: int) -> int:
+    state = load_state()
+    previous_review = ""
+    for stage in STAGES:
+        if stage in state.get("completed", []):
+            continue
+        state["status"] = "running"
+        state["active_stage"] = stage
+        save_state(state)
+        for attempt in range(1, max_attempts + 1):
+            state["attempts"][stage] = attempt
+            save_state(state)
+            print(f"\n=== {stage.upper()} | attempt {attempt}/{max_attempts} ===", flush=True)
+            instruction = run_codex_readonly(supervisor_prompt(stage, attempt, previous_review), name=f"{stage}_a{attempt}_supervisor")
+            (STATE_DIR / f"{stage}_a{attempt}_task.txt").write_text(instruction + "\n", encoding="utf-8")
+            implementation = run_opencode_write(implement_prompt(stage, instruction), name=f"{stage}_a{attempt}_opencode")
+            (STATE_DIR / f"{stage}_a{attempt}_implementation.txt").write_text(implementation + "\n", encoding="utf-8")
+            tests = quick_tests()
+            gate_ok, gate_missing = required_gate(stage)
+            review = run_codex_readonly(review_prompt(stage, instruction, implementation, tests, gate_missing), name=f"{stage}_a{attempt}_review")
+            (STATE_DIR / f"{stage}_a{attempt}_review.txt").write_text(review + "\n", encoding="utf-8")
+            print(review, flush=True)
+            if review.splitlines() and review.splitlines()[0].strip() == "PASS" and gate_ok:
+                state.setdefault("completed", []).append(stage)
+                state["active_stage"] = None
+                save_state(state)
+                previous_review = ""
+                break
+            previous_review = review
+        else:
+            state["status"] = "failed"
+            state["active_stage"] = stage
+            state["failure"] = previous_review
+            save_state(state)
+            print(f"FAILED: {stage} exhausted retry budget", flush=True)
+            return 2
+    state["status"] = "completed"
+    state["active_stage"] = None
+    save_state(state)
+    print("\nFAST_DUAL_AGENT_WORKFLOW_COMPLETE", flush=True)
+    print("Notebook: notebooks/Water_Demand_Forecasting_Final.ipynb", flush=True)
+    return 0
+
+def main() -> None:
+    ap = argparse.ArgumentParser()
+    ap.add_argument("--max-attempts", type=int, default=3)
+    args = ap.parse_args()
+    try:
+        raise SystemExit(run(args.max_attempts))
+    except AgentExecutionError as exc:
+        print(f"AGENT_EXECUTION_ERROR: {exc}")
+        raise SystemExit(3)
+
+if __name__ == "__main__":
+    main()
+from __future__ import annotations
+
+import shutil
+import subprocess
+import tempfile
+from pathlib import Path
+
+PROJECT_ROOT = Path(__file__).resolve().parents[2]
+STATE_DIR = PROJECT_ROOT / "orchestration" / "state" / "fast"
+LOG_DIR = PROJECT_ROOT / "orchestration" / "logs" / "fast"
+
+class AgentExecutionError(RuntimeError):
+    pass
+
+def _run(command: list[str], timeout: int) -> subprocess.CompletedProcess[str]:
+    try:
+        return subprocess.run(command, cwd=PROJECT_ROOT, text=True, capture_output=True, timeout=timeout, check=False)
+    except subprocess.TimeoutExpired as exc:
+        raise AgentExecutionError(f"Agent timed out after {timeout}s") from exc
+
+def _write_log(name: str, command: list[str], result: subprocess.CompletedProcess[str]) -> None:
+    LOG_DIR.mkdir(parents=True, exist_ok=True)
+    (LOG_DIR / f"{name}.log").write_text(
+        "COMMAND:\n" + " ".join(command[:-1]) + " [PROMPT]\n\nSTDOUT:\n" + result.stdout + "\n\nSTDERR:\n" + result.stderr,
+        encoding="utf-8",
+    )
+
+def run_codex_readonly(prompt: str, *, name: str, timeout: int = 1800) -> str:
+    exe = shutil.which("codex")
+    if not exe:
+        raise AgentExecutionError("Codex CLI not found on PATH")
+    with tempfile.TemporaryDirectory(prefix="wf-codex-") as td:
+        out = Path(td) / "last.txt"
+        cmd = [exe, "exec", "-C", str(PROJECT_ROOT), "-s", "read-only", "--output-last-message", str(out), prompt]
+        result = _run(cmd, timeout)
+        _write_log(name, cmd, result)
+        if result.returncode != 0:
+            raise AgentExecutionError(f"Codex failed ({result.returncode}); see orchestration/logs/fast/{name}.log")
+        if out.exists():
+            return out.read_text(encoding="utf-8").strip()
+        return result.stdout.strip()
+
+def run_opencode_write(prompt: str, *, name: str, timeout: int = 7200) -> str:
+    exe = shutil.which("opencode") or shutil.which("opencode2")
+    if not exe:
+        raise AgentExecutionError("OpenCode CLI not found on PATH")
+    cmd = [exe, "run", "--dir", str(PROJECT_ROOT), "--auto", prompt]
+    result = _run(cmd, timeout)
+    _write_log(name, cmd, result)
+    if result.returncode != 0:
+        raise AgentExecutionError(f"OpenCode failed ({result.returncode}); see orchestration/logs/fast/{name}.log")
+    return result.stdout.strip()
+
+codex
+OPENCODE_TASK
+STAGE: baseline
+OBJECTIVE:
+Implement and execute the complete leakage-safe BASELINE stage for one-hour-ahead forecasting using only `data/siemens_hourly/source/waterconsumption_noNaN_fixedTimechange.csv`, while auditing `waterconsumption_rawdata.csv`. Establish naive lag-1, lag-24, lag-168, Ridge, and RandomForest validation results. Preserve the final 15% as a locked test whose targets are not scored, inspected, or used until OPTIMAL.
+
+IMPLEMENTATION:
+Create a small, reusable baseline implementation under `fast_pipeline/` and tests under `tests/fast_pipeline/`.
+
+The implementation must:
+- Verify source files against `data/siemens_hourly/provenance.json`; fail on a hash mismatch.
+- Audit raw and canonical sources for schema, types, missingness by column, duplicate rows, duplicate timestamps, timestamp gaps, DST-related irregularities, date range, target distribution, and weather distributions.
+- Parse `Date` plus the start hour from `Time`, sort chronologically, and reject unresolved duplicate or non-monotonic canonical timestamps.
+- Use the canonical file exactly as supplied. Do not synthesize, interpolate, or delete observations merely to force a regular hourly index.
+- Build causal features required by the specification: calendar/cyclical features; nominal `day_of_week_name`, `season`, and `hour_period`; binary `is_weekend`; target lags 1, 2, 3, 24, 48, 72, and 168; shifted rolling mean/std/min/max for windows 3, 24, and 168; shifted EWM features; previous-hour change from past targets; and lagged weather features. Do not use target-hour observed weather.
+- Drop only feature warm-up rows with unavailable causal history, then assign the first 70% to train, next 15% to validation, and final 15% to locked test. Save exact row counts, timestamp boundaries, source hashes, and indices.
+- Prevent baseline-stage access to locked-test targets after split creation. Do not compute locked-test metrics or predictions.
+- Evaluate naive lag-1, lag-24, and lag-168 directly on validation.
+- Fit Ridge through a `Pipeline`/`ColumnTransformer`: training-only median imputation, Yeo-Johnson with `standardize=False` only on defensible continuous numeric predictors, RobustScaler for numeric predictors, OHE for nominal categories, and passthrough 0/1 binaries. Do not transform IDs, binary flags, categorical codes, or cyclical sin/cos columns with Yeo-Johnson.
+- Fit a simple RandomForest using a separate defensible tree preprocessing branch; do not claim scaling or Yeo-Johnson is required for trees.
+- Use fixed recorded seeds and no shuffled splitting or CV.
+- Select nothing using the locked test. Report validation MAE, RMSE, R2, and correctly computed sMAPE for every model.
+- Save real executed outputs under `artifacts/fast/baseline/`, including:
+  - `metrics.csv`
+  - `predictions.csv` with validation timestamps, actuals, and one prediction column per model
+  - `split_metadata.json`
+  - `source_audit.json`
+  - `feature_manifest.json`
+  - `config.json`
+  - `run_evidence.json` containing command, UTC runtime, package versions, seed, source hashes, and artifact row counts
+  - validation actual-versus-predicted and residual plots
+  - fitted Ridge and RandomForest pipeline/model artifacts
+- Add tests proving shift-before-roll causality, feature values at time t are unchanged when targets at t or later are altered, chronological/non-overlapping split boundaries, locked-test exclusion from fitting/scoring, training-only preprocessing fitting, expected validation prediction coverage, and metric recomputation from `predictions.csv`.
+- Update `STATUS_FAST.md` only after successful execution, recording exact commands, real validation metrics, files created, locked-test status, and honest limitations.
+- Inspect and record `git diff --check` and `git status --short` as final evidence. Do not advance to BETTER.
+
+COMMANDS_TO_RUN:
+python -m pytest tests/fast_pipeline -q
+python -m fast_pipeline.baseline --data-dir data/siemens_hourly --output-dir artifacts/fast/baseline --seed 42
+python -m pytest tests/fast_pipeline -q
+python -m fast_pipeline.baseline --data-dir data/siemens_hourly --output-dir artifacts/fast/baseline --seed 42 --verify-artifacts-only
+git diff --check
+git status --short
+
+ACCEPTANCE_CRITERIA:
+- All commands complete successfully and their exact outputs or summarized return codes are preserved in `run_evidence.json` and `STATUS_FAST.md`.
+- Source hashes match provenance and `synthetic_data` remains false.
+- Split order is strictly train before validation before locked test, with approximately 70/15/15 of post-warm-up rows and exact boundaries saved.
+- No target-hour weather, future target, future rolling value, or full-dataset-fitted preprocessing is used.
+- Locked-test targets produce no metrics, predictions, plots, model selection, or preprocessing decisions during BASELINE.
+- `metrics.csv` contains exactly the executed validation results for naive_lag_1, naive_lag_24, naive_lag_168, Ridge, and RandomForest with MAE, RMSE, R2, and sMAPE.
+- Metrics recomputed from `predictions.csv` match `metrics.csv` within numerical tolerance.
+- `predictions.csv` covers every scored validation timestamp exactly once and contains no train or locked-test timestamps.
+- Tests independently verify causality, split integrity, fit boundaries, locked-test isolation, artifact completeness, and metric integrity.
+- At least one actual-versus-predicted plot and one residual plot are non-empty and derived from validation predictions.
+- Seeds, configurations, fitted models, preprocessing choices, source audit, split metadata, and execution evidence are preserved.
+- Any naive baseline outperforming trained models is reported honestly.
+- `STATUS_FAST.md` states BASELINE implementation is awaiting Codex validation; it must not claim PASS or begin BETTER.
+
+DO_NOT:
+- Do not ask the user questions.
+- Do not use any dataset except the imported Siemens/KIT files.
+- Do not fabricate, resample, synthesize, interpolate, or silently repair data.
+- Do not inspect, score, plot, tune against, or select models using locked-test targets.
+- Do not use shuffled splits, random KFold, or preprocessing fitted before splitting.
+- Do not use unshifted target rolling features or target-hour observed weather.
+- Do not label-encode nominal categories or apply Yeo-Johnson blindly.
+- Do not add Optuna, Keras Tuner, advanced ensembles, DL training, or BETTER/OPTIMAL work.
+- Do not overwrite historical project artifacts outside the fast-stage paths.
+- Do not delete files, push commits, or rewrite remote history.
+tokens used
+36,793

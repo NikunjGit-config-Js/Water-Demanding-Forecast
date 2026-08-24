@@ -1,0 +1,19 @@
+Implemented Phase 11 as the UI Agent.
+
+Key additions:
+
+- Streamlit dashboard with experiment, model, evaluation-window, metric, plot, and download controls: [app.py](/home/asus/projects/water-forecast/app/app.py)
+- Strict artifact loading and metric/export utilities: [phase11_dashboard.py](/home/asus/projects/water-forecast/experiments/phase11_dashboard.py)
+- UI and artifact-integrity tests: [test_phase11_dashboard.py](/home/asus/projects/water-forecast/tests/test_phase11_dashboard.py)
+- Usage instructions and pinned dependencies under [app](/home/asus/projects/water-forecast/app)
+- Preserved evidence: [implementation_evidence.txt](/home/asus/projects/water-forecast/artifacts/phase11/phase11_attempt_1_20260816T030000Z/implementation_evidence.txt)
+
+Verification:
+
+- Full suite: `202 passed`
+- Phase 11 tests: `6 passed`
+- Streamlit startup and health endpoint: `ok`
+- Compilation and `git diff --check`: passed
+- All changed paths satisfy Phase 11 ownership rules
+
+Only approved final artifacts are exposed. Invalid Phase 8 attempts and the failed Phase 9 run are excluded. No validator was invoked, no phase was advanced, and no permission-gated action was performed.

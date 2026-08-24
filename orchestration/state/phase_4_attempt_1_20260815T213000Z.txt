@@ -1,0 +1,45 @@
+Phase 4 ML Agent implementation evidence
+
+Scope:
+- Implemented only Phase 4 traditional ML model construction and a training-prefix-only smoke comparison.
+- Phase 3 schema-version-2 PASS checkpoint was present before implementation.
+- Loaded 2,660 rows from the approved 70% training prefix and zero reserved rows.
+- Used rows 0-2,127 for fitting and rows 2,128-2,659 for chronological smoke assessment.
+- Formal 80/20 evaluation and time-aware CV remain deferred to Phases 5 and 6.
+- No optimization, model selection, or improvement claim was performed.
+
+Models:
+- naive lag-1 reference baseline
+- Linear Regression
+- Ridge
+- Lasso
+- Decision Tree Regressor
+- KNN Regressor
+- SVR
+- Random Forest Regressor
+- Bagging Regressor
+- Gradient Boosting Regressor
+- Voting Regressor
+
+Leakage controls:
+- Phase 2 feature artifact hash is pinned to the Phase 3 selection report.
+- Only selected Phase 3 features plus lag-1 for the simple baseline are loaded.
+- Median imputers and RobustScalers are contained in sklearn Pipelines and fitted only by Pipeline.fit on development-fit rows.
+- Scaling is used for Linear/Ridge/Lasso/KNN/SVR; tree models are not scaled.
+- Tests verify bounded reads, fail-closed source-hash behavior, input preservation, chronological boundaries, and persisted pipelines.
+
+Checks:
+- python -m pytest -q tests/test_phase4_traditional_ml.py
+  Result: 4 passed, 5 third-party joblib/NumPy deprecation warnings.
+- python -m pytest -q
+  Result: 137 passed, 8 third-party joblib/NumPy deprecation warnings.
+- Real-data runner completed successfully and wrote the final artifact directory.
+
+Artifacts:
+- artifacts/phase4/phase4_attempt_1_final_20260815T213000Z/config.json
+- artifacts/phase4/phase4_attempt_1_final_20260815T213000Z/model_report.json
+- artifacts/phase4/phase4_attempt_1_final_20260815T213000Z/metrics.csv
+- artifacts/phase4/phase4_attempt_1_final_20260815T213000Z/predictions.csv
+- artifacts/phase4/phase4_attempt_1_final_20260815T213000Z/baseline_actual_vs_predicted.png
+- artifacts/phase4/phase4_attempt_1_final_20260815T213000Z/execution.log
+- artifacts/phase4/phase4_attempt_1_final_20260815T213000Z/models/*.joblib

@@ -1,0 +1,2 @@
+Phase 9 completed with 3040 chronological training and 760 untouched forecast rows.
+All forecasts are fixed-origin recursive multi-step forecasts. Seed: 42. Neural device(s): CPU. No tuning or improvement claim.

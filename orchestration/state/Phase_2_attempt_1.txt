@@ -1,0 +1,22 @@
+Implemented Phase 2 as the Feature Agent.
+
+Key outcomes:
+
+- Added 40 deterministic past-only features in [phase2_features.py](/home/asus/projects/water-forecast/experiments/phase2_features.py).
+- Rolling and EMA features use `Consumption.shift(1)`.
+- Previous-week/year features require matching calendar dates.
+- Added Ontario holiday, cyclical, Fourier, lag, growth, and rolling-slope features.
+- Preserved warm-up and calendar-gap NaNs without imputation.
+- Explicitly deferred feature selection to Phase 3; no validation or test data was accessed.
+- Added leakage and artifact tests in [test_phase2_features.py](/home/asus/projects/water-forecast/tests/test_phase2_features.py).
+- Updated [STATUS.md](/home/asus/projects/water-forecast/STATUS.md).
+
+Checks:
+
+- Focused tests: `3 passed`
+- Full suite: `129 passed`
+- Future-perturbation leakage audit: passed for all 40 features
+- Compilation and `git diff --check`: passed
+- Source hash and all 3,800 chronological rows preserved
+
+Artifacts are under [phase2_attempt_1_20260815T204500Z](/home/asus/projects/water-forecast/artifacts/phase2/phase2_attempt_1_20260815T204500Z). Phase 2 remains awaiting independent validation; Phase 3 was not started.

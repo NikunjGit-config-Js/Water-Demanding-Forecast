@@ -1,0 +1,45 @@
+Phase 2 Feature Agent attempt 1 evidence
+Generated at: 2026-08-15T20:38:08Z
+
+Scope
+- Implemented Phase 2 only; no feature selection, model fitting, splitting,
+  validation invocation, phase advancement, external data access, or push.
+- Source: data/preprocessed/all/preprocessed_data.csv
+- Source SHA-256 before/after:
+  2d95a510176c4dad93eae25958c714ab713790512193f55cf5747b44153da6c9
+
+Implementation
+- experiments/phase2_features.py
+- tests/test_phase2_features.py
+- 40 deterministic candidate features across 3,800 preserved chronological rows.
+- Every rolling and EMA input is Consumption.shift(1).
+- Lag/change/growth features access only earlier observations.
+- Previous-week/year features use calendar offsets and require a source-date match.
+- Calendar/cyclical/Fourier/holiday inputs depend only on the prediction date.
+- Feature selection is explicitly unperformed and records no validation/test access.
+
+Artifacts
+- artifacts/phase2/phase2_attempt_1_20260815T204500Z/config.json
+- artifacts/phase2/phase2_attempt_1_20260815T204500Z/feature_manifest.json
+- artifacts/phase2/phase2_attempt_1_20260815T204500Z/features.csv
+- 3,139 rows are complete across all 40 features. Warm-up and calendar-gap NaNs
+  are preserved; no imputation or row dropping was performed.
+
+Checks
+- .venv/bin/python -m pytest -q tests/test_phase2_features.py
+  Result: PASS, 3 passed in 0.45s
+- .venv/bin/python -m pytest -q
+  Result: PASS, 129 passed, 3 pre-existing joblib/NumPy deprecation warnings in 4.17s
+- .venv/bin/python -m compileall -q experiments/phase2_features.py tests/test_phase2_features.py
+  Result: PASS
+- git diff --check
+  Result: PASS
+- Future-perturbation audit: changed Consumption from row 2500 onward and asserted
+  equality of every feature through row 2500.
+  Result: PASS for all 40 features
+- Output row-count and chronology audit
+  Result: PASS, 3,800 rows and monotonically increasing dates
+
+Status
+- Implementation attempt is ready for independent validation.
+- No validator was invoked and Phase 3 was not started.

@@ -1,0 +1,30 @@
+Implemented Phase 6 as the ML Agent. It remains awaiting independent validation; no later phase was started.
+
+Key outputs:
+
+- [Phase 6 runner](/home/asus/projects/water-forecast/experiments/phase6_time_series_cv.py)
+- [Focused tests](/home/asus/projects/water-forecast/tests/test_phase6_time_series_cv.py)
+- [Experiment artifacts](/home/asus/projects/water-forecast/artifacts/phase6/phase6_attempt_1_20260815T233000Z)
+- [Evidence report](/home/asus/projects/water-forecast/orchestration/state/phase_6_attempt_1_ml_agent_evidence_20260815.txt)
+- [Updated status](/home/asus/projects/water-forecast/STATUS.md)
+
+Implemented:
+
+- Five expanding-window `TimeSeriesSplit` folds
+- Naive lag-1 baseline and ten approved ML models
+- Fold-local preprocessing and model fitting
+- Per-fold metrics, predictions, models, boundaries, and diagnostics
+- Mean and sample standard deviation for MAE, MSE, RMSE, and R²
+- Configuration, seeds, upstream hashes, and execution log
+- No tuning, methodology changes, or improvement claim
+
+Results:
+
+- Focused tests: `3 passed`
+- Full suite: `184 passed`
+- Artifact replay: `PASS`
+- Syntax compilation: `PASS`
+- `git diff --check`: `PASS`
+- Lowest mean CV MAE, descriptively: naive lag-1 at `230.284394`
+
+The validator was not invoked, as requested.

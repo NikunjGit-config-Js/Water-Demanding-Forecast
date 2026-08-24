@@ -1,0 +1,21 @@
+FAIL
+
+Evidence:
+
+- Codex CLI 0.147.0 is installed, and `codex login status` confirms ChatGPT authentication.
+- The preserved smoke log shows a successful Codex invocation with the CLI sandbox set to `read-only`, and the expected response exists.
+- All orchestration Python files parse successfully.
+- No ML implementation is in scope.
+- Git shows the original tracked project unchanged, but all governance and orchestration files remain untracked.
+
+Critical issue: `run_codex(..., sandbox="read-only")` still writes `orchestration/state/<output_name>` and `orchestration/logs/<name>.log` from the Python wrapper. Therefore, the validator path does not actually satisfy its stated requirement that validation cannot modify project files.
+
+Additionally, `output_name` is not constrained to a filename within `STATE_DIR`; absolute paths or `..` components could direct output outside the intended artifact directory. `STATUS.md` also does not record the completed wrapper/smoke-test work or that it is awaiting validation.
+
+REQUIRED_CORRECTIONS:
+
+1. Make validator/read-only execution avoid all repository writes. Store temporary CLI output outside the project and return it in memory; persist validation evidence only through a separately authorized supervisor step.
+2. Validate `output_name`: reject absolute paths, path separators, and traversal components, and verify resolved paths remain inside the intended artifact directory.
+3. Add focused tests covering read-only no-write behavior, path traversal rejection, invalid sandbox values, missing CLI, nonzero exit, timeout, and missing output.
+4. Update `STATUS.md` to accurately record the wrapper implementation, smoke-test evidence, and pending validation state.
+5. Re-run the smoke test and preserve evidence showing that read-only validator execution leaves Git status and repository file timestamps/content unchanged.

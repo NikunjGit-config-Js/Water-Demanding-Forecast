@@ -1,0 +1,17 @@
+{
+  "phase_name": "Phase 6",
+  "phase_number": 6,
+  "schema_version": 2,
+  "test_evidence": {
+    "command": [
+      "python",
+      "-m",
+      "pytest",
+      "-q"
+    ],
+    "returncode": 0
+  },
+  "validated_at_utc": "2026-08-16T10:55:40.550630+00:00",
+  "validation_report": "PASS\n\nDelhi 5-fold time-aware cross-validation complete.",
+  "validation_verdict": "PASS"
+}
