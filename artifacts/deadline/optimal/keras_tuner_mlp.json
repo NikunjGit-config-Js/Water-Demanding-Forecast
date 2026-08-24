@@ -1,0 +1,21 @@
+{
+  "best_hyperparameters": {
+    "hidden_layers": 2,
+    "units_0": 64,
+    "batchnorm_0": false,
+    "dropout_0": 0.1,
+    "learning_rate": 0.002051538424852543,
+    "units_1": 64,
+    "batchnorm_1": false,
+    "dropout_1": 0.0
+  },
+  "validation_metrics": {
+    "mae": 182.6568062006041,
+    "rmse": 245.67590822549445,
+    "r2": 0.9423940589179067,
+    "smape_pct": 10.832659661245678
+  },
+  "best_epoch": 8,
+  "target_train_mean": 2257.15283203125,
+  "target_train_std": 1014.383056640625
+}

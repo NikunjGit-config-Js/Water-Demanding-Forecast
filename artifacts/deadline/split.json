@@ -1,0 +1,11 @@
+{
+  "rows": 45864,
+  "train_rows": 32104,
+  "validation_rows": 6880,
+  "test_rows": 6880,
+  "train_end": "2019-09-06T15:00:00",
+  "validation_start": "2019-09-06T16:00:00",
+  "validation_end": "2020-06-19T07:00:00",
+  "test_start": "2020-06-19T08:00:00",
+  "test_end": "2021-04-01T23:00:00"
+}
