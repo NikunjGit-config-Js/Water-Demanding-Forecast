@@ -1,0 +1,9 @@
+{
+  "source_record": "Zenodo 11045013",
+  "doi": "10.5281/zenodo.11045013",
+  "synthetic_data": false,
+  "canonical_modeling_file": "waterconsumption_noNaN_fixedTimechange.csv",
+  "canonical_sha256": "3acf63ff46af582c00748a0d46fc4f10b1038a4eaf542a9cb882275d480b093a",
+  "raw_audit_file": "waterconsumption_rawdata.csv",
+  "raw_sha256": "bd621204e84c442014777353732f43bc3dd08cc5ff4413caee8507abaca004ed"
+}

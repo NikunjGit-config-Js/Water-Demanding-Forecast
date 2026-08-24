@@ -1,0 +1,2 @@
+AUDIT_TIMEOUT
+Codex audit exceeded 300 seconds; deterministic validation artifacts remain available.

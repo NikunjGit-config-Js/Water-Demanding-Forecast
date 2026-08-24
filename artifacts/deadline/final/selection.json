@@ -1,0 +1,10 @@
+{
+  "selected_before_test": "voting_regressor",
+  "locked_test_used_for_selection": false,
+  "locked_test_metrics": {
+    "mae": 158.25114370027487,
+    "rmse": 220.99193253544928,
+    "r2": 0.9587605529779888,
+    "smape_pct": 8.32122403161333
+  }
+}

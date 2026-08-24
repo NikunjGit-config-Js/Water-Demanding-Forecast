@@ -1,0 +1,216 @@
+{
+  "dataset": {
+    "source": "Hourly Water Demand of a Mixed District Recorded by Supplier",
+    "zenodo_record": "11045013",
+    "doi": "10.5281/zenodo.11045013",
+    "synthetic": false,
+    "audit": {
+      "raw_rows": 46031,
+      "raw_missing": {
+        "Date": 0,
+        "Time": 0,
+        "Consumption": 509,
+        "Temperature": 0,
+        "Rain": 25,
+        "Sun": 0
+      },
+      "canonical_rows": 46032,
+      "canonical_missing": {
+        "Date": 0,
+        "Time": 0,
+        "Consumption": 0,
+        "Temperature": 0,
+        "Rain": 25,
+        "Sun": 0,
+        "timestamp": 0
+      },
+      "timestamp_duplicates_after_parse": 0,
+      "start": "2016-01-01T00:00:00",
+      "end": "2021-04-01T23:00:00"
+    }
+  },
+  "split": {
+    "rows": 45864,
+    "train_rows": 32104,
+    "validation_rows": 6880,
+    "test_rows": 6880,
+    "train_end": "2019-09-06T15:00:00",
+    "validation_start": "2019-09-06T16:00:00",
+    "validation_end": "2020-06-19T07:00:00",
+    "test_start": "2020-06-19T08:00:00",
+    "test_end": "2021-04-01T23:00:00"
+  },
+  "feature_policy": {
+    "nominal_encoding": "OneHotEncoder",
+    "ordinal_encoding": "OrdinalEncoder only for rain_intensity: none < light < moderate < heavy",
+    "binary_encoding": "0/1",
+    "scale_sensitive_numeric": "MedianImputer -> YeoJohnson -> RobustScaler",
+    "trees": "No unnecessary scaling/Yeo-Johnson requirement; train-only imputation + categorical encoding",
+    "target_history": "all lags/rolls are past-only; rolling uses target.shift(1)"
+  },
+  "baseline_validation": [
+    {
+      "model": "random_forest_baseline",
+      "mae": 153.045600660387,
+      "rmse": 212.87363587660658,
+      "r2": 0.9567500219569018,
+      "smape_pct": 9.207669883662719
+    },
+    {
+      "model": "ridge_yj_robust",
+      "mae": 190.39847442268317,
+      "rmse": 256.7121865249541,
+      "r2": 0.9371022504356534,
+      "smape_pct": 11.38579579128337
+    },
+    {
+      "model": "naive_lag_168",
+      "mae": 276.00581395348837,
+      "rmse": 402.7511234520153,
+      "r2": 0.8451840662620673,
+      "smape_pct": 15.003603543686785
+    },
+    {
+      "model": "naive_lag_24",
+      "mae": 291.23982558139534,
+      "rmse": 427.0558470640905,
+      "r2": 0.825934989660097,
+      "smape_pct": 16.203529120673636
+    },
+    {
+      "model": "naive_lag_1",
+      "mae": 336.08793604651163,
+      "rmse": 454.72520084649335,
+      "r2": 0.8026486133175078,
+      "smape_pct": 19.777049744668854
+    }
+  ],
+  "better_validation": [
+    {
+      "model": "voting_regressor",
+      "fit_seconds": 3.395826578140259,
+      "mae": 149.29121775411403,
+      "rmse": 207.0415658584688,
+      "r2": 0.9590873865553853,
+      "smape_pct": 8.922420207846397
+    },
+    {
+      "model": "xgboost",
+      "fit_seconds": 1.5679094791412354,
+      "mae": 150.3731614356817,
+      "rmse": 209.34047151377007,
+      "r2": 0.9581737882824449,
+      "smape_pct": 8.91825065067783
+    },
+    {
+      "model": "bagging_extra_tree",
+      "fit_seconds": 3.31974196434021,
+      "mae": 153.89659323828477,
+      "rmse": 211.63380444039734,
+      "r2": 0.9572523530788061,
+      "smape_pct": 9.259633604663753
+    },
+    {
+      "model": "hist_gradient_boosting",
+      "fit_seconds": 0.5799682140350342,
+      "mae": 154.95950770690848,
+      "rmse": 214.88923256536418,
+      "r2": 0.9559271185602086,
+      "smape_pct": 9.292232895532736
+    }
+  ],
+  "better_cv": [
+    {
+      "model": "xgboost",
+      "mae_mean": 154.62631454479515,
+      "mae_std": 15.005313164570135,
+      "rmse_mean": 216.54907841414519,
+      "rmse_std": 17.195228196463102,
+      "r2_mean": 0.9531562012788589,
+      "smape_mean": 9.794290370546982
+    },
+    {
+      "model": "bagging_extra_tree",
+      "mae_mean": 156.8402902455223,
+      "mae_std": 19.665015519263893,
+      "rmse_mean": 218.70846459840422,
+      "rmse_std": 23.16625117289633,
+      "r2_mean": 0.9519886827346136,
+      "smape_mean": 10.091779877738452
+    },
+    {
+      "model": "hist_gradient_boosting",
+      "mae_mean": 157.18059766921223,
+      "mae_std": 16.377429646003613,
+      "rmse_mean": 219.75654205370566,
+      "rmse_std": 19.31193734880956,
+      "r2_mean": 0.951725240243635,
+      "smape_mean": 9.991993925739475
+    }
+  ],
+  "optimal_validation": [
+    {
+      "model": "tuned_xgboost",
+      "mae": 149.6910778311796,
+      "rmse": 207.87605883734443,
+      "r2": 0.958756920614962,
+      "smape_pct": 8.944987805693357
+    },
+    {
+      "model": "tuned_mlp",
+      "mae": 182.6568062006041,
+      "rmse": 245.67590822549445,
+      "r2": 0.9423940589179067,
+      "smape_pct": 10.832659661245678
+    }
+  ],
+  "selected_before_locked_test": {
+    "model": "voting_regressor",
+    "mae": 149.29121775411403,
+    "rmse": 207.0415658584688,
+    "r2": 0.9590873865553853,
+    "smape_pct": 8.922420207846397
+  },
+  "locked_test": [
+    {
+      "model": "naive_lag_168",
+      "role": "baseline",
+      "mae": 282.71933139534883,
+      "rmse": 407.03283769163187,
+      "r2": 0.860099621627372,
+      "smape_pct": 13.577924652420643
+    },
+    {
+      "model": "naive_lag_24",
+      "role": "baseline",
+      "mae": 286.14171511627904,
+      "rmse": 427.58819826617247,
+      "r2": 0.8456127564056826,
+      "smape_pct": 14.450594500629581
+    },
+    {
+      "model": "naive_lag_1",
+      "role": "baseline",
+      "mae": 363.43706395348835,
+      "rmse": 482.05759676498946,
+      "r2": 0.8037734102092753,
+      "smape_pct": 19.57924161382765
+    },
+    {
+      "model": "voting_regressor",
+      "role": "selected_final_model",
+      "mae": 158.25114370027487,
+      "rmse": 220.99193253544928,
+      "r2": 0.9587605529779888,
+      "smape_pct": 8.32122403161333
+    }
+  ],
+  "gpu": {
+    "tensorflow_version": "2.20.0",
+    "gpu_devices": [
+      "/physical_device:GPU:0"
+    ],
+    "gpu_used": true
+  },
+  "elapsed_minutes": 1.7107762972513834
+}
