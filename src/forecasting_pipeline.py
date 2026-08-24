@@ -1,34 +1,16 @@
-OpenAI Codex v0.147.0
---------
-workdir: /home/asus/projects/water-forecast
-model: gpt-5.6-sol
-provider: openai
-approval: never
-sandbox: read-only
-reasoning effort: none
-reasoning summaries: none
-session id: 01a033f5-9c3e-7900-b687-f849ec0f92ad
---------
-user
-Quick final audit only. Check fast_pipeline/deadline_water_workflow.py and artifacts/deadline for: chronological leakage-safe splits, train-only preprocessing, causal lag/rolling features, appropriate OHE/ordinal/binary encoding, Yeo-Johnson + RobustScaler only where appropriate, TimeSeriesSplit CV, Optuna/Keras tuning on validation only, model selection before locked test, and no fabricated metrics. Do not edit anything. Reply PASS or FAIL with at most 5 concise findings.
-codex
-I’ll perform a read-only audit of the pipeline and saved artifacts. I’m using the security-style validation workflow because you requested a strict PASS/FAIL review, and I’ll keep the scope to the named paths.
-exec
-/bin/bash -lc "sed -n '1,260p' fast_pipeline/deadline_water_workflow.py && find artifacts/deadline -maxdepth 3 -type f -printf '%p\\n' | sort" in /home/asus/projects/water-forecast
- succeeded in 0ms:
 #!/usr/bin/env python3
-"""Deadline-oriented, genuine water-demand ML/DL autopilot.
+"""End-to-end water-demand forecasting pipeline.
 
-Designed for the Siemens/KIT hourly water-demand dataset already selected by the user.
-It replaces slow multi-agent implementation loops with deterministic experiment code,
+Implements a reproducible forecasting workflow for the Siemens/KIT hourly water-demand dataset.
+The workflow performs deterministic data preparation, model development, tuning, evaluation, and reporting.
 then uses Codex once at the end as a read-only audit.
 
-WSL usage:
+Command-line usage:
     python3 /mnt/c/Users/ASUS/Downloads/deadline_water_autopilot.py \
       . /mnt/c/Users/ASUS/Downloads/11045013.zip --push
 
 Workflow:
-    BASELINE -> BETTER -> OPTIMAL -> FINAL NOTEBOOK -> CODEX AUDIT -> GIT COMMIT/PUSH
+    DATA PREPARATION -> BASELINE MODELING -> ENSEMBLE MODELING -> HYPERPARAMETER TUNING -> FINAL EVALUATION -> REPORTING
 
 Methodological rules:
 - chronological split only
@@ -98,7 +80,7 @@ def sha256(path: Path) -> str:
 
 def maybe_reexec_project_venv(repo: Path) -> None:
     """Reuse the environment created by the earlier bootstrap instead of reinstalling packages."""
-    if os.environ.get("WATER_DEADLINE_VENV_REEXEC") == "1":
+    if os.environ.get("WATER_FORECAST_VENV_REEXEC") == "1":
         return
     candidates = [repo / ".venv" / "bin" / "python", repo / ".venv-fast" / "bin" / "python"]
     for py in candidates:
@@ -109,7 +91,7 @@ def maybe_reexec_project_venv(repo: Path) -> None:
                 same = False
             if not same:
                 env = os.environ.copy()
-                env["WATER_DEADLINE_VENV_REEXEC"] = "1"
+                env["WATER_FORECAST_VENV_REEXEC"] = "1"
                 log(f"Re-executing inside project environment: {py}")
                 os.execve(str(py), [str(py), str(Path(__file__).resolve()), *sys.argv[1:]], env)
             return
@@ -166,7 +148,7 @@ def ensure_dataset(repo: Path, archive: Path) -> tuple[Path, Path]:
         "raw_audit_file": raw.name,
         "raw_sha256": sha256(raw),
     }
-    (repo / "data" / "siemens_hourly" / "provenance_deadline.json").write_text(
+    (repo / "data" / "siemens_hourly" / "dataset_metadata.json").write_text(
         json.dumps(prov, indent=2) + "\n", encoding="utf-8"
     )
     return canonical, raw
@@ -275,36 +257,6 @@ NOMINAL = ["day_of_week_name", "season", "hour_period"]
 ORDINAL = ["rain_intensity"]
 BINARY = ["is_weekend"]
 CYCLICAL = ["hour_sin", "hour_cos", "dow_sin", "dow_cos", "month_sin", "month_cos"]
-CONTINUOUS = [
-artifacts/deadline/baseline/best_validation_forecast.png
-artifacts/deadline/baseline/metrics.csv
-artifacts/deadline/baseline/predictions.csv
-artifacts/deadline/better/best_validation_forecast.png
-artifacts/deadline/better/cv_folds.csv
-artifacts/deadline/better/cv_summary.csv
-artifacts/deadline/better/metrics.csv
-artifacts/deadline/better/predictions.csv
-artifacts/deadline/better/xgb_device.json
-artifacts/deadline/codex_audit.txt
-artifacts/deadline/codex_audit_fast.txt
-artifacts/deadline/data_audit.json
-artifacts/deadline/environment/tensorflow_gpu.json
-artifacts/deadline/feature_manifest.json
-artifacts/deadline/final/locked_test_forecast.png
-artifacts/deadline/final/locked_test_metrics.csv
-artifacts/deadline/final/locked_test_predictions.csv
-artifacts/deadline/final/selection.json
-artifacts/deadline/optimal/keras_tuner_mlp.json
-artifacts/deadline/optimal/optuna_trials.csv
-artifacts/deadline/optimal/optuna_xgb.json
-artifacts/deadline/optimal/tuned_xgb_validation.json
-artifacts/deadline/pretest_selection.json
-artifacts/deadline/split.json
-artifacts/deadline/summary.json
-
-exec
-/bin/bash -lc "sed -n '260,760p' fast_pipeline/deadline_water_workflow.py" in /home/asus/projects/water-forecast
- succeeded in 0ms:
 CONTINUOUS = [
     "consumption_lag_1", "consumption_lag_2", "consumption_lag_3",
     "consumption_lag_24", "consumption_lag_48", "consumption_lag_72", "consumption_lag_168",
@@ -587,7 +539,7 @@ def better_stage(repo: Path, train, val, xgb_gpu: bool, smoke: bool = False):
     metrics = pd.DataFrame(rows).sort_values("mae").reset_index(drop=True)
     metrics.to_csv(out / "metrics.csv", index=False)
     preds.to_csv(out / "predictions.csv", index=False)
-    (out / "xgb_device.json").write_text(json.dumps({"gpu_used": bool(xgb_gpu), "device": "cuda" if xgb_gpu else "cpu"}, indent=2) + "\n")
+    (out / "xgboost_device.json").write_text(json.dumps({"gpu_used": bool(xgb_gpu), "device": "cuda" if xgb_gpu else "cpu"}, indent=2) + "\n")
 
     # Genuine 5-fold time-aware CV on representative ensemble families. Keep Voting out of CV to avoid duplicate triple fitting.
     trainval = pd.concat([train, val], ignore_index=True)
@@ -806,11 +758,6 @@ def final_locked_test(repo: Path, train, val, test, xgb_gpu: bool, tuned_xgb_par
         outputs = tf.keras.layers.Dense(1)(x)
         model = tf.keras.Model(inputs, outputs)
         model.compile(optimizer=tf.keras.optimizers.Adam(float(mlp_hp.get("learning_rate", 1e-3))), loss="mse")
-
-exec
-/bin/bash -lc "sed -n '760,1120p' fast_pipeline/deadline_water_workflow.py && for f in artifacts/deadline/split.json artifacts/deadline/feature_manifest.json artifacts/deadline/pretest_selection.json artifacts/deadline/final/selection.json artifacts/deadline/summary.json artifacts/deadline/optimal/optuna_xgb.json artifacts/deadline/optimal/keras_tuner_mlp.json; do echo \"FILE "'$f"; sed -n '"'1,220p' \""'$f"; done' in /home/asus/projects/water-forecast
- succeeded in 0ms:
-        model.compile(optimizer=tf.keras.optimizers.Adam(float(mlp_hp.get("learning_rate", 1e-3))), loss="mse")
         model.fit(Xdev, ydevn, epochs=max(1, mlp_epoch), batch_size=512, verbose=0)
         p = model.predict(Xt, batch_size=1024, verbose=0).reshape(-1) * std + mean
     elif selected_name == "ridge_yj_robust":
@@ -896,7 +843,7 @@ def generate_summary(repo: Path, audit: dict, split_info: SplitInfo, baseline_me
         "gpu": gpu_report,
         "elapsed_minutes": elapsed / 60.0,
     }
-    (out / "summary.json").write_text(json.dumps(summary, indent=2, default=float) + "\n")
+    (out / "experiment_summary.json").write_text(json.dumps(summary, indent=2, default=float) + "\n")
     return summary
 
 
@@ -912,7 +859,7 @@ def generate_readme(repo: Path, summary: dict):
         shutil.copy2(old, backup)
     text = f"""# Water Demand Forecasting — Siemens/KIT Hourly Dataset
 
-An interview-oriented, leakage-safe water-demand forecasting project built on **real hourly operational data**, not synthetic data.
+A reproducible, leakage-safe water-demand forecasting project built on **real hourly operational data**, not synthetic data.
 
 ## Problem
 Forecast one-hour-ahead aggregate water consumption for a mixed residential/commercial/industrial district so a water utility can support pump scheduling and capacity planning.
@@ -925,7 +872,7 @@ Forecast one-hour-ahead aggregate water consumption for a mixed residential/comm
 - Synthetic data used: **No**
 
 ## Methodology
-`Baseline -> Better -> Optimal -> Locked Test`
+`Data Preparation -> Baseline Modeling -> Ensemble Evaluation -> Hyperparameter Tuning -> Locked-Test Evaluation`
 
 - Chronological 70/15/15 train/validation/test split.
 - Test is locked until preprocessing, model family and hyperparameters are frozen.
@@ -956,10 +903,10 @@ The model was selected **before** viewing the locked test based on validation pe
     text += """
 
 ## Reproducibility
-- `fast_pipeline/deadline_water_workflow.py` — actual experiment implementation.
-- `artifacts/deadline/` — metrics, predictions, split metadata, GPU report and tuning history.
-- `notebooks/Water_Demand_Forecasting_Final.ipynb` — executed interview/Colab notebook.
-- `artifacts/deadline/codex_audit.txt` — final read-only methodology audit when Codex is available.
+- `src/forecasting_pipeline.py` — actual experiment implementation.
+- `artifacts/results/` — metrics, predictions, split metadata, GPU report and tuning history.
+- `notebooks/model_evaluation_report.ipynb` — executed interview/Colab notebook.
+- `artifacts/results/methodology_audit.txt` — final read-only methodology audit when Codex is available.
 
 ## Important limitation
 This project predicts hourly demand from historical demand/calendar and lagged observed weather. In production, future weather should come from a weather-forecast feed. Results are experimental and are not presented as a deployed utility system.
@@ -998,9 +945,9 @@ This notebook is generated only after the actual experiments finish. No metric b
 from pathlib import Path
 import json, pandas as pd
 ROOT = Path.cwd()
-if not (ROOT / 'artifacts/deadline/summary.json').exists():
+if not (ROOT / 'artifacts/results/experiment_summary.json').exists():
     print('Run this notebook from the repository root after cloning the project.')
-summary = json.loads((ROOT / 'artifacts/deadline/summary.json').read_text())
+summary = json.loads((ROOT / 'artifacts/results/experiment_summary.json').read_text())
 summary['dataset']['source'], summary['split']
 """),
         nbf.v4.new_markdown_cell("## Dataset audit"),
@@ -1009,31 +956,31 @@ summary['dataset']['source'], summary['split']
     'canonical_missing': summary['dataset']['audit']['canonical_missing'],
 }).fillna(0)
 """),
-        nbf.v4.new_markdown_cell("## Feature engineering and preprocessing\nThe complete executable implementation is in `fast_pipeline/deadline_water_workflow.py`. The code below shows the actual feature policy used."),
+        nbf.v4.new_markdown_cell("## Feature engineering and preprocessing\nThe complete executable implementation is in `src/forecasting_pipeline.py`. The code below shows the actual feature policy used."),
         nbf.v4.new_code_cell("""summary['feature_policy']
 """),
         nbf.v4.new_markdown_cell("## Baseline validation"),
-        nbf.v4.new_code_cell("""baseline = pd.read_csv(ROOT / 'artifacts/deadline/baseline/metrics.csv')
+        nbf.v4.new_code_cell("""baseline = pd.read_csv(ROOT / 'artifacts/results/baseline_models/metrics.csv')
 baseline
 """),
         nbf.v4.new_markdown_cell("## Better: Bagging + Boosting + Voting + time-aware CV"),
-        nbf.v4.new_code_cell("""better = pd.read_csv(ROOT / 'artifacts/deadline/better/metrics.csv')
-cv = pd.read_csv(ROOT / 'artifacts/deadline/better/cv_summary.csv')
+        nbf.v4.new_code_cell("""better = pd.read_csv(ROOT / 'artifacts/results/ensemble_models/metrics.csv')
+cv = pd.read_csv(ROOT / 'artifacts/results/ensemble_models/cv_summary.csv')
 display(better)
 display(cv)
 """),
         nbf.v4.new_markdown_cell("## Optimal: Optuna + Keras Tuner"),
-        nbf.v4.new_code_cell("""optuna_result = json.loads((ROOT / 'artifacts/deadline/optimal/optuna_xgb.json').read_text())
-keras_result = json.loads((ROOT / 'artifacts/deadline/optimal/keras_tuner_mlp.json').read_text())
+        nbf.v4.new_code_cell("""optuna_result = json.loads((ROOT / 'artifacts/results/hyperparameter_tuning/optuna_xgb.json').read_text())
+keras_result = json.loads((ROOT / 'artifacts/results/hyperparameter_tuning/keras_tuner_mlp.json').read_text())
 print('Optuna:', optuna_result)
 print('Keras Tuner validation:', keras_result['validation_metrics'])
 """),
         nbf.v4.new_markdown_cell("## Locked test — viewed only after model choice was frozen"),
-        nbf.v4.new_code_cell("""locked = pd.read_csv(ROOT / 'artifacts/deadline/final/locked_test_metrics.csv')
+        nbf.v4.new_code_cell("""locked = pd.read_csv(ROOT / 'artifacts/results/final_evaluation/locked_test_metrics.csv')
 locked
 """),
         nbf.v4.new_code_cell("""from IPython.display import Image, display
-p = ROOT / 'artifacts/deadline/final/locked_test_forecast.png'
+p = ROOT / 'artifacts/results/final_evaluation/locked_test_forecast.png'
 display(Image(filename=str(p)))
 """),
         nbf.v4.new_markdown_cell("""## Interview explanation
@@ -1070,15 +1017,15 @@ def copy_workflow_into_repo(repo: Path):
 
 
 def codex_audit(repo: Path) -> str:
-    out = repo / "artifacts" / "deadline" / "codex_audit.txt"
+    out = repo / "artifacts" / "deadline" / "methodology_audit.txt"
     codex = shutil.which("codex")
     if not codex:
         text = "AUDIT_NOT_RUN\nCodex CLI not found; deterministic gates completed."
         out.write_text(text + "\n")
         return text
     prompt = """
-Read README.md, fast_pipeline/deadline_water_workflow.py, data/siemens_hourly/provenance_deadline.json,
-and all files under artifacts/deadline that are necessary to verify methodology.
+Read README.md, src/forecasting_pipeline.py, data/dataset_metadata.json,
+and all files under artifacts/results that are necessary to verify methodology.
 
 This is a READ-ONLY final audit. Verify ONLY these high-value rules:
 1) real Siemens/KIT dataset, no synthetic-data claim;
@@ -1113,12 +1060,12 @@ def git_finalize(repo: Path, push: bool):
         return
     branch = subprocess.run(["git", "branch", "--show-current"], cwd=repo, text=True, capture_output=True).stdout.strip()
     if branch in {"main", "master", ""}:
-        run(["git", "checkout", "-b", "feature/siemens-deadline-forecast"], cwd=repo)
+        run(["git", "checkout", "-b", "feature/water-demand-forecasting"], cwd=repo)
     paths = [
         "README.md", "docs/README_before_siemens.md",
-        "fast_pipeline/deadline_water_workflow.py",
-        "data/siemens_hourly/provenance_deadline.json",
-        "artifacts/deadline", "notebooks/Water_Demand_Forecasting_Final.ipynb",
+        "src/forecasting_pipeline.py",
+        "data/dataset_metadata.json",
+        "artifacts/results", "notebooks/model_evaluation_report.ipynb",
     ]
     existing = [p for p in paths if (repo / p).exists()]
     run(["git", "add", *existing], cwd=repo)
@@ -1142,7 +1089,7 @@ def main():
     archive = args.dataset_zip.expanduser().resolve()
     maybe_reexec_project_venv(repo)
     start = time.time()
-    log("\n=== DEADLINE AUTOPILOT: deterministic real execution ===")
+    log("\n=== WATER DEMAND FORECASTING PIPELINE ===")
     ensure_imports(repo)
     copy_workflow_into_repo(repo)
     canonical, raw = ensure_dataset(repo, archive)
@@ -1150,8 +1097,8 @@ def main():
     train, val, test, split_info = split_frame(frame)
     out = repo / "artifacts" / "deadline"
     out.mkdir(parents=True, exist_ok=True)
-    (out / "data_audit.json").write_text(json.dumps(audit, indent=2) + "\n")
-    (out / "split.json").write_text(json.dumps(asdict(split_info), indent=2) + "\n")
+    (out / "data_quality_report.json").write_text(json.dumps(audit, indent=2) + "\n")
+    (out / "data_split.json").write_text(json.dumps(asdict(split_info), indent=2) + "\n")
     (out / "feature_manifest.json").write_text(json.dumps({
         "features": FEATURES, "continuous_yj": CONTINUOUS, "cyclical": CYCLICAL,
         "binary": BINARY, "nominal_ohe": NOMINAL, "ordinal": ORDINAL,
@@ -1160,7 +1107,7 @@ def main():
     log(f"Rows after causal feature warm-up: {len(frame):,}")
     log(f"Train/val/test: {len(train):,}/{len(val):,}/{len(test):,}")
 
-    log("\n=== 1/4 BASELINE ===")
+    log("\n=== 1/4 BASELINE MODELING ===")
     baseline_metrics, _ = baseline_stage(repo, train, val)
     log(baseline_metrics.to_string(index=False))
 
@@ -1171,435 +1118,86 @@ def main():
     yprobe = train["Consumption"].iloc[: min(2000, len(train))]
     xgb_gpu = detect_xgb_gpu(Xprobe, yprobe)
 
-FILE artifacts/deadline/split.json
-{
-  "rows": 45864,
-  "train_rows": 32104,
-  "validation_rows": 6880,
-  "test_rows": 6880,
-  "train_end": "2019-09-06T15:00:00",
-  "validation_start": "2019-09-06T16:00:00",
-  "validation_end": "2020-06-19T07:00:00",
-  "test_start": "2020-06-19T08:00:00",
-  "test_end": "2021-04-01T23:00:00"
-}
-FILE artifacts/deadline/feature_manifest.json
-{
-  "features": [
-    "consumption_lag_1",
-    "consumption_lag_2",
-    "consumption_lag_3",
-    "consumption_lag_24",
-    "consumption_lag_48",
-    "consumption_lag_72",
-    "consumption_lag_168",
-    "consumption_roll_mean_3",
-    "consumption_roll_std_3",
-    "consumption_roll_min_3",
-    "consumption_roll_max_3",
-    "consumption_roll_mean_24",
-    "consumption_roll_std_24",
-    "consumption_roll_min_24",
-    "consumption_roll_max_24",
-    "consumption_roll_mean_168",
-    "consumption_roll_std_168",
-    "consumption_roll_min_168",
-    "consumption_roll_max_168",
-    "consumption_ewm_6",
-    "consumption_ewm_24",
-    "consumption_prev_change",
-    "temperature_lag_1",
-    "temperature_lag_24",
-    "temperature_roll_mean_24",
-    "rain_lag_1",
-    "rain_lag_24",
-    "rain_roll_mean_24",
-    "sun_lag_1",
-    "sun_lag_24",
-    "sun_roll_mean_24",
-    "hour_sin",
-    "hour_cos",
-    "dow_sin",
-    "dow_cos",
-    "month_sin",
-    "month_cos",
-    "is_weekend",
-    "day_of_week_name",
-    "season",
-    "hour_period",
-    "rain_intensity"
-  ],
-  "continuous_yj": [
-    "consumption_lag_1",
-    "consumption_lag_2",
-    "consumption_lag_3",
-    "consumption_lag_24",
-    "consumption_lag_48",
-    "consumption_lag_72",
-    "consumption_lag_168",
-    "consumption_roll_mean_3",
-    "consumption_roll_std_3",
-    "consumption_roll_min_3",
-    "consumption_roll_max_3",
-    "consumption_roll_mean_24",
-    "consumption_roll_std_24",
-    "consumption_roll_min_24",
-    "consumption_roll_max_24",
-    "consumption_roll_mean_168",
-    "consumption_roll_std_168",
-    "consumption_roll_min_168",
-    "consumption_roll_max_168",
-    "consumption_ewm_6",
-    "consumption_ewm_24",
-    "consumption_prev_change",
-    "temperature_lag_1",
-    "temperature_lag_24",
-    "temperature_roll_mean_24",
-    "rain_lag_1",
-    "rain_lag_24",
-    "rain_roll_mean_24",
-    "sun_lag_1",
-    "sun_lag_24",
-    "sun_roll_mean_24"
-  ],
-  "cyclical": [
-    "hour_sin",
-    "hour_cos",
-    "dow_sin",
-    "dow_cos",
-    "month_sin",
-    "month_cos"
-  ],
-  "binary": [
-    "is_weekend"
-  ],
-  "nominal_ohe": [
-    "day_of_week_name",
-    "season",
-    "hour_period"
-  ],
-  "ordinal": [
-    "rain_intensity"
-  ]
-}
-FILE artifacts/deadline/pretest_selection.json
-{
-  "model": "voting_regressor",
-  "mae": 149.29121775411403,
-  "rmse": 207.0415658584688,
-  "r2": 0.9590873865553853,
-  "smape_pct": 8.922420207846397
-}
-FILE artifacts/deadline/final/selection.json
-{
-  "selected_before_test": "voting_regressor",
-  "locked_test_used_for_selection": false,
-  "locked_test_metrics": {
-    "mae": 158.25114370027487,
-    "rmse": 220.99193253544928,
-    "r2": 0.9587605529779888,
-    "smape_pct": 8.32122403161333
-  }
-}
-FILE artifacts/deadline/summary.json
-{
-  "dataset": {
-    "source": "Hourly Water Demand of a Mixed District Recorded by Supplier",
-    "zenodo_record": "11045013",
-    "doi": "10.5281/zenodo.11045013",
-    "synthetic": false,
-    "audit": {
-      "raw_rows": 46031,
-      "raw_missing": {
-        "Date": 0,
-        "Time": 0,
-        "Consumption": 509,
-        "Temperature": 0,
-        "Rain": 25,
-        "Sun": 0
-      },
-      "canonical_rows": 46032,
-      "canonical_missing": {
-        "Date": 0,
-        "Time": 0,
-        "Consumption": 0,
-        "Temperature": 0,
-        "Rain": 25,
-        "Sun": 0,
-        "timestamp": 0
-      },
-      "timestamp_duplicates_after_parse": 0,
-      "start": "2016-01-01T00:00:00",
-      "end": "2021-04-01T23:00:00"
-    }
-  },
-  "split": {
-    "rows": 45864,
-    "train_rows": 32104,
-    "validation_rows": 6880,
-    "test_rows": 6880,
-    "train_end": "2019-09-06T15:00:00",
-    "validation_start": "2019-09-06T16:00:00",
-    "validation_end": "2020-06-19T07:00:00",
-    "test_start": "2020-06-19T08:00:00",
-    "test_end": "2021-04-01T23:00:00"
-  },
-  "feature_policy": {
-    "nominal_encoding": "OneHotEncoder",
-    "ordinal_encoding": "OrdinalEncoder only for rain_intensity: none < light < moderate < heavy",
-    "binary_encoding": "0/1",
-    "scale_sensitive_numeric": "MedianImputer -> YeoJohnson -> RobustScaler",
-    "trees": "No unnecessary scaling/Yeo-Johnson requirement; train-only imputation + categorical encoding",
-    "target_history": "all lags/rolls are past-only; rolling uses target.shift(1)"
-  },
-  "baseline_validation": [
-    {
-      "model": "random_forest_baseline",
-      "mae": 153.045600660387,
-      "rmse": 212.87363587660658,
-      "r2": 0.9567500219569018,
-      "smape_pct": 9.207669883662719
-    },
-    {
-      "model": "ridge_yj_robust",
-      "mae": 190.39847442268317,
-      "rmse": 256.7121865249541,
-      "r2": 0.9371022504356534,
-      "smape_pct": 11.38579579128337
-    },
-    {
-      "model": "naive_lag_168",
-      "mae": 276.00581395348837,
-      "rmse": 402.7511234520153,
-      "r2": 0.8451840662620673,
-      "smape_pct": 15.003603543686785
-    },
-    {
-      "model": "naive_lag_24",
-      "mae": 291.23982558139534,
-      "rmse": 427.0558470640905,
-      "r2": 0.825934989660097,
-      "smape_pct": 16.203529120673636
-    },
-    {
-      "model": "naive_lag_1",
-      "mae": 336.08793604651163,
-      "rmse": 454.72520084649335,
-      "r2": 0.8026486133175078,
-      "smape_pct": 19.777049744668854
-    }
-  ],
-  "better_validation": [
-    {
-      "model": "voting_regressor",
-      "fit_seconds": 3.395826578140259,
-      "mae": 149.29121775411403,
-      "rmse": 207.0415658584688,
-      "r2": 0.9590873865553853,
-      "smape_pct": 8.922420207846397
-    },
-    {
-      "model": "xgboost",
-      "fit_seconds": 1.5679094791412354,
-      "mae": 150.3731614356817,
-      "rmse": 209.34047151377007,
-      "r2": 0.9581737882824449,
-      "smape_pct": 8.91825065067783
-    },
-    {
-      "model": "bagging_extra_tree",
-      "fit_seconds": 3.31974196434021,
-      "mae": 153.89659323828477,
-      "rmse": 211.63380444039734,
-      "r2": 0.9572523530788061,
-      "smape_pct": 9.259633604663753
-    },
-    {
-      "model": "hist_gradient_boosting",
-      "fit_seconds": 0.5799682140350342,
-      "mae": 154.95950770690848,
-      "rmse": 214.88923256536418,
-      "r2": 0.9559271185602086,
-      "smape_pct": 9.292232895532736
-    }
-  ],
-  "better_cv": [
-    {
-      "model": "xgboost",
-      "mae_mean": 154.62631454479515,
-      "mae_std": 15.005313164570135,
-      "rmse_mean": 216.54907841414519,
-      "rmse_std": 17.195228196463102,
-      "r2_mean": 0.9531562012788589,
-      "smape_mean": 9.794290370546982
-    },
-    {
-      "model": "bagging_extra_tree",
-      "mae_mean": 156.8402902455223,
-      "mae_std": 19.665015519263893,
-      "rmse_mean": 218.70846459840422,
-      "rmse_std": 23.16625117289633,
-      "r2_mean": 0.9519886827346136,
-      "smape_mean": 10.091779877738452
-    },
-    {
-      "model": "hist_gradient_boosting",
-      "mae_mean": 157.18059766921223,
-      "mae_std": 16.377429646003613,
-      "rmse_mean": 219.75654205370566,
-      "rmse_std": 19.31193734880956,
-      "r2_mean": 0.951725240243635,
-      "smape_mean": 9.991993925739475
-    }
-  ],
-  "optimal_validation": [
-    {
-      "model": "tuned_xgboost",
-      "mae": 149.6910778311796,
-      "rmse": 207.87605883734443,
-      "r2": 0.958756920614962,
-      "smape_pct": 8.944987805693357
-    },
-    {
-      "model": "tuned_mlp",
-      "mae": 182.6568062006041,
-      "rmse": 245.67590822549445,
-      "r2": 0.9423940589179067,
-      "smape_pct": 10.832659661245678
-    }
-  ],
-  "selected_before_locked_test": {
-    "model": "voting_regressor",
-    "mae": 149.29121775411403,
-    "rmse": 207.0415658584688,
-    "r2": 0.9590873865553853,
-    "smape_pct": 8.922420207846397
-  },
-  "locked_test": [
-    {
-      "model": "naive_lag_168",
-      "role": "baseline",
-      "mae": 282.71933139534883,
-      "rmse": 407.03283769163187,
-      "r2": 0.860099621627372,
-      "smape_pct": 13.577924652420643
-    },
-    {
-      "model": "naive_lag_24",
-      "role": "baseline",
-      "mae": 286.14171511627904,
-      "rmse": 427.58819826617247,
-      "r2": 0.8456127564056826,
-      "smape_pct": 14.450594500629581
-    },
-    {
-      "model": "naive_lag_1",
-      "role": "baseline",
-      "mae": 363.43706395348835,
-      "rmse": 482.05759676498946,
-      "r2": 0.8037734102092753,
-      "smape_pct": 19.57924161382765
-    },
-    {
-      "model": "voting_regressor",
-      "role": "selected_final_model",
-      "mae": 158.25114370027487,
-      "rmse": 220.99193253544928,
-      "r2": 0.9587605529779888,
-      "smape_pct": 8.32122403161333
-    }
-  ],
-  "gpu": {
-    "tensorflow_version": "2.20.0",
-    "gpu_devices": [
-      "/physical_device:GPU:0"
-    ],
-    "gpu_used": true
-  },
-  "elapsed_minutes": 1.7107762972513834
-}
-FILE artifacts/deadline/optimal/optuna_xgb.json
-{
-  "best_value_cv_mae": 160.22155157692399,
-  "best_params": {
-    "n_estimators": 420,
-    "max_depth": 8,
-    "learning_rate": 0.020751421204777677,
-    "min_child_weight": 8,
-    "subsample": 0.9497327922401265,
-    "colsample_bytree": 0.7637017332034828,
-    "reg_alpha": 2.8483918709107956e-07,
-    "reg_lambda": 0.2327067708383781
-  },
-  "trials_completed": 8
-}
-FILE artifacts/deadline/optimal/keras_tuner_mlp.json
-{
-  "best_hyperparameters": {
-    "hidden_layers": 2,
-    "units_0": 64,
-    "batchnorm_0": false,
-    "dropout_0": 0.1,
-    "learning_rate": 0.002051538424852543,
-    "units_1": 64,
-    "batchnorm_1": false,
-    "dropout_1": 0.0
-  },
-  "validation_metrics": {
-    "mae": 182.6568062006041,
-    "rmse": 245.67590822549445,
-    "r2": 0.9423940589179067,
-    "smape_pct": 10.832659661245678
-  },
-  "best_epoch": 8,
-  "target_train_mean": 2257.15283203125,
-  "target_train_std": 1014.383056640625
-}
+    log("\n=== 2/4 ENSEMBLE MODELING AND TIME-SERIES CROSS-VALIDATION ===")
+    better_metrics, _, _, _, cv_summary = better_stage(repo, train, val, xgb_gpu, smoke=args.smoke)
+    log(better_metrics.to_string(index=False))
+    log("CV summary:\n" + cv_summary.to_string(index=False))
 
-exec
-/bin/bash -lc "sed -n '1120,1280p' fast_pipeline/deadline_water_workflow.py; stat -c '%y %n' artifacts/deadline/pretest_selection.json artifacts/deadline/final/selection.json artifacts/deadline/final/locked_test_metrics.csv; .venv/bin/python - <<'PY'
-import pandas as pd, numpy as np, json
-from sklearn.metrics import mean_absolute_error, mean_squared_error, r2_score
-for group,pathm,pathp in [('baseline','artifacts/deadline/baseline/metrics.csv','artifacts/deadline/baseline/predictions.csv'),('better','artifacts/deadline/better/metrics.csv','artifacts/deadline/better/predictions.csv'),('final','artifacts/deadline/final/locked_test_metrics.csv','artifacts/deadline/final/locked_test_predictions.csv')]:
- m=pd.read_csv(pathm); p=pd.read_csv(pathp); print(group,len(p),list(m.model))
- for _,r in m.iterrows():
-  if r.model in p:
-   y=p.actual.to_numpy(); yp=p[r.model].to_numpy(); d=np.abs(y)+np.abs(yp)
-   vals=[mean_absolute_error(y,yp), mean_squared_error(y,yp)**.5, r2_score(y,yp), np.mean(np.where(d==0,0,200*np.abs(y-yp)/d))]
-   print(r.model, max(abs(float(r[k])-v) for k,v in zip(['mae','rmse','r2','smape_pct'],vals)))
-PY" in /home/asus/projects/water-forecast
- succeeded in 1382ms:
-baseline 6880 ['random_forest_baseline', 'ridge_yj_robust', 'naive_lag_168', 'naive_lag_24', 'naive_lag_1']
-random_forest_baseline 1.7763568394002505e-15
-ridge_yj_robust 2.842170943040401e-14
-naive_lag_168 5.684341886080802e-14
-naive_lag_24 0.0
-naive_lag_1 3.552713678800501e-15
-better 6880 ['voting_regressor', 'xgboost', 'bagging_extra_tree', 'hist_gradient_boosting']
-voting_regressor 1.7763568394002505e-15
-xgboost 9.247532375411538e-07
-bagging_extra_tree 2.842170943040401e-14
-hist_gradient_boosting 2.842170943040401e-14
-final 6880 ['naive_lag_168', 'naive_lag_24', 'naive_lag_1', 'voting_regressor']
-naive_lag_168 5.684341886080802e-14
-naive_lag_24 1.7763568394002505e-15
-naive_lag_1 5.684341886080802e-14
-voting_regressor 5.684341886080802e-14
+    log("\n=== 3/4 HYPERPARAMETER TUNING ===")
+    tuned_xgb_params, tuned_xgb_met = optuna_xgb(repo, train, val, xgb_gpu, smoke=args.smoke)
+    gpu_report = tensorflow_gpu_report(repo)
+    log("TensorFlow GPU report: " + json.dumps(gpu_report))
+    mlp_hp, mlp_met, mlp_epoch = keras_tune_mlp(repo, train, val, smoke=args.smoke)
 
-codex
-PASS
+    validation_table = pd.concat([
+        baseline_metrics.drop(columns=[c for c in ["fit_seconds"] if c in baseline_metrics.columns]),
+        better_metrics.drop(columns=[c for c in ["fit_seconds"] if c in better_metrics.columns]),
+        pd.DataFrame([
+            {"model": "tuned_xgboost", **tuned_xgb_met},
+            {"model": "tuned_mlp", **mlp_met},
+        ]),
+    ], ignore_index=True, sort=False)
+    selected = choose_final(validation_table)
+    log("Model selected before locked-test evaluation: " + json.dumps(selected, default=float))
+    (out / "model_selection.json").write_text(json.dumps(selected, indent=2, default=float) + "\n")
 
-- Chronological 70/15/15 split; locked test evaluated only after selection.
-- Preprocessing is fitted on training/fold-training data only.
-- All lag, rolling, EWM, and weather features are causal.
-- Encoding/scaling and TimeSeriesSplit/Optuna/Keras validation usage are appropriate.
-- Saved metrics recompute from prediction artifacts within numerical tolerance; no fabrication detected.
-tokens used
-44,141
-PASS
+    final_metrics, _, final_met = final_locked_test(
+        repo, train, val, test, xgb_gpu, tuned_xgb_params, mlp_hp, mlp_epoch, selected["model"]
+    )
+    log("LOCKED-TEST EVALUATION:\n" + final_metrics.to_string(index=False))
 
-- Chronological 70/15/15 split; locked test evaluated only after selection.
-- Preprocessing is fitted on training/fold-training data only.
-- All lag, rolling, EWM, and weather features are causal.
-- Encoding/scaling and TimeSeriesSplit/Optuna/Keras validation usage are appropriate.
-- Saved metrics recompute from prediction artifacts within numerical tolerance; no fabrication detected.
+    elapsed = time.time() - start
+    summary = generate_summary(
+        repo, audit, split_info, baseline_metrics, better_metrics, cv_summary,
+        tuned_xgb_met, mlp_met, selected, final_metrics, gpu_report, elapsed,
+    )
+    generate_readme(repo, summary)
+
+    log("\n=== 4/4 REPORT GENERATION ===")
+    nb = make_notebook(repo, summary)
+    log(f"Notebook: {nb}")
+
+    if not args.skip_codex_audit:
+        log("\n=== METHODOLOGY AUDIT ===")
+        audit_text = codex_audit(repo)
+        log(audit_text)
+    else:
+        audit_text = "AUDIT_SKIPPED_BY_USER"
+
+    # Final reproducibility checks for required artifacts and finite evaluation metrics.
+    required = [
+        repo / "artifacts/results/baseline_models/metrics.csv",
+        repo / "artifacts/results/ensemble_models/cv_summary.csv",
+        repo / "artifacts/results/hyperparameter_tuning/optuna_xgb.json",
+        repo / "artifacts/results/hyperparameter_tuning/keras_tuner_mlp.json",
+        repo / "artifacts/results/final_evaluation/locked_test_metrics.csv",
+        nb,
+        repo / "README.md",
+    ]
+    missing = [str(p) for p in required if not p.exists() or p.stat().st_size == 0]
+    if missing:
+        raise RuntimeError("Final gate failed; missing artifacts: " + ", ".join(missing))
+    # Make sure the final selected row exists and all numbers are finite.
+    if not all(np.isfinite([final_met["mae"], final_met["rmse"], final_met["r2"], final_met["smape_pct"]])):
+        raise RuntimeError("Final gate failed; non-finite locked-test metrics")
+
+    git_finalize(repo, args.push)
+    elapsed = time.time() - start
+    log("\nFORECASTING_PIPELINE_COMPLETE")
+    log(f"Elapsed: {elapsed/60:.1f} minutes")
+    log(f"Final notebook: {nb}")
+    log(f"README: {repo/'README.md'}")
+    log(f"Locked-test metrics: {repo/'artifacts/results/final_evaluation/locked_test_metrics.csv'}")
+
+
+if __name__ == "__main__":
+    try:
+        main()
+    except KeyboardInterrupt:
+        log("\nExecution interrupted; completed artifacts remain preserved.")
+        raise SystemExit(130)
+    except Exception as exc:
+        log("\nFORECASTING_PIPELINE_FAILED")
+        log(f"{type(exc).__name__}: {exc}")
+        traceback.print_exc()
+        raise SystemExit(2)

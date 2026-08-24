@@ -1,10 +1,23 @@
+# Python environments
 .venv/
 .venv-fast/
+
+# Python cache
 __pycache__/
 *.py[cod]
+
+# Notebook cache
 .ipynb_checkpoints/
+
+# Development environments
 .vscode/
 .idea/
+
+# Operating-system files
 .DS_Store
+
+# Downloaded archives
 *.zip
-data/siemens_hourly/source/
+
+# Raw source data
+data/raw/

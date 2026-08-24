@@ -1,6 +1,6 @@
 # Water Demand Forecasting — Siemens/KIT Hourly Dataset
 
-An interview-oriented, leakage-safe water-demand forecasting project built on **real hourly operational data**, not synthetic data.
+A reproducible, leakage-safe water-demand forecasting project built on **real hourly operational data**, not synthetic data.
 
 ## Problem
 Forecast one-hour-ahead aggregate water consumption for a mixed residential/commercial/industrial district so a water utility can support pump scheduling and capacity planning.
@@ -13,7 +13,7 @@ Forecast one-hour-ahead aggregate water consumption for a mixed residential/comm
 - Synthetic data used: **No**
 
 ## Methodology
-`Baseline -> Better -> Optimal -> Locked Test`
+`Data Preparation -> Baseline Modeling -> Ensemble Evaluation -> Hyperparameter Tuning -> Locked-Test Evaluation`
 
 - Chronological 70/15/15 train/validation/test split.
 - Test is locked until preprocessing, model family and hyperparameters are frozen.
@@ -42,10 +42,10 @@ The model was selected **before** viewing the locked test based on validation pe
 
 
 ## Reproducibility
-- `fast_pipeline/deadline_water_workflow.py` — actual experiment implementation.
-- `artifacts/deadline/` — metrics, predictions, split metadata, GPU report and tuning history.
-- `notebooks/Water_Demand_Forecasting_Final.ipynb` — executed interview/Colab notebook.
-- `artifacts/deadline/codex_audit.txt` — final read-only methodology audit when Codex is available.
+- `src/forecasting_pipeline.py` — actual experiment implementation.
+- `artifacts/results/` — metrics, predictions, split metadata, GPU report and tuning history.
+- `notebooks/model_evaluation_report.ipynb` — executed interview/Colab notebook.
+- `artifacts/results/methodology_audit.txt` — final read-only methodology audit when Codex is available.
 
 ## Important limitation
 This project predicts hourly demand from historical demand/calendar and lagged observed weather. In production, future weather should come from a weather-forecast feed. Results are experimental and are not presented as a deployed utility system.
