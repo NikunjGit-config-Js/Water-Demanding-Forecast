@@ -3,11 +3,10 @@
 
 Implements a reproducible forecasting workflow for the Siemens/KIT hourly water-demand dataset.
 The workflow performs deterministic data preparation, model development, tuning, evaluation, and reporting.
-then uses Codex once at the end as a read-only audit.
+With --codex-audit it also asks the Codex CLI for a read-only methodology review at the end.
 
-Command-line usage:
-    python3 /mnt/c/Users/ASUS/Downloads/deadline_water_autopilot.py \
-      . /mnt/c/Users/ASUS/Downloads/11045013.zip --push
+Command-line usage (run from the repository root; 11045013.zip is the Zenodo download):
+    python src/forecasting_pipeline.py . path/to/11045013.zip
 
 Workflow:
     DATA PREPARATION -> BASELINE MODELING -> ENSEMBLE MODELING -> HYPERPARAMETER TUNING -> FINAL EVALUATION -> REPORTING
@@ -15,7 +14,7 @@ Workflow:
 Methodological rules:
 - chronological split only
 - no future target leakage
-- train-only preprocessing/tuning
+- train-only preprocessing; Optuna tunes on train+validation with TimeSeriesSplit (never the test)
 - OHE for nominal, ordinal only for truly ordered feature, binary 0/1
 - Yeo-Johnson only in scale-sensitive numerical pipelines
 - 5-fold TimeSeriesSplit reporting
@@ -97,7 +96,7 @@ def maybe_reexec_project_venv(repo: Path) -> None:
             return
 
 def ensure_imports(repo: Path) -> None:
-    """Install only missing lightweight packages; TF/Keras Tuner are expected from prior bootstrap."""
+    """Stop with a clear message if required packages are missing (nothing is installed automatically)."""
     global np, pd
     import importlib.util
 
@@ -115,8 +114,7 @@ def ensure_imports(repo: Path) -> None:
     }
     missing = [pip_name for mod, pip_name in package_map.items() if importlib.util.find_spec(mod) is None]
     if missing:
-        log(f"Installing missing packages only: {missing}")
-        run([sys.executable, "-m", "pip", "install", *missing], cwd=repo)
+        raise RuntimeError(f"Missing packages: {missing}. Install them with: pip install -r requirements.txt")
 
     import numpy as _np
     import pandas as _pd
@@ -385,7 +383,7 @@ def baseline_stage(repo: Path, train, val):
     from sklearn.ensemble import RandomForestRegressor
     from sklearn.pipeline import Pipeline
 
-    out = repo / "artifacts" / "deadline" / "baseline"
+    out = repo / "artifacts" / "results" / "baseline_models"
     out.mkdir(parents=True, exist_ok=True)
     rows = []
     preds = pd.DataFrame({"timestamp": val["timestamp"], "actual": val["Consumption"].to_numpy()})
@@ -492,7 +490,7 @@ def better_stage(repo: Path, train, val, xgb_gpu: bool, smoke: bool = False):
     from sklearn.ensemble import BaggingRegressor, HistGradientBoostingRegressor, VotingRegressor
     from sklearn.tree import ExtraTreeRegressor
 
-    out = repo / "artifacts" / "deadline" / "better"
+    out = repo / "artifacts" / "results" / "ensemble_models"
     out.mkdir(parents=True, exist_ok=True)
     _, tree_pre = make_preprocessors()
     pre = clone(tree_pre)
@@ -563,7 +561,7 @@ def optuna_xgb(repo: Path, train, val, xgb_gpu: bool, smoke: bool = False):
     from sklearn.base import clone
     from sklearn.model_selection import TimeSeriesSplit
 
-    out = repo / "artifacts" / "deadline" / "optimal"
+    out = repo / "artifacts" / "results" / "hyperparameter_tuning"
     out.mkdir(parents=True, exist_ok=True)
     _, tree_pre = make_preprocessors()
     dev = pd.concat([train, val], ignore_index=True)
@@ -622,7 +620,7 @@ def tensorflow_gpu_report(repo: Path):
         with contextlib.suppress(Exception):
             tf.config.experimental.set_memory_growth(gpu, True)
     report = {"tensorflow_version": tf.__version__, "gpu_devices": [g.name for g in gpus], "gpu_used": bool(gpus)}
-    d = repo / "artifacts" / "deadline" / "environment"
+    d = repo / "artifacts" / "results" / "environment"
     d.mkdir(parents=True, exist_ok=True)
     (d / "tensorflow_gpu.json").write_text(json.dumps(report, indent=2) + "\n")
     return report
@@ -633,7 +631,7 @@ def keras_tune_mlp(repo: Path, train, val, smoke: bool = False):
     import keras_tuner as kt
     from sklearn.base import clone
 
-    out = repo / "artifacts" / "deadline" / "optimal"
+    out = repo / "artifacts" / "results" / "hyperparameter_tuning"
     out.mkdir(parents=True, exist_ok=True)
     scale_pre, _ = make_preprocessors()
     pre = clone(scale_pre)
@@ -720,7 +718,7 @@ def choose_final(validation_table):
 
 def final_locked_test(repo: Path, train, val, test, xgb_gpu: bool, tuned_xgb_params, mlp_hp, mlp_epoch, selected_name: str):
     from sklearn.base import clone
-    out = repo / "artifacts" / "deadline" / "final"
+    out = repo / "artifacts" / "results" / "final_evaluation"
     out.mkdir(parents=True, exist_ok=True)
     dev = pd.concat([train, val], ignore_index=True)
     ytest = test["Consumption"].to_numpy(dtype=float)
@@ -812,7 +810,7 @@ def final_locked_test(repo: Path, train, val, test, xgb_gpu: bool, tuned_xgb_par
 
 
 def generate_summary(repo: Path, audit: dict, split_info: SplitInfo, baseline_metrics, better_metrics, cv_summary, tuned_xgb_met, mlp_met, selected, final_metrics, gpu_report, elapsed):
-    out = repo / "artifacts" / "deadline"
+    out = repo / "artifacts" / "results"
     val_candidates = pd.DataFrame([
         {"model": "tuned_xgboost", **tuned_xgb_met},
         {"model": "tuned_mlp", **mlp_met},
@@ -906,7 +904,17 @@ The model was selected **before** viewing the locked test based on validation pe
 - `src/forecasting_pipeline.py` — actual experiment implementation.
 - `artifacts/results/` — metrics, predictions, split metadata, GPU report and tuning history.
 - `notebooks/model_evaluation_report.ipynb` — executed interview/Colab notebook.
-- `artifacts/results/methodology_audit.txt` — final read-only methodology audit when Codex is available.
+- `artifacts/results/methodology_audit.txt` — optional read-only methodology audit (`--codex-audit`).
+
+## Run
+1. Download the Zenodo record `11045013` archive (`11045013.zip`); the raw data is not committed.
+2. `pip install -r requirements.txt` (versions are not pinned; TensorFlow and Keras Tuner are needed for the MLP).
+3. From the repository root: `python src/forecasting_pipeline.py . path/to/11045013.zip` (add `--smoke` for a quick code-path check).
+
+If `artifacts/results/` already contains results, the script stops. Pass `--overwrite` to replace them with a full run (this also regenerates this README and the report notebook); `--smoke` runs never overwrite existing results.
+
+## Tuning caveat
+Optuna tunes XGBoost with TimeSeriesSplit over train + validation, so the tuned model's validation score has already seen the validation period. The locked test is never used for tuning or selection.
 
 ## Important limitation
 This project predicts hourly demand from historical demand/calendar and lagged observed weather. In production, future weather should come from a weather-forecast feed. Results are experimental and are not presented as a deployed utility system.
@@ -1006,18 +1014,8 @@ display(Image(filename=str(p)))
     return path
 
 
-def copy_workflow_into_repo(repo: Path):
-    target = repo / "fast_pipeline" / "deadline_water_workflow.py"
-    target.parent.mkdir(parents=True, exist_ok=True)
-    src = Path(__file__).resolve()
-    if src != target.resolve():
-        shutil.copy2(src, target)
-    init = target.parent / "__init__.py"
-    init.touch(exist_ok=True)
-
-
 def codex_audit(repo: Path) -> str:
-    out = repo / "artifacts" / "deadline" / "methodology_audit.txt"
+    out = repo / "artifacts" / "results" / "methodology_audit.txt"
     codex = shutil.which("codex")
     if not codex:
         text = "AUDIT_NOT_RUN\nCodex CLI not found; deterministic gates completed."
@@ -1055,47 +1053,34 @@ Return first line exactly PASS or FAIL. If FAIL, list concrete methodological er
     return text
 
 
-def git_finalize(repo: Path, push: bool):
-    if not (repo / ".git").exists():
-        return
-    branch = subprocess.run(["git", "branch", "--show-current"], cwd=repo, text=True, capture_output=True).stdout.strip()
-    if branch in {"main", "master", ""}:
-        run(["git", "checkout", "-b", "feature/water-demand-forecasting"], cwd=repo)
-    paths = [
-        "README.md", "docs/README_before_siemens.md",
-        "src/forecasting_pipeline.py",
-        "data/dataset_metadata.json",
-        "artifacts/results", "notebooks/model_evaluation_report.ipynb",
-    ]
-    existing = [p for p in paths if (repo / p).exists()]
-    run(["git", "add", *existing], cwd=repo)
-    diff = subprocess.run(["git", "diff", "--cached", "--quiet"], cwd=repo)
-    if diff.returncode != 0:
-        run(["git", "commit", "-m", "feat: complete Siemens KIT water demand forecasting workflow"], cwd=repo)
-    if push:
-        branch = subprocess.run(["git", "branch", "--show-current"], cwd=repo, text=True, capture_output=True).stdout.strip()
-        run(["git", "push", "-u", "origin", branch], cwd=repo, check=False)
-
-
 def main():
     ap = argparse.ArgumentParser(description=__doc__)
     ap.add_argument("repo", type=Path)
     ap.add_argument("dataset_zip", type=Path)
-    ap.add_argument("--push", action="store_true")
     ap.add_argument("--smoke", action="store_true", help="quick code-path check on a smaller tail sample")
-    ap.add_argument("--skip-codex-audit", action="store_true")
+    ap.add_argument("--codex-audit", action="store_true", help="optional read-only methodology review with the Codex CLI")
+    ap.add_argument("--overwrite", action="store_true",
+                    help="replace existing results in artifacts/results/ (and regenerate README.md and the notebook)")
     args = ap.parse_args()
     repo = args.repo.expanduser().resolve()
     archive = args.dataset_zip.expanduser().resolve()
+
+    # Never replace the validated historical results silently: a run rewrites artifacts/results/,
+    # README.md and the report notebook. Smoke runs never overwrite existing results.
+    existing = repo / "artifacts" / "results" / "final_evaluation" / "locked_test_metrics.csv"
+    if existing.exists() and (args.smoke or not args.overwrite):
+        raise RuntimeError(
+            f"{existing.parent.parent} already contains results. Run in a fresh clone, or pass "
+            "--overwrite for a full run that replaces them (--smoke never overwrites)."
+        )
     maybe_reexec_project_venv(repo)
     start = time.time()
     log("\n=== WATER DEMAND FORECASTING PIPELINE ===")
     ensure_imports(repo)
-    copy_workflow_into_repo(repo)
     canonical, raw = ensure_dataset(repo, archive)
     frame, audit = engineer(canonical, raw, smoke_rows=6000 if args.smoke else None)
     train, val, test, split_info = split_frame(frame)
-    out = repo / "artifacts" / "deadline"
+    out = repo / "artifacts" / "results"
     out.mkdir(parents=True, exist_ok=True)
     (out / "data_quality_report.json").write_text(json.dumps(audit, indent=2) + "\n")
     (out / "data_split.json").write_text(json.dumps(asdict(split_info), indent=2) + "\n")
@@ -1157,12 +1142,10 @@ def main():
     nb = make_notebook(repo, summary)
     log(f"Notebook: {nb}")
 
-    if not args.skip_codex_audit:
+    if args.codex_audit:
         log("\n=== METHODOLOGY AUDIT ===")
         audit_text = codex_audit(repo)
         log(audit_text)
-    else:
-        audit_text = "AUDIT_SKIPPED_BY_USER"
 
     # Final reproducibility checks for required artifacts and finite evaluation metrics.
     required = [
@@ -1181,7 +1164,6 @@ def main():
     if not all(np.isfinite([final_met["mae"], final_met["rmse"], final_met["r2"], final_met["smape_pct"]])):
         raise RuntimeError("Final gate failed; non-finite locked-test metrics")
 
-    git_finalize(repo, args.push)
     elapsed = time.time() - start
     log("\nFORECASTING_PIPELINE_COMPLETE")
     log(f"Elapsed: {elapsed/60:.1f} minutes")

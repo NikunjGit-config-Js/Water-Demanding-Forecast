@@ -45,7 +45,24 @@ The model was selected **before** viewing the locked test based on validation pe
 - `src/forecasting_pipeline.py` — actual experiment implementation.
 - `artifacts/results/` — metrics, predictions, split metadata, GPU report and tuning history.
 - `notebooks/model_evaluation_report.ipynb` — executed interview/Colab notebook.
-- `artifacts/results/methodology_audit.txt` — final read-only methodology audit when Codex is available.
+- `artifacts/results/methodology_audit.txt` — optional read-only methodology audit (`--codex-audit`).
+
+**Provenance of the committed artifacts.** They were produced by an earlier copy of this script
+(`fast_pipeline/deadline_water_workflow.py`, the file the methodology audit refers to), which wrote to
+`artifacts/deadline/`; the folders were renamed to `artifacts/results/` afterwards. The script now
+writes directly to `artifacts/results/`. The `orchestration/` logs, `data/preprocessed/all/`
+(a daily series from 2009) and `data/cities/` come from earlier pipeline versions and are not used by
+this pipeline.
+
+## Run
+1. Download the Zenodo record `11045013` archive (`11045013.zip`); the raw data is not committed.
+2. `pip install -r requirements.txt` (versions are not pinned; TensorFlow and Keras Tuner are needed for the MLP).
+3. From the repository root: `python src/forecasting_pipeline.py . path/to/11045013.zip` (add `--smoke` for a quick code-path check).
+
+If `artifacts/results/` already contains results, the script stops. Pass `--overwrite` to replace them with a full run (this also regenerates this README and the report notebook); `--smoke` runs never overwrite existing results.
+
+## Tuning caveat
+Optuna tunes XGBoost with TimeSeriesSplit over train + validation, so the tuned model's validation score has already seen the validation period. The locked test is never used for tuning or selection.
 
 ## Important limitation
 This project predicts hourly demand from historical demand/calendar and lagged observed weather. In production, future weather should come from a weather-forecast feed. Results are experimental and are not presented as a deployed utility system.
